@@ -1,0 +1,370 @@
+import {
+    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView
+} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import LoginHeader from '../components/loginHeader';
+import axios from 'axios';
+import TimerMixin from 'react-timer-mixin';
+import * as SecureStore from 'expo-secure-store';
+
+const BackgroundImage = () => {
+    return (
+        <Image source={require('./../assets/imgs/PT.png')} style={{
+            width: '100%',
+            height: '100%',
+            resizeMode: 'cover',
+            position: 'absolute',
+            top: 0,
+            left: 0
+        }} />
+    )
+}
+
+export default function Register({ navigation }) {
+    const [currentLang, setCurrentLag] = useState('ar')
+    const translations = {
+        "en": {
+            "head": "already have an account?",
+            "login": "Log in",
+            "register": "Sign up",
+            "or": "or",
+            "google_btn": "Continue with Google",
+            "face_btn": "Continue with Facebook",
+            "email_e": "Email",
+            "phone": "Phone Number",
+            "p_password": "Password"
+        },
+        "fr": {
+            "head": "Vous avez déjà un compte?",
+            "login": "Se connecter",
+            "register": "s'inscrire",
+            "or": "ou",
+            "google_btn": "Continuez avec Google",
+            "face_btn": "Continuez avec Facebook",
+            "email_e": "E-mail",
+            "phone": "Numéro de téléphone",
+            "p_password": "Mot de passe"
+        },
+        "ar": {
+            "head": "هل لديك حساب؟",
+            "login": "تسجيل الدخول",
+            "register": "تسجيل",
+            "or": "أو",
+            "google_btn": "تابع بواسطة جوجل",
+            "face_btn": "تابع بواسطة فيسبوك",
+            "email_e": "البريد الالكتروني",
+            "phone": "رقم الهاتف",
+            "p_password": "كلمة المرور"
+        }
+    }
+    const [screenContent, setScreenContent] = useState(translations.ar);
+
+    const getStoredLang = async () => {
+        const storedLang = await SecureStore.getItemAsync('lang');
+        if (storedLang) {
+            setScreenContent(translations[storedLang])
+            setCurrentLag(storedLang)
+        }
+    }
+
+    const [emailfocused, setEmailfocused] = useState(false);
+    const handleEmailFocus = () => {
+        setEmailfocused(true);
+    };
+
+    const [phonefocused, setPhonefocused] = useState(false);
+    const handlePhoneFocus = () => {
+        setPhonefocused(true);
+    };
+
+    const [passfocused, setPassfocused] = useState(false);
+    const handlePassFocus = () => {
+        setPassfocused(true);
+    };
+
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState([]);
+    const [successMsg, setSuccessMsg] = useState('');
+
+    const registerMethod = async () => {
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://fee8-41-46-120-231.ngrok-free.app/register`, {
+                email: email,
+                phone: phone,
+                password: password,
+                api_password: 'Fentec@scooters.algaria'
+            });
+
+            if (response.data.status === true) {
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
+                setLoading(false);
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    navigation.navigate('Verify', { email: email, token: response.data.data.token })
+                }, 1500)
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
+    const [scrollY, setScrollY] = useState(0);
+
+    const onScroll = (event) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        setScrollY(offsetY);
+    };
+    useEffect(() => {
+        getStoredLang();
+    }, []);
+
+    return (
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} style={{ position: 'relative' }}>
+            <SafeAreaView style={styles.wrapper}>
+                <LoginHeader active={3}></LoginHeader>
+                <BackgroundImage></BackgroundImage>
+                <Text style={{
+                    position: 'absolute', top: scrollY + 50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#e41749',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: errors.length ? 'flex' : 'none'
+                }}>{errors.length ? errors[0] : ''}</Text>
+                <Text style={{
+                    position: 'absolute', top: scrollY + 50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#12c99b',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: successMsg == '' ? 'none' : 'flex'
+                }}>{successMsg}</Text>
+                <View style={styles.contianer}>
+                    <Image style={styles.main_img} source={require('./../assets/imgs/register.png')} />
+                    <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10 }}>
+                        <Text style={styles.question}>{screenContent.head}</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Login')}><Text style={styles.ans}>{screenContent.login}</Text></TouchableOpacity>
+                    </View>
+                    <Text style={styles.or}>{screenContent.or}</Text>
+                    <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
+                        <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
+                        <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
+                        <Image style={styles.g_f_img} source={require('./../assets/imgs/facebook.png')} />
+                        <Text style={styles.f_btn_text}>{screenContent.face_btn}</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.or}>{screenContent.or}</Text>
+                    <View style={{ gap: 15, width: '100%', alignItems: 'center' }}>
+                        <TextInput
+                            placeholder={screenContent.email_e}
+                            onChangeText={setEmail}
+                            value={email}
+                            onFocus={() => handleEmailFocus()}
+                            onBlur={() => setEmailfocused(false)}
+                            style={[
+                                styles.input,
+                                emailfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                            ]}
+
+                        />
+                        <TextInput
+                            placeholder={screenContent.phone}
+                            onChangeText={setPhone}
+                            value={phone}
+                            onFocus={() => handlePhoneFocus()}
+                            onBlur={() => setPhonefocused(false)}
+                            style={[
+                                styles.input,
+                                phonefocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                            ]}
+
+                        />
+                        <TextInput
+                            placeholder={screenContent.p_password}
+                            onChangeText={setPassword}
+                            value={password}
+                            secureTextEntry={true}
+                            onFocus={() => handlePassFocus()}
+                            onBlur={() => setPassfocused(false)}
+                            style={[
+                                styles.input,
+                                passfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                            ]}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={() => registerMethod()}>
+                            <Text style={styles.button_text}>{screenContent.register}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </SafeAreaView>
+        </ScrollView>
+    );
+}
+
+const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+    },
+    contianer: {
+        padding: 1.25 * 16,
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        gap: 1 * 16,
+        alignItems: 'center',
+        flex: 1,
+        width: '100%',
+        zIndex: 3
+    },
+    main_img: {
+        width: 130,
+        height: 80,
+        resizeMode: 'contain',
+        opacity: 1,
+        marginTop: 10
+    },
+    or: {
+        fontSize: 1.5 * 16,
+        lineHeight: 2 * 16,
+        textAlign: "center",
+        fontFamily: 'Outfit_600SemiBold',
+    },
+    input: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 1.25 * 16,
+        lineHeight: 1.5 * 16,
+        textAlign: 'left',
+        padding: 1.25 * 16,
+        borderRadius: 1.25 * 16,
+        backgroundColor: "#fff",
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        width: "95%",
+    },
+    button: {
+        padding: 18,
+        borderRadius: 1.25 * 16,
+        fontSize: 1.25 * 16,
+        width: "95%",
+        backgroundColor: "#ff7300",
+        transition: "all .3s ease-in",
+        marginBottom: 1.25 * 16,
+    },
+    button_text: {
+        color: "#fff",
+        fontFamily: 'Outfit_700Bold',
+        fontSize: 28,
+        textAlign: "center",
+    },
+    g_f_img: {
+        width: 35,
+        height: 35,
+        resizeMode: 'contain',
+    },
+    g_btn: {
+        backgroundColor: "#fff",
+        padding: 1.25 * 16,
+        borderRadius: 1.25 * 16,
+        display: "flex",
+        justifyContent: 'start',
+        alignItems: "center",
+        flexDirection: 'row',
+        gap: 1.25 * 16,
+        width: "100%",
+        color: '#000',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+    },
+    f_btn: {
+        backgroundColor: "rgba(255, 255, 255, 0.2)",
+        padding: 1.25 * 16,
+        borderRadius: 1.25 * 16,
+        display: "flex",
+        justifyContent: 'start',
+        alignItems: "center",
+        flexDirection: 'row',
+        gap: 1.25 * 16,
+        width: "100%",
+        backgroundColor: '#1877f2',
+
+    },
+    g_btn_text: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 1.1 * 16,
+        textAlign: "center",
+        lineHeight: 1.25 * 16,
+        color: '#000'
+    },
+    f_btn_text: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 1.1 * 16,
+        textAlign: "center",
+        lineHeight: 1.25 * 16,
+        color: '#fff'
+    },
+    question: {
+        fontFamily: 'Outfit_400Regular',
+        fontSize: 1.25 * 16,
+        lineHeight: 1.5 * 16,
+        textAlign: "center",
+        color: "#000",
+    },
+    ans: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 1.25 * 16,
+        textAlign: "center",
+        color: "#ff7300",
+
+    }
+});
