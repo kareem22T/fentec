@@ -18,14 +18,17 @@ import LoginScreen from './screens/loginScreen';
 import LastStep from './screens/LastStepScreen';
 import WhereKnow from './screens/whereYouKnow';
 import YouWon from './screens/YouWon';
+import Profile from './screens/profile';
 
+// views
+import Home from './views/home'
 
 
 export default function App() {
   let [fontsLoaded, fontError] = useFonts({
-    Outfit_600SemiBold,
-    Outfit_500Medium,
     Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
     Outfit_700Bold
   });
 
@@ -37,28 +40,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name="YouWon"
-          component={YouWon}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="WhereKnow"
-          component={WhereKnow}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Last"
-          component={LastStep}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="chooseLanguage"
-          component={chooseLangScreen}
+          name="Home"
+          component={Home}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -67,8 +50,28 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="chooseLanguage"
+          component={chooseLangScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="Preview"
           component={PreviewApp}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="WhereKnow"
+          component={WhereKnow}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="YouWon"
+          component={YouWon}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -79,6 +82,16 @@ export default function App() {
         <Stack.Screen
           name="Verify"
           component={VerifyScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Last"
+          component={LastStep}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={Profile}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -81,37 +81,10 @@ export default function YouWon({ navigation }) {
                         {'\n'}
                         <Text style={{ color: "rgba(255, 115, 0, 1)", fontFamily: "Outfit_600SemiBold" }}>{screenContent.collect_span}</Text>
                     </Text>
+                    <Image source={require('./../assets/imgs/avatar.png')} alt="fentec logo" style={styles.avatar} />
                     <View style={styles.choices_container}>
-                        <TouchableOpacity onPress={() => setSelectedChoice(1)}>
-                            <Text style={[styles.input, { fontSize: 25, padding: 30, textAlign: 'center', color: 'rgba(255, 115, 0, 1)' }, selectedChoice !== 1 && { opacity: .5, color: '#000' }]}>{screenContent.choice_1}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => setSelectedChoice(2)}>
-                            <Text style={[styles.input, { fontSize: 25, padding: 30, textAlign: 'center', color: 'rgba(255, 115, 0, 1)' }, selectedChoice !== 2 && { opacity: .4, color: '#000' }]}>{screenContent.choice_2}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => setSelectedChoice(3)} style={[styles.input, { gap: 15 }, selectedChoice !== 3 && { opacity: .5, gap: 0 }]}>
-                            <Text style={[{ fontFamily: 'Outfit_600SemiBold', fontSize: 25, paddingLeft: 30, paddingRight: 30, textAlign: 'center', lineHeight: 35, color: 'rgba(255, 115, 0, 1)' }, selectedChoice !== 3 && { color: '#000' }]}>{screenContent.choice_3}</Text>
-                            <TextInput
-                                placeholder={screenContent.choice_3_input}
-                                onChangeText={setInvitationCode}
-                                value={invitationCode}
-                                onFocus={() => handleInvitationCodeFocus()}
-                                onBlur={() => setInvitationCodeFocused(false)}
-                                style={[
-                                    styles.input,
-                                    invitationCodeFocused && {
-                                        borderColor: 'rgba(255, 115, 0, 1)',
-                                        borderWidth: 2
-                                    },
-                                    selectedChoice !== 3 && { display: 'none' },
-                                    currentLang == 'ar' && {
-                                        textAlign: 'right',
-                                    },
-                                ]}
-
-                            />
-                        </TouchableOpacity>
                         <TouchableOpacity style={styles.button}>
-                            <Text style={styles.button_text}>Collect free points!</Text>
+                            <Text style={styles.button_text}>{screenContent.button}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -129,6 +102,12 @@ const styles = StyleSheet.create({
         height: 100,
         resizeMode: "contain",
         marginTop: 70
+    },
+    avatar: {
+        width: "65%",
+        marginRight: 20,
+        marginTop: 20,
+        resizeMode: 'contain'
     },
     contianer: {
         padding: '1.25rem',
@@ -211,7 +190,7 @@ const styles = StyleSheet.create({
     choices_container: {
         width: '100%',
         justifyContent: 'center',
-        gap: 20,
-        padding: 30
+        paddingLeft: 30,
+        paddingRight: 30
     }
 });
