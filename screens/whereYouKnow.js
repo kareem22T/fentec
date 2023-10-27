@@ -1,9 +1,11 @@
 import {
-    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView
+    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import LoginHeader from '../components/loginHeader';
 import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
+import TimerMixin from 'react-timer-mixin';
 
 const BackgroundImage = () => {
     return (
@@ -18,7 +20,7 @@ const BackgroundImage = () => {
     )
 }
 
-export default function WhereKnow({ navigation }) {
+export default function WhereKnow({ navigation, route }) {
     const translations = {
         "en": {
             "title": "How did you knew",
@@ -28,7 +30,8 @@ export default function WhereKnow({ navigation }) {
             "choice_1": "from the street",
             "choice_2": "social media platform",
             "choice_3": "your friend suggested this app?",
-            "choice_3_input": "invitation code"
+            "choice_3_input": "invitation code",
+            "btn": "Collect free points!"
         },
         "fr": {
             "title": "Où avez vous entendu parler",
@@ -38,17 +41,19 @@ export default function WhereKnow({ navigation }) {
             "choice_1": "Dans la rue ",
             "choice_2": "Plateformes des réseaux sociaux",
             "choice_3": "Votre ami a suggéré cette application?",
-            "choice_3_input": "code d'invitation"
+            "choice_3_input": "code d'invitation",
+            "btn": "Collectez des points gratuits!"
         },
         "ar": {
             "title": "كيف عرفت",
             "title_span": "فنتك؟",
             "collect_q": " اجمع النقاط المجانية أو مجرد",
             "collect_span": "تخطي",
-            "choice_1": "Dans la rue",
+            "choice_1": "من الشارع",
             "choice_2": "منصة التواصل الاجتماعي",
             "choice_3": "اقترح صديقك هذا التطبيق؟",
-            "choice_3_input": "رمز الدعوة"
+            "choice_3_input": "رمز الدعوة",
+            "btn": "احصل على نقاط مجانية!"
         }
     }
     const [currentLang, setCurrentLag] = useState('ar')
@@ -68,6 +73,44 @@ export default function WhereKnow({ navigation }) {
         setInvitationCodeFocused(true);
     };
 
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState([]);
+    const [successMsg, setSuccessMsg] = useState('');
+
+    const collect = async (token) => {
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/collect`, {
+                api_password: 'Fentec@scooters.algaria',
+                code: invitationCode,
+                choice: selectedChoice
+            },
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`
+                    }
+                },);
+
+            if (response.data.status === true) {
+                setLoading(false);
+                setErrors([]);
+                // setSuccessMsg(response.data.message);
+                navigation.navigate('YouWon', { token: token })
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
     const [selectedChoice, setSelectedChoice] = useState(3)
 
     useEffect(() => {
@@ -78,6 +121,46 @@ export default function WhereKnow({ navigation }) {
     return (
         <SafeAreaView style={styles.wrapper}>
             <BackgroundImage></BackgroundImage>
+            <Text style={{
+                position: 'absolute', top: 70, right: 20, color: "#fff",
+                padding: 1 * 16,
+                marginLeft: 10,
+                fontSize: 1 * 16,
+                backgroundColor: '#e41749',
+                fontFamily: 'Outfit_600SemiBold',
+                // fontWeight: 600,
+                borderRadius: 1.25 * 16,
+                zIndex: 9999999999,
+                display: errors.length ? 'flex' : 'none'
+            }}>{errors.length ? errors[0] : ''}</Text>
+            <Text style={{
+                position: 'absolute', top: 70, right: 20, color: "#fff",
+                padding: 1 * 16,
+                marginLeft: 10,
+                fontSize: 1 * 16,
+                backgroundColor: '#12c99b',
+                fontFamily: 'Outfit_600SemiBold',
+                // fontWeight: 600,
+                borderRadius: 1.25 * 16,
+                zIndex: 9999999999,
+                display: successMsg == '' ? 'none' : 'flex'
+            }}>{successMsg}</Text>
+            {loading && (
+                <View style={{
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 336,
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    marginTop: 22,
+                    backgroundColor: 'rgba(0, 0, 0, .5)',
+                    position: 'absolute',
+                    top: 10,
+                    left: 0,
+                }}>
+                    <ActivityIndicator size="200px" color="#ff7300" />
+                </View>
+            )}
             <ScrollView>
                 <View style={styles.contianer}>
                     <View style={{ justifyContent: 'center', alignItems: 'center', gap: 10 }}>
@@ -87,7 +170,7 @@ export default function WhereKnow({ navigation }) {
                     </View>
                     <Text style={styles.collect_q}>
                         {screenContent.collect_q}
-                        <Text style={{ color: "rgba(255, 115, 0, 1)", fontFamily: "Outfit_600SemiBold" }}>{screenContent.collect_span}</Text>
+                        <Text style={{ color: "rgba(255, 115, 0, 1)", fontFamily: "Outfit_600SemiBold" }}> {screenContent.collect_span}</Text>
                     </Text>
                     <View style={styles.choices_container}>
                         <TouchableOpacity onPress={() => setSelectedChoice(1)}>
@@ -118,8 +201,8 @@ export default function WhereKnow({ navigation }) {
 
                             />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button}>
-                            <Text style={styles.button_text}>Collect free points!</Text>
+                        <TouchableOpacity style={styles.button} onPress={() => collect(route.params.token)}>
+                            <Text style={styles.button_text}>{screenContent.btn}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

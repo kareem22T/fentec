@@ -1,5 +1,5 @@
 import {
-    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView
+    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import LoginHeader from '../components/loginHeader';
@@ -94,7 +94,7 @@ export default function Register({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://76f7-197-37-82-53.ngrok-free.app/register`, {
+            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/register`, {
                 email: email,
                 phone: phone,
                 password: password,
@@ -103,10 +103,10 @@ export default function Register({ navigation }) {
 
             if (response.data.status === true) {
                 await SecureStore.setItemAsync('user_token', response.data.data.token)
-                setLoading(false);
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
+                    setLoading(false);
                     navigation.navigate('Verify', { email: email, token: response.data.data.token })
                 }, 1500)
             } else {
@@ -160,6 +160,22 @@ export default function Register({ navigation }) {
                     zIndex: 9999999999,
                     display: successMsg == '' ? 'none' : 'flex'
                 }}>{successMsg}</Text>
+                {loading && (
+                    <View style={{
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 336,
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        marginTop: 22,
+                        backgroundColor: 'rgba(0, 0, 0, .5)',
+                        position: 'absolute',
+                        top: 10,
+                        left: 0,
+                    }}>
+                        <ActivityIndicator size="200px" color="#ff7300" />
+                    </View>
+                )}
                 <View style={styles.contianer}>
                     <Image style={styles.main_img} source={require('./../assets/imgs/register.png')} />
                     <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10 }}>

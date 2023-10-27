@@ -3,6 +3,7 @@ import {
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import Nav from './../components/mainNav';
 
 const BackgroundImage = () => {
     return (
@@ -60,6 +61,7 @@ export default function Profile({ navigation }) {
     return (
         <SafeAreaView style={styles.wrapper}>
             <BackgroundImage></BackgroundImage>
+            <Nav active="1" navigation={navigation} />
             <ScrollView>
                 <View style={styles.contianer}>
                     <Text style={styles.title}>

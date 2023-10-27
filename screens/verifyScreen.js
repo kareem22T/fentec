@@ -1,5 +1,5 @@
 import {
-    StyleSheet, SafeAreaView, Text, TouchableOpacity, View, Image, TextInput
+    StyleSheet, SafeAreaView, Text, TouchableOpacity, View, Image, TextInput, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import LoginHeader from '../components/loginHeader';
@@ -30,7 +30,8 @@ export default function Verify({ navigation, route }) {
             "ask_for_code": "Didn't receive the verification code?",
             "timer_words": "resend in",
             "btn": "Resend",
-            "code_place": "Verification code"
+            "code_place": "Verification code",
+            "submit": "Submit"
         },
         "fr": {
             "msg": "Nous venons de vous envoyer un code de vérification à votre e-mail \nS'il vous plaît écrivez le ici",
@@ -39,7 +40,8 @@ export default function Verify({ navigation, route }) {
             "ask_for_code": "Didn't receive the verification code?",
             "timer_words": "Renouvellement en",
             "btn": "Renvoyer",
-            "code_place": "Code de vérification"
+            "code_place": "Code de vérification",
+            "submit": "Soumettre"
         },
         "ar": {
             "msg": "قد ارسلنا للتو رمز التحقق لبريدك الالكتروني, رجاء كتابته",
@@ -48,7 +50,8 @@ export default function Verify({ navigation, route }) {
             "ask_for_code": "لم تتلقى رمز التحقق؟",
             "timer_words": "اعد طلب الارسال بعد",
             "btn": "إعادة إرسال",
-            "code_place": "رمز التحقق"
+            "code_place": "رمز التحقق",
+            "submit": "تاكيد"
         }
     }
     const [screenContent, setScreenContent] = useState(translations.ar);
@@ -74,7 +77,7 @@ export default function Verify({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://76f7-197-37-82-53.ngrok-free.app/active-account`, {
+            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/active-account`, {
                 api_password: 'Fentec@scooters.algaria',
                 code: code,
             },
@@ -85,11 +88,11 @@ export default function Verify({ navigation, route }) {
                 },);
 
             if (response.data.status === true) {
-                setLoading(false);
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
-                    navigation.navigate('Last')
+                    setLoading(false);
+                    navigation.navigate('Last', { token: token })
                 }, 1500);
             } else {
                 setLoading(false);
@@ -108,7 +111,7 @@ export default function Verify({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://76f7-197-37-82-53.ngrok-free.app/send-code`, {
+            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/send-code`, {
                 api_password: 'Fentec@scooters.algaria',
             },
                 {
@@ -153,7 +156,7 @@ export default function Verify({ navigation, route }) {
             });
         }, 1000);
 
-        // getStoredLang();
+        getStoredLang();
         sendCode(route.params.token)
         return () => {
             clearInterval(timer); // Cleanup: clear the interval when the component unmounts
@@ -165,7 +168,7 @@ export default function Verify({ navigation, route }) {
             <LoginHeader active={3}></LoginHeader>
             <BackgroundImage></BackgroundImage>
             <Text style={{
-                position: 'absolute', top: 20, right: 20, color: "#fff",
+                position: 'absolute', top: 70, right: 20, color: "#fff",
                 padding: 1 * 16,
                 marginLeft: 10,
                 fontSize: 1 * 16,
@@ -177,7 +180,7 @@ export default function Verify({ navigation, route }) {
                 display: errors.length ? 'flex' : 'none'
             }}>{errors.length ? errors[0] : ''}</Text>
             <Text style={{
-                position: 'absolute', top: 20, right: 20, color: "#fff",
+                position: 'absolute', top: 70, right: 20, color: "#fff",
                 padding: 1 * 16,
                 marginLeft: 10,
                 fontSize: 1 * 16,
@@ -188,6 +191,22 @@ export default function Verify({ navigation, route }) {
                 zIndex: 9999999999,
                 display: successMsg == '' ? 'none' : 'flex'
             }}>{successMsg}</Text>
+            {loading && (
+                <View style={{
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 336,
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    marginTop: 22,
+                    backgroundColor: 'rgba(0, 0, 0, .5)',
+                    position: 'absolute',
+                    top: 10,
+                    left: 0,
+                }}>
+                    <ActivityIndicator size="200px" color="#ff7300" />
+                </View>
+            )}
             <View style={styles.container}>
                 <View style={{ marginTop: 15 }}>
                     <Text style={styles.msg}>{screenContent.msg}</Text>
@@ -208,7 +227,8 @@ export default function Verify({ navigation, route }) {
                                 style={[
                                     styles.input,
                                     codeFocused && {
-                                        outline: '2 solid #ff7300',
+                                        borderColor: 'rgba(255, 115, 0, 1)',
+                                        borderWidth: 2
                                     },
                                     currentLang == 'ar' && {
                                         textAlign: 'right',
@@ -217,7 +237,7 @@ export default function Verify({ navigation, route }) {
                                         color: '#000'
                                     },
                                 ]} />
-                            <TouchableOpacity style={[styles.btn, { width: 70, marginBottom: 0, }]} onPress={() => verify(route.params.token)}><Text style={styles.button_text}><Image source={require('./../assets/imgs/icons/angle-right.png')} style={{ width: 30, resizeMode: 'contain', opacity: 1 }} /></Text></TouchableOpacity>
+                            <TouchableOpacity style={[styles.btn, { width: 'auto', paddingLeft: 10, paddingRight: 10, height: 66, marginBottom: 0, }]} onPress={() => verify(route.params.token)}><Text style={[styles.button_text, { fontSize: 1.25 * 16, }]}>{screenContent.submit}</Text></TouchableOpacity>
                         </View>
                     </View>
                 </View>

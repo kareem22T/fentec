@@ -1,5 +1,5 @@
 import {
-    StyleSheet, ScrollView, SafeAreaView, Text, View, TouchableOpacity, Image, TextInput
+    StyleSheet, ScrollView, SafeAreaView, Text, View, TouchableOpacity, Image, TextInput, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import LoginHeader from '../components/loginHeader';
@@ -100,7 +100,7 @@ export default function Login({ navigation }) {
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
-                    navigation.navigate('Verify', { email: email, token: response.data.data.token })
+                    navigation.navigate('Home')
                 }, 1500)
             } else {
                 setLoading(false);
@@ -146,6 +146,22 @@ export default function Login({ navigation }) {
                 zIndex: 9999999999,
                 display: successMsg == '' ? 'none' : 'flex'
             }}>{successMsg}</Text>
+            {loading && (
+                <View style={{
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 336,
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    marginTop: 22,
+                    backgroundColor: 'rgba(0, 0, 0, .5)',
+                    position: 'absolute',
+                    top: 10,
+                    left: 0,
+                }}>
+                    <ActivityIndicator size="200px" color="#ff7300" />
+                </View>
+            )}
             <View style={styles.contianer}>
                 <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10, marginTop: 35 }}>
                     <Text style={styles.question}>{screenContent.head}</Text>

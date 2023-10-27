@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Image, View, Platform, SafeAreaView, StyleSheet, Text, TextInput, Modal } from 'react-native';
-
+import { TouchableOpacity, Image, View, Platform, SafeAreaView, StyleSheet, Text, TextInput, Modal, ActivityIndicator } from 'react-native';
+import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import LoginHeader from '../components/loginHeader';
 import DatePicker from 'react-native-modern-datepicker'
 import * as SecureStore from 'expo-secure-store';
+import TimerMixin from 'react-timer-mixin';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 const BackgroundImage = () => {
     return (
@@ -19,7 +21,7 @@ const BackgroundImage = () => {
     )
 }
 
-export default function LastStep() {
+export default function LastStep({ navigation, route }) {
     const [currentLang, setCurrentLag] = useState('ar')
     const translations = {
         "en": {
@@ -71,26 +73,50 @@ export default function LastStep() {
         console.log(result);
 
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
+            const compressedImage = await ImageManipulator.manipulateAsync(
+                result.assets[0].uri,
+                [],
+                {
+                    compress: 0.5
+                }
+            );
+
+            setImage(compressedImage.uri);
         }
     };
 
     const [Identity, setIdentity] = useState(null);
+
     const pickId = async () => {
-        // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [3, 4],
-            quality: 1,
-        });
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Permission to access media library denied');
+                return;
+            }
 
-        console.log(result);
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+            });
 
-        if (!result.canceled) {
-            setIdentity(result.assets[0].uri);
+            if (!result.cancelled) {
+                const compressedId = await ImageManipulator.manipulateAsync(
+                    result.assets[0].uri,
+                    [],
+                    {
+                        compress: 0.5
+                    }
+                );
+
+                setIdentity(compressedId.uri);
+            }
+        } catch (error) {
+            console.log(error);
         }
-    };
+    }
 
 
     const [namefocused, setNamefocused] = useState(false);
@@ -116,6 +142,66 @@ export default function LastStep() {
     const handleDobChange = (porpDate) => {
         setDob(porpDate)
         setDate(porpDate)
+    }
+
+    const sendLastStepData = async (token) => {
+        const formData = new FormData();
+
+        if (name)
+            formData.append('name', name)
+
+        if (dob)
+            formData.append('dob', dob)
+
+        if (Identity)
+            formData.append('identity', {
+                name: 'identity.jpg',
+                uri: Identity,
+                type: 'image/jpeg',
+            })
+
+        if (image)
+            formData.append('photo', {
+                name: 'photo.jpg',
+                uri: image,
+                type: 'image/jpeg',
+            })
+
+        formData.append('api_password', 'Fentec@scooters.algaria')
+
+
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/register_2`, formData,
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    }
+                },
+
+            );
+
+            if (response.data.status === true) {
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    setLoading(false);
+                    navigation.navigate('WhereKnow', { token: token })
+                }, 1500);
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.log(error);
+        }
     }
 
     useEffect(() => {
@@ -152,6 +238,22 @@ export default function LastStep() {
                 zIndex: 9999999999,
                 display: successMsg == '' ? 'none' : 'flex'
             }}>{successMsg}</Text>
+            {loading && (
+                <View style={{
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 336,
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    marginTop: 22,
+                    backgroundColor: 'rgba(0, 0, 0, .5)',
+                    position: 'absolute',
+                    top: 10,
+                    left: 0,
+                }}>
+                    <ActivityIndicator size="200px" color="#ff7300" />
+                </View>
+            )}
             <View style={styles.contianer}>
                 <Text style={styles.head}>{screenContent.head}</Text>
                 <TouchableOpacity onPress={pickImage} style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -191,7 +293,7 @@ export default function LastStep() {
                             <View style={styles.modalView}>
                                 <DatePicker
                                     mode='calendar'
-                                    selected={date}
+                                    // selected={date}
                                     onDateChange={handleDobChange}
                                 />
                                 <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
@@ -228,7 +330,7 @@ export default function LastStep() {
                             }]} />
                         <Text style={styles.id_text}>{screenContent.id}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={() => sendLastStepData(route.params.token)} >
                         <Text style={styles.button_text}>{screenContent.start}</Text>
                     </TouchableOpacity>
                 </View>

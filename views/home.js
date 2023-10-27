@@ -21,7 +21,7 @@ export default function Home({ navigation }) {
     const checkIsFirstTime = async () => {
         const isFirst = await SecureStore.getItemAsync('isFirstTime')
         if (isFirst)
-            return isFirst === 'no'
+            return !(isFirst === 'no')
 
         return true;
     }
@@ -30,7 +30,7 @@ export default function Home({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://76f7-197-37-82-53.ngrok-free.app/get-user`, {
+            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/get-user`, {
                 api_password: 'Fentec@scooters.algaria'
             },
                 {
@@ -61,13 +61,13 @@ export default function Home({ navigation }) {
         if (!user && first) {
             navigation.navigate('Welcome')
         } else if (!user && !first) {
-            navigation.navigate('Register')
+            navigation.navigate('Login')
         } else if (user.verify && user.name != null) {
             navigation.navigate('Profile');
         } else if (user && !user.verify) {
             navigation.navigate('Verify', { email: user.email, token: token });
         } else if (!user.name) {
-            navigation.navigate('Last');
+            navigation.navigate('Last', { email: user.email, token: token });
         }
     }
 

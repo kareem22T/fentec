@@ -19,6 +19,7 @@ import LastStep from './screens/LastStepScreen';
 import WhereKnow from './screens/whereYouKnow';
 import YouWon from './screens/YouWon';
 import Profile from './screens/profile';
+import Map from './screens/map';
 
 // views
 import Home from './views/home'
@@ -92,6 +93,11 @@ export default function App() {
         <Stack.Screen
           name="Profile"
           component={Profile}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Map"
+          component={Map}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
