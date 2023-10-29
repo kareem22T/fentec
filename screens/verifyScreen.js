@@ -126,6 +126,7 @@ export default function Verify({ navigation, route }) {
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
                     setSuccessMsg('')
+                    setCountdown(59)
                 }, 2500);
             } else {
                 setLoading(false);
@@ -167,18 +168,21 @@ export default function Verify({ navigation, route }) {
         <SafeAreaView style={styles.wrapper}>
             <LoginHeader active={3}></LoginHeader>
             <BackgroundImage></BackgroundImage>
-            <Text style={{
-                position: 'absolute', top: 70, right: 20, color: "#fff",
-                padding: 1 * 16,
-                marginLeft: 10,
-                fontSize: 1 * 16,
-                backgroundColor: '#e41749',
-                fontFamily: 'Outfit_600SemiBold',
-                // fontWeight: 600,
-                borderRadius: 1.25 * 16,
-                zIndex: 9999999999,
-                display: errors.length ? 'flex' : 'none'
-            }}>{errors.length ? errors[0] : ''}</Text>
+            {errors && (
+
+                <Text style={{
+                    position: 'absolute', top: 70, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#e41749',
+                    fontFamily: 'Outfit_600SemiBold',
+                    // fontWeight: 600,
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: errors.length ? 'flex' : 'none'
+                }}>{errors.length ? errors[0] : ''}</Text>
+            )}
             <Text style={{
                 position: 'absolute', top: 70, right: 20, color: "#fff",
                 padding: 1 * 16,
