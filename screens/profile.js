@@ -4,6 +4,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import Nav from './../components/mainNav';
+import { Ionicons, MaterialIcons, MaterialCommunityIcons, Entypo, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 
 const BackgroundImage = () => {
     return (
@@ -59,9 +60,12 @@ export default function Profile({ navigation }) {
     }, []);
 
     return (
-        <SafeAreaView style={styles.wrapper}>
+        <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
             <Nav active="1" navigation={navigation} />
+            <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={{ position: 'absolute', zIndex: 999, top: 40, right: 40 }}>
+                <Ionicons name="notifications" size={40} color="rgba(255, 115, 0, 1)" />
+            </TouchableOpacity>
             <ScrollView>
                 <View style={styles.contianer}>
                     <Text style={styles.title}>
@@ -75,15 +79,63 @@ export default function Profile({ navigation }) {
                             <Text style={styles.name}>Kareem Mohamed</Text>
                         </View>
                         <View style={styles.details}>
-                            <TouchableOpacity style={styles.trips}>
+                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Trips')}>
                                 <Text style={styles.trips_text}>Trips</Text>
                                 <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>50</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.trips}>
+                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Points')}>
                                 <Text style={styles.trips_text}>Points</Text>
                                 <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>280</Text>
                             </TouchableOpacity>
                         </View>
+                    </View>
+                    <View style={styles.contianer_bg}>
+                        <Image source={require('./../assets/imgs/map.png')} style={{ width: '100%', height: 200, borderRadius: 16, overflow: 'hidden' }} />
+                        <Text style={styles.navigate_Text}>Navigate to nearest points seller</Text>
+                    </View>
+                    <View style={styles.profile}>
+                        <View style={styles.bg}></View>
+                        <View style={styles.head}>
+                            <Image source={require('./../assets/imgs/share.png')} alt="fentec logo" style={{ width: 250, height: 120, resizeMode: 'contain' }} />
+                            <Text style={styles.name}>
+                                Share app with your {'\n'}
+                                friends to get free points
+                            </Text>
+                        </View>
+                        <TouchableOpacity style={styles.btn}><Text style={styles.button_text}>Share</Text></TouchableOpacity>
+                    </View>
+                    <View style={styles.how_container}>
+                        <View style={styles.how_element}>
+                            <Ionicons name="ios-help-circle-outline" size={60} color="rgba(255, 115, 0, 1)" />
+                            <Text style={styles.name}>
+                                How to {'\n'}
+                                use the {'\n'}
+                                application
+                            </Text>
+                        </View>
+                        <View style={styles.how_element}>
+                            <MaterialCommunityIcons name="human-scooter" size={60} color="rgba(255, 115, 0, 1)" />
+                            <Text style={styles.name}>
+                                How to {'\n'}
+                                ride the {'\n'}
+                                scooter
+                            </Text>
+                        </View>
+                    </View>
+
+                    <View style={{ marginTop: 10 }}>
+                        <Text style={[styles.name, { fontSize: 22, fontFamily: 'Outfit_700Bold' }]}>Contact us</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 15, marginBottom: 15 }}>
+                            <Entypo name="facebook" size={35} color="'rgba(255, 115, 0, 1)'" />
+                            <FontAwesome5 name="instagram-square" size={35} color="'rgba(255, 115, 0, 1)'" />
+                            <MaterialIcons name="email" size={44} color="'rgba(255, 115, 0, 1)'" />
+                            <FontAwesome name="phone-square" size={37} color="'rgba(255, 115, 0, 1)'" />
+                        </View>
+                        <Text style={[styles.name, { color: 'rgba(255, 115, 0, 1)' }]}>
+                            Terms and conditions {'\n'}
+                            Service agreement {'\n'}
+                            Privacy police
+                        </Text>
                     </View>
                 </View>
             </ScrollView>
@@ -109,7 +161,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         zIndex: 3,
-        gap: 10
+        gap: 10,
+        paddingBottom: 160
     },
     title: {
         fontSize: 1.25 * 16,
@@ -119,8 +172,10 @@ const styles = StyleSheet.create({
         marginTop: 70
     },
     profile: {
-        padding: 16,
-        width: "100%",
+        // padding: 16,
+        paddingTop: 16,
+        paddingBottom: 16,
+        width: '90%',
         gap: 1.25 * 16,
         position: "relative",
         alignItems: "center",
@@ -140,7 +195,8 @@ const styles = StyleSheet.create({
     },
     name: {
         fontFamily: 'Outfit_500Medium',
-        fontSize: 22
+        fontSize: 22,
+        textAlign: 'center'
     },
     details: {
         width: '100%',
@@ -175,7 +231,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: "85%",
         backgroundColor: '#ffffff', // Replace with your desired background color
-        borderRadius: 10,
+        borderRadius: 20,
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: {
@@ -184,5 +240,75 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.25,
         shadowRadius: 4,
+    },
+    contianer_bg: {
+        width: '90%',
+        backgroundColor: '#ffffff', // Replace with your desired background color
+        borderRadius: 20,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        padding: 10,
+        marginBottom: 10,
+        marginTop: 10,
+        gap: 10
+    },
+    navigate_Text: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 18,
+        textAlign: 'center',
+        margin: 5,
+        color: 'rgba(255, 115, 0, 1)'
+    },
+    btn: {
+        paddingTop: 16,
+        paddingBottom: 18,
+        borderRadius: 1.25 * 16,
+        backdropFilter: "blur(1)",
+        width: "90%",
+        backgroundColor: "#ff7300",
+        transition: "all .3s ease-in",
+        border: "3 solid #ff7300",
+        // marginBottom: 1.25 * 16,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    button_text: {
+        color: "#fff",
+        fontFamily: 'Outfit_700Bold',
+        fontSize: 28,
+        textAlign: "center",
+    },
+    how_container: {
+        width: '90%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 20
+    },
+    how_element: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 10,
+        backgroundColor: '#ffffff', // Replace with your desired background color
+        borderRadius: 20,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        padding: 14,
+        marginBottom: 10,
+        marginTop: 10,
+        gap: 10,
+        width: '48%'
     }
 });

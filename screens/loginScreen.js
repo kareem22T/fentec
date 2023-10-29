@@ -31,7 +31,7 @@ export default function Login({ navigation }) {
             "or": "or",
             "google_btn": "Continue with Google",
             "face_btn": "Continue with Facebook",
-            "email_e": "Email",
+            "email_e": "Email or Phone Number",
             "phone": "Phone Number",
             "p_password": "Password"
         },
@@ -53,7 +53,7 @@ export default function Login({ navigation }) {
             "or": "أو",
             "google_btn": "تابع بواسطة جوجل",
             "face_btn": "تابع بواسطة فيسبوك",
-            "email_e": "البريد الالكتروني",
+            "email_e": "البريد الالكتروني او رقم الهاتف",
             "phone": "رقم الهاتف",
             "p_password": "كلمة المرور"
         }
@@ -88,8 +88,8 @@ export default function Login({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://fee8-41-46-120-231.ngrok-free.app/login`, {
-                email: email,
+            const response = await axios.post(`https://9a41-197-37-230-100.ngrok-free.app/login`, {
+                emailorphone: email,
                 password: password,
                 api_password: 'Fentec@scooters.algaria'
             });
@@ -100,7 +100,7 @@ export default function Login({ navigation }) {
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
-                    navigation.navigate('Home')
+                    navigation.navigate('Profile')
                 }, 1500)
             } else {
                 setLoading(false);

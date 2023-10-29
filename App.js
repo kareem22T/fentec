@@ -19,7 +19,11 @@ import LastStep from './screens/LastStepScreen';
 import WhereKnow from './screens/whereYouKnow';
 import YouWon from './screens/YouWon';
 import Profile from './screens/profile';
+import Trips from './screens/trips';
+import Points from './screens/points';
+import Notifications from './screens/notification';
 import Map from './screens/map';
+import Account from './screens/account';
 
 // views
 import Home from './views/home'
@@ -96,8 +100,28 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="Trips"
+          component={Trips}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Points"
+          component={Points}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Notifications"
+          component={Notifications}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="Map"
           component={Map}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Account"
+          component={Account}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

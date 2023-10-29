@@ -81,7 +81,7 @@ export default function WhereKnow({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/collect`, {
+            const response = await axios.post(`https://9a41-197-37-230-100.ngrok-free.app/collect`, {
                 api_password: 'Fentec@scooters.algaria',
                 code: invitationCode,
                 choice: selectedChoice

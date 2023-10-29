@@ -94,7 +94,7 @@ export default function Register({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/register`, {
+            const response = await axios.post(`https://9a41-197-37-230-100.ngrok-free.app/register`, {
                 email: email,
                 phone: phone,
                 password: password,

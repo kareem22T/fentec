@@ -60,7 +60,7 @@ const Lang = ({ navigation }) => {
                         opacity: 1
                     }]} onPress={() => setLang('fr')}>
                         <Text style={styles.btn_big_text}>Bonjour</Text>
-                        <Text style={styles.btn_small_text}>française</Text>
+                        <Text style={styles.btn_small_text}>Française</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.navigation}>

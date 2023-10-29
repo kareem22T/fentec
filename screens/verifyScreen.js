@@ -77,7 +77,7 @@ export default function Verify({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/active-account`, {
+            const response = await axios.post(`https://9a41-197-37-230-100.ngrok-free.app/active-account`, {
                 api_password: 'Fentec@scooters.algaria',
                 code: code,
             },
@@ -111,7 +111,7 @@ export default function Verify({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://0262-197-37-109-139.ngrok-free.app/send-code`, {
+            const response = await axios.post(`https://9a41-197-37-230-100.ngrok-free.app/send-code`, {
                 api_password: 'Fentec@scooters.algaria',
             },
                 {
