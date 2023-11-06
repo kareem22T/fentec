@@ -173,7 +173,7 @@ export default function LastStep({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://9a41-197-37-230-100.ngrok-free.app/register_2`, formData,
+            const response = await axios.post(`https://39c5-197-42-91-165.ngrok-free.app/register_2`, formData,
                 {
                     headers: {
                         'AUTHORIZATION': `Bearer ${token}`,

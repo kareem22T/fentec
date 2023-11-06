@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios'
 import TimerMixin from 'react-timer-mixin';
+import { PROVIDER_GOOGLE } from 'react-native-maps'
 
 export default function Map({ navigation }) {
     const [location, setLocation] = useState(null);
@@ -70,7 +71,7 @@ export default function Map({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.get(`https://e087b01c4843d23735416745bd819384.serveo.net/scooters`,
+            const response = await axios.get(`https://3316bb7af2c9d58d1109504909835f59.serveo.net/scooters`,
                 {
                     headers: {
                         "api_password": "Fentec@scooters.algaria"
@@ -115,7 +116,7 @@ export default function Map({ navigation }) {
         if (location) {
             setLoading(true)
             try {
-                const response = await axios.get(`https://e087b01c4843d23735416745bd819384.serveo.net/nearest-scooter?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`,
+                const response = await axios.get(`https://3316bb7af2c9d58d1109504909835f59.serveo.net/nearest-scooter?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`,
                     {
                         headers: {
                             "api_password": "Fentec@scooters.algaria"
@@ -274,8 +275,8 @@ export default function Map({ navigation }) {
                 style={styles.map}
                 initialRegion={region}
                 region={region}
-                provider="google"
                 mapType='terrain'
+                provider={PROVIDER_GOOGLE}
             >
                 {location && (
                     <Marker coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }} icon={require('./../assets/imgs/icons/current_icon.png')} style={[{ width: 20, height: 20, resizeMode: 'contain' }]} />

@@ -30,7 +30,7 @@ export default function Home({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://9a41-197-37-230-100.ngrok-free.app/get-user`, {
+            const response = await axios.post(`https://39c5-197-42-91-165.ngrok-free.app/get-user`, {
                 api_password: 'Fentec@scooters.algaria'
             },
                 {
