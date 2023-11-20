@@ -20,7 +20,7 @@ const BackgroundImage = () => {
     )
 }
 
-export default function Points({ navigation }) {
+export default function Points({ navigation, route }) {
     const translations = {
         "en": {
         },
@@ -55,12 +55,16 @@ export default function Points({ navigation }) {
                         <View style={styles.head}>
                             <Image source={require('./../assets/imgs/default_user.jpg')}
                                 style={{ width: 100, height: 100, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
-                            <Text style={styles.name}>Kareem Mohamed</Text>
+                            {route.params.user && (
+                                <Text style={styles.name}>{route.params.user.name}</Text>
+                            )}
                         </View>
                     </View>
                     <Text style={styles.head}>My Points</Text>
                     <View>
-                        <Text style={[styles.head, { color: 'rgba(255, 115, 0, 1)' }]}><FontAwesome5 name="coins" size={24} color="rgba(255, 115, 0, 1)" /> 255</Text>
+                        {route.params.user && (
+                            <Text style={[styles.head, { color: 'rgba(255, 115, 0, 1)' }]}><FontAwesome5 name="coins" size={24} color="rgba(255, 115, 0, 1)" /> {route.params.user.coins}</Text>
+                        )}
                     </View>
                     <View style={[styles.contianer_bg, { padding: 20 }]}>
                         <Text style={[styles.head, { textAlign: 'center', fontSize: 20, lineHeight: 30 }]}>

@@ -22,7 +22,11 @@ const BackgroundImage = () => {
     )
 }
 
-export default function Account({ navigation }) {
+export default function Account({ navigation, route }) {
+    let user;
+    if (route.params.user)
+        user = route.params.user;
+
     const translations = {
         "en": {
         },
@@ -78,6 +82,10 @@ export default function Account({ navigation }) {
     }
     // ---------
 
+    const handleLogout = async () => {
+        await SecureStore.setItemAsync('user_token', '')
+        navigation.push('Profile')
+    }
 
     useEffect(() => {
         getStoredLang();
@@ -100,7 +108,9 @@ export default function Account({ navigation }) {
                                 </View>
                             </TouchableOpacity>
 
-                            <Text style={styles.name}>Kareem Mohamed</Text>
+                            {user && (
+                                <Text style={styles.name}>{user.name}</Text>
+                            )}
                         </View>
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
@@ -111,12 +121,16 @@ export default function Account({ navigation }) {
                         </TouchableOpacity>
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                        <TouchableOpacity style={[styles.input, { paddingLeft: 70 }]}><Text style={[styles.input_text, { color: '#000' }]}>01550552371</Text></TouchableOpacity>
+                        {user && (
+                            <TouchableOpacity style={[styles.input, { paddingLeft: 70 }]}><Text style={[styles.input_text, { color: '#000' }]}>{user.phone}</Text></TouchableOpacity>
+                        )}
                         <FontAwesome name="phone" size={35} color="black" style={{ position: 'absolute', left: 40 }} />
                         <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" style={{ position: 'absolute', right: 40 }} />
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                        <TouchableOpacity style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>kotbekareem74@gmail.com</Text></TouchableOpacity>
+                        {user && (
+                            <TouchableOpacity style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>{user.email}</Text></TouchableOpacity>
+                        )}
                         <MaterialIcons name="email" size={35} color="black" style={{ position: 'absolute', left: 40 }} />
                         <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" style={{ position: 'absolute', right: 40 }} />
                     </View>
@@ -126,7 +140,7 @@ export default function Account({ navigation }) {
                         <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" style={{ position: 'absolute', right: 40 }} />
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                        <TouchableOpacity style={[styles.input, styles.btn]}><Text style={[styles.input_text, { textAlign: 'left', width: '100%' }]}><MaterialCommunityIcons name="logout" size={30} color="black" /> Log Out</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleLogout()} style={[styles.input, styles.btn]}><Text style={[styles.input_text, { textAlign: 'left', width: '100%' }]}><MaterialCommunityIcons name="logout" size={30} color="black" /> Log Out</Text></TouchableOpacity>
                     </View>
                 </View>
             </ScrollView>

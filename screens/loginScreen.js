@@ -88,7 +88,7 @@ export default function Login({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://39c5-197-42-91-165.ngrok-free.app/login`, {
+            const response = await axios.post(`https://6860-197-37-30-163.ngrok-free.app/login`, {
                 emailorphone: email,
                 password: password,
                 api_password: 'Fentec@scooters.algaria'
@@ -100,7 +100,7 @@ export default function Login({ navigation }) {
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
-                    navigation.navigate('Profile')
+                    navigation.push('Profile')
                 }, 1500)
             } else {
                 setLoading(false);

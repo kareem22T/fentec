@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "fentec_v3",
-    "slug": "fentec_v3",
+    "name": "fentec",
+    "slug": "fentec",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -27,6 +27,7 @@
       "bundleIdentifier": "y"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -48,8 +49,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "4c62958d-ccd4-42d6-9e80-dce9b0059ec3"
+        "projectId": "ffffa495-1c0e-44a9-8788-c5b2c429bb5b"
       }
-    }
+    },
+    "owner": "kareem11"
   }
 }

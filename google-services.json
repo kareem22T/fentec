@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "22085097857",
+    "project_id": "fentec-cf1a4",
+    "storage_bucket": "fentec-cf1a4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22085097857:android:e4c87322d7fe2204fe7080",
+        "android_client_info": {
+          "package_name": "com.kareem11.fentec_v3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEFz8ofvqJXMgPt9r9A4OTeUYg6qY7XaM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

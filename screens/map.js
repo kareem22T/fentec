@@ -71,7 +71,7 @@ export default function Map({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.get(`https://3316bb7af2c9d58d1109504909835f59.serveo.net/scooters`,
+            const response = await axios.get(`https://df4c2b5ae63c5dcf917cc1d52bf4d070.serveo.net/scooters`,
                 {
                     headers: {
                         "api_password": "Fentec@scooters.algaria"
@@ -116,7 +116,7 @@ export default function Map({ navigation }) {
         if (location) {
             setLoading(true)
             try {
-                const response = await axios.get(`https://3316bb7af2c9d58d1109504909835f59.serveo.net/nearest-scooter?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`,
+                const response = await axios.get(`https://df4c2b5ae63c5dcf917cc1d52bf4d070.serveo.net/nearest-scooter?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`,
                     {
                         headers: {
                             "api_password": "Fentec@scooters.algaria"

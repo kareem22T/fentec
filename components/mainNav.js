@@ -12,6 +12,7 @@ export default function LoginHeader(props) {
     let navToScooter = props.navToScooter
     let closeScanner = props.closeScanner
     let showQrScanner = props.showQrScanner
+    let user = props.user
 
     const [serialNum, setSerialNum] = useState('')
     const [serialNumfocused, setSerialNumfocused] = useState(false);
@@ -41,7 +42,7 @@ export default function LoginHeader(props) {
                             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}><Text><FontAwesome5 name="money-bill" size={24} color="black" /></Text><Text style={{ fontSize: 18 }}>5 points/minute</Text></View>
                         </View>
                         <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between', marginTop: 10 }}>
-                            <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}><MaterialCommunityIcons name="qrcode-scan" size={28} color="black" /></TouchableOpacity>
+                            <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]} onPress={showQrScanner} ><MaterialCommunityIcons name="qrcode-scan" size={28} color="black" /></TouchableOpacity>
                             <Text style={[styles.choiceWrapper, styles.choiceActive, { width: '58%', textAlign: 'center', fontSize: 18, fontFamily: 'Outfit_600SemiBold', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}>5 min. from you</Text>
                             <TouchableOpacity onPress={navToScooter} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}><FontAwesome5 name="directions" size={30} color="black" /></TouchableOpacity>
                         </View>
@@ -74,16 +75,16 @@ export default function LoginHeader(props) {
                 )
             )}
             <View style={styles.contianer}>
-                <TouchableOpacity style={[styles.choiceWrapper, props.active == 1 && styles.choiceActive]} onPress={() => navigation.navigate('Profile')}>
+                <TouchableOpacity style={[styles.choiceWrapper, props.active == 1 && styles.choiceActive]} onPress={() => navigation.push('Profile', { user: user })}>
                     <Entypo name="home" size={40} color={props.active == 1 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.choiceWrapper, props.active == 2 && styles.choiceActive]} onPress={() => navigation.navigate('Map')}>
+                <TouchableOpacity style={[styles.choiceWrapper, props.active == 2 && styles.choiceActive]} onPress={() => navigation.navigate('Map', { user: user })}>
                     <Ionicons name="map-sharp" size={40} color={props.active == 2 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive]} onPress={() => navigation.navigate('Account')}>
+                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive]} onPress={() => navigation.navigate('Account', { user: user })}>
                     <FontAwesome name="user" size={40} color={props.active == 3 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive, { display: 'none' }]} onPress={() => navigation.navigate('Account')}>
+                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive, { display: 'none' }]} onPress={() => navigation.navigate('Account', { user: user })}>
                     <FontAwesome name="user" size={40} color={props.active == 3 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
             </View>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts, Outfit_600SemiBold, Outfit_500Medium, Outfit_400Regular, Outfit_700Bold } from '@expo-google-fonts/outfit';
@@ -25,10 +25,6 @@ import Notifications from './screens/notification';
 import Map from './screens/map';
 import Account from './screens/account';
 
-// views
-import Home from './views/home'
-
-
 export default function App() {
   let [fontsLoaded, fontError] = useFonts({
     Outfit_400Regular,
@@ -45,8 +41,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name="Home"
-          component={Home}
+          name="Profile"
+          component={Profile}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -92,11 +88,6 @@ export default function App() {
         <Stack.Screen
           name="Last"
           component={LastStep}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Profile"
-          component={Profile}
           options={{ headerShown: false }}
         />
         <Stack.Screen

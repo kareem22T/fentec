@@ -1,10 +1,12 @@
 import {
-    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView
+    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
 import Nav from './../components/mainNav';
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, Entypo, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
+import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
 
 const BackgroundImage = () => {
     return (
@@ -43,8 +45,13 @@ export default function Profile({ navigation }) {
             "button": "استخدمهم الان!"
         }
     }
+    const [errors, setErrors] = useState([]);
+    const [successMsg, setSuccessMsg] = useState('');
+    const [loading, setLoading] = useState(true);
     const [currentLang, setCurrentLag] = useState('ar')
     const [screenContent, setScreenContent] = useState(translations.ar);
+    const [user, setUser] = useState(null)
+    const [notificationToken, setNotificationToken] = useState('')
 
     const getStoredLang = async () => {
         const storedLang = await SecureStore.getItemAsync('lang');
@@ -54,38 +61,181 @@ export default function Profile({ navigation }) {
         }
     }
 
+    const registerForPushNotificationsAsync = async () => {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+
+        if (finalStatus !== 'granted') {
+            console.log('Failed to get push token for push notification!');
+            return;
+        }
+
+        // Get the token that uniquely identifies this device
+        const expoPushToken = await Notifications.getExpoPushTokenAsync({
+            projectId: 'ffffa495-1c0e-44a9-8788-c5b2c429bb5b',
+        });
+        setNotificationToken(expoPushToken.data)
+        console.log('Expo Push Token:', expoPushToken);
+    };
+
+    const getStoredToken = async () => {
+        const user_token = await SecureStore.getItemAsync('user_token');
+        if (user_token)
+            return user_token
+
+        return '';
+    }
+
+    const checkIsFirstTime = async () => {
+        const isFirst = await SecureStore.getItemAsync('isFirstTime')
+        if (isFirst)
+            return !(isFirst === 'no')
+
+        return true;
+    }
+
+    const getUser = async (token, notificationToken) => {
+        setErrors([])
+        try {
+            const response = await axios.post(`https://6860-197-37-30-163.ngrok-free.app/get-user`, {
+                api_password: 'Fentec@scooters.algaria',
+                notification_token: notificationToken,
+            },
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`
+                    }
+                },);
+
+            if (response.data.status === true) {
+                setLoading(false);
+                setErrors([]);
+                setUser(response.data.data.user);
+                return response.data.data.user;
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
+    const showScreens = (first = true, user, token) => {
+        if (!user && first) {
+            navigation.navigate('Welcome')
+        } else if (!user && !first) {
+            navigation.navigate('Login')
+        } else if (user.verify && user.name != null) {
+            setLoading(false)
+        } else if (user && !user.verify) {
+            navigation.navigate('Verify', { email: user.email, token: token });
+        } else if (!user.name) {
+            navigation.navigate('Last', { email: user.email, token: token });
+        }
+    }
 
     useEffect(() => {
+        registerForPushNotificationsAsync().then(() => {
+
+            getStoredToken().then((res) => {
+                let token = res
+                checkIsFirstTime().then((isfirst) => {
+                    if (token) {
+                        getUser(token, notificationToken).then((user) => {
+                            showScreens(isfirst, user, token)
+                        })
+                    } else {
+                        showScreens(isfirst, res)
+                    }
+                })
+            });
+            const subscription = Notifications.addNotificationReceivedListener(notification => {
+                console.log('Notification received:', notification);
+            });
+
+            return () => {
+                if (subscription) {
+                    subscription.remove();
+                }
+            };
+        });
+
         getStoredLang();
     }, []);
 
     return (
         <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
-            <Nav active="1" navigation={navigation} />
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={{ position: 'absolute', zIndex: 999, top: 40, right: 40 }}>
+            <Nav active="1" navigation={navigation} user={user} />
+            <TouchableOpacity onPress={() => navigation.navigate('Notifications', { user: user })} style={{ position: 'absolute', zIndex: 999, top: 40, right: 40 }}>
                 <Ionicons name="notifications" size={40} color="rgba(255, 115, 0, 1)" />
             </TouchableOpacity>
+            {loading && (
+                <View style={{
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 9999999999,
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    marginTop: 22,
+                    backgroundColor: '#fff',
+                    position: 'absolute',
+                    top: 10,
+                    left: 0,
+                }}>
+                    <ActivityIndicator size="200px" color="#ff7300" />
+                </View>
+            )}
             <ScrollView>
                 <View style={styles.contianer}>
-                    <Text style={styles.title}>
+                    {user && !user.approved && (<Text style={[styles.title, styles.approvingAlert]}>
+                        Your Account is under review we will approve your account in some hours ! {'\n'}
+                        <Text>
+                            You will receive an Email with approve or reject if your information wasn't correct.
+                        </Text>
+                    </Text>)}
+                    <Text style={[styles.title, (user && !user.approved) && { marginTop: 10 }]}>
                         Hello friend,{'\n'}
                         Ride responsible, Enjoy freely
                     </Text>
                     <View style={styles.profile}>
                         <View style={styles.bg}></View>
                         <View style={styles.head}>
-                            <Image source={require('./../assets/imgs/user.jpg')} alt="fentec logo" style={styles.profile_img} />
-                            <Text style={styles.name}>Kareem Mohamed</Text>
+                            {user && user.photo_path ? (
+                                <Image
+                                    source={{ uri: 'https://6860-197-37-30-163.ngrok-free.app/images/uploads/' + user.photo_path }}
+                                    alt="fentec logo"
+                                    style={styles.profile_img}
+                                />
+                            ) : (
+                                <Image source={require('./../assets/imgs/user.jpg')} alt="fentec logo" style={styles.profile_img} />
+                            )}
+                            {user && (
+                                <Text style={styles.name}>{user.name}</Text>
+                            )}
                         </View>
                         <View style={styles.details}>
-                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Trips')}>
+                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Trips', { user: user })}>
                                 <Text style={styles.trips_text}>Trips</Text>
                                 <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>50</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Points')}>
+                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Points', { user: user })}>
                                 <Text style={styles.trips_text}>Points</Text>
-                                <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>280</Text>
+                                {user && (
+                                    <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>{user.coins}</Text>
+                                )}
+
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -169,7 +319,18 @@ const styles = StyleSheet.create({
         fontFamily: 'Outfit_600SemiBold',
         lineHeight: 1.5 * 16,
         textAlign: 'center',
-        marginTop: 70
+        marginTop: 90
+    },
+    approvingAlert: {
+        padding: 15,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#ab002b",
+        backgroundColor: '#e41749',
+        width: '90%',
+        fontFamily: 'Outfit_400Regular',
+        color: '#fff',
+        fontSize: 16
     },
     profile: {
         // padding: 16,
