@@ -25,9 +25,9 @@ export default function LastStep({ navigation, route }) {
     const [currentLang, setCurrentLag] = useState('ar')
     const translations = {
         "en": {
-            "head": "Last step",
+            "head": route.params.user ? "Edit Profile" : "Last step",
             "name": "Name",
-            "start": "Let's Start !",
+            "start": route.params.user ? "Edit Data" : "Let's Start !",
             "id": "Identity Verification",
             'dob': 'Date of Birth'
         },
@@ -39,9 +39,9 @@ export default function LastStep({ navigation, route }) {
             'dob': "date de naissance"
         },
         "ar": {
-            "head": "اخر خطوة",
+            "head": route.params.user ? "تعديل الحساب" : "اخر خطوة",
             'name': "الاسم",
-            "start": "لنبدأ !",
+            "start": route.params.user ? "تحديث البيانات" : "لنبدأ !",
             "id": "صورة من الهوية الشخصية",
             'dob': 'تاريخ الميلاد'
         }
@@ -124,14 +124,14 @@ export default function LastStep({ navigation, route }) {
         setNamefocused(true);
     };
 
-    const [name, setName] = useState("");
+    const [name, setName] = useState(route.params.user ? route.params.user.name : "");
 
     const [dobfocused, setDobfocused] = useState(false);
     const handleDobFocus = () => {
         setDobfocused(true);
     };
 
-    const [dob, setDob] = useState(null);
+    const [dob, setDob] = useState(route.params.user.dob ? route.params.user.dob : null);
     const [date, setDate] = useState(new Date);
     const [isShowDatePicker, setIsShowDatePicker] = useState(false);
 
@@ -173,7 +173,7 @@ export default function LastStep({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://6860-197-37-30-163.ngrok-free.app/register_2`, formData,
+            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/register_2`, formData,
                 {
                     headers: {
                         'AUTHORIZATION': `Bearer ${token}`,
@@ -188,7 +188,10 @@ export default function LastStep({ navigation, route }) {
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
                     setLoading(false);
-                    navigation.navigate('WhereKnow', { token: token })
+                    if (route.params.user)
+                        navigation.push('Profile')
+                    else
+                        navigation.navigate('WhereKnow', { token: token })
                 }, 1500);
             } else {
                 setLoading(false);
@@ -257,8 +260,19 @@ export default function LastStep({ navigation, route }) {
             <View style={styles.contianer}>
                 <Text style={styles.head}>{screenContent.head}</Text>
                 <TouchableOpacity onPress={pickImage} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <Image source={image ? { uri: image } : require('./../assets/imgs/default_user.jpg')}
-                        style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                    {route.params.user && route.params.user.photo_path ? (
+                        image ? (
+                            <Image source={{ uri: image }}
+                                style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                        ) : (
+                            <Image source={{ uri: 'https://1d3c-197-37-12-245.ngrok-free.app/images/uploads/' + route.params.user.photo_path }}
+                                style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                        )
+                    ) : (
+                        <Image source={image ? { uri: image } : require('./../assets/imgs/default_user.jpg')}
+                            style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                    )}
+
                     <View style={{ width: 40, height: 40, backgroundColor: 'rgba(255, 115, 0, 1)', borderRadius: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: -20 }}>
                         <Image source={image ? require('./../assets/imgs/icons/pen-to-square-solid.png') : require('./../assets/imgs/icons/plus-solid.png')}
                             style={{ width: 20, height: 20, resizeMode: 'cover' }} />
@@ -322,8 +336,8 @@ export default function LastStep({ navigation, route }) {
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={pickId} style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}>
-                        <Image source={Identity ? { uri: Identity } : require('./../assets/imgs/icons/cam-solid.png')}
-                            style={[{ width: 50, height: 50, resizeMode: 'contain', }, Identity && {
+                        <Image source={Identity ? { uri: Identity } : (route.params.user ? { uri: 'https://1d3c-197-37-12-245.ngrok-free.app/images/uploads/' + route.params.user.identity_path } : require('./../assets/imgs/icons/cam-solid.png'))}
+                            style={[{ width: 50, height: 50, resizeMode: 'contain', }, (Identity || route.params.user) && {
                                 borderColor: 'rgba(255, 115, 0, 1)',
                                 borderWidth: 1,
                                 borderRadius: 4

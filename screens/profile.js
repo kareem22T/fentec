@@ -52,6 +52,7 @@ export default function Profile({ navigation }) {
     const [screenContent, setScreenContent] = useState(translations.ar);
     const [user, setUser] = useState(null)
     const [notificationToken, setNotificationToken] = useState('')
+    const [token, setToken] = useState('')
 
     const getStoredLang = async () => {
         const storedLang = await SecureStore.getItemAsync('lang');
@@ -102,7 +103,7 @@ export default function Profile({ navigation }) {
     const getUser = async (token, notificationToken) => {
         setErrors([])
         try {
-            const response = await axios.post(`https://6860-197-37-30-163.ngrok-free.app/get-user`, {
+            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/get-user`, {
                 api_password: 'Fentec@scooters.algaria',
                 notification_token: notificationToken,
             },
@@ -117,6 +118,35 @@ export default function Profile({ navigation }) {
                 setErrors([]);
                 setUser(response.data.data.user);
                 return response.data.data.user;
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
+    const seenVerifyMsg = async (token) => {
+        setErrors([])
+        try {
+            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/seen-approving-msg`, {
+                api_password: 'Fentec@scooters.algaria',
+            },
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`
+                    }
+                },);
+
+            if (response.data.status === true) {
+                setLoading(false);
+                setErrors([]);
             } else {
                 setLoading(false);
                 setErrors(response.data.errors);
@@ -152,8 +182,11 @@ export default function Profile({ navigation }) {
                 let token = res
                 checkIsFirstTime().then((isfirst) => {
                     if (token) {
+                        setToken(token)
                         getUser(token, notificationToken).then((user) => {
                             showScreens(isfirst, user, token)
+                            if (user && user.approved && !user.approving_msg_seen)
+                                seenVerifyMsg(token)
                         })
                     } else {
                         showScreens(isfirst, res)
@@ -199,13 +232,26 @@ export default function Profile({ navigation }) {
             )}
             <ScrollView>
                 <View style={styles.contianer}>
-                    {user && !user.approved && (<Text style={[styles.title, styles.approvingAlert]}>
+                    {(user && user.rejected == true) && (<Text style={[styles.title, styles.approvingAlert]}>
+                        You Account has been rejected because: {'\n'}
+                        <Text>
+                            {user.rejection_reason} {'\n'}
+                        </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Last', { user: user, token: token })}><Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>Edit Profile Now</Text></TouchableOpacity>
+                    </Text>)}
+                    {(user && !user.approved && !user.rejected) && (<Text style={[styles.title, styles.approvingAlert]}>
                         Your Account is under review we will approve your account in some hours ! {'\n'}
                         <Text>
                             You will receive an Email with approve or reject if your information wasn't correct.
                         </Text>
                     </Text>)}
-                    <Text style={[styles.title, (user && !user.approved) && { marginTop: 10 }]}>
+                    {(user && user.approved == true && !user.approving_msg_seen) && (<Text style={[styles.title, styles.approvingAlert, { backgroundColor: "#12c99b", borderColor: '#12c99b' }]}>
+                        Your Account has been approved ! {'\n'}
+                        <Text>
+                            You can enjoy the experience now.
+                        </Text>
+                    </Text>)}
+                    <Text style={[styles.title, ((user && !user.approved) || (user && !user.approving_msg_seen)) && { marginTop: 10 }]}>
                         Hello friend,{'\n'}
                         Ride responsible, Enjoy freely
                     </Text>
@@ -214,7 +260,7 @@ export default function Profile({ navigation }) {
                         <View style={styles.head}>
                             {user && user.photo_path ? (
                                 <Image
-                                    source={{ uri: 'https://6860-197-37-30-163.ngrok-free.app/images/uploads/' + user.photo_path }}
+                                    source={{ uri: 'https://1d3c-197-37-12-245.ngrok-free.app/images/uploads/' + user.photo_path }}
                                     alt="fentec logo"
                                     style={styles.profile_img}
                                 />
@@ -228,7 +274,7 @@ export default function Profile({ navigation }) {
                         <View style={styles.details}>
                             <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Trips', { user: user })}>
                                 <Text style={styles.trips_text}>Trips</Text>
-                                <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>50</Text>
+                                <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>0</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Points', { user: user })}>
                                 <Text style={styles.trips_text}>Points</Text>
