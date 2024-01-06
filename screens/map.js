@@ -71,7 +71,7 @@ export default function Map({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.get(`https://a3376b12b14ee6fb735e8fe5a2e0491a.serveo.net/scooters`,
+            const response = await axios.get(`https://adminandapi.fentecmobility.com/map/scooters`,
                 {
                     headers: {
                         "api_password": "Fentec@scooters.algaria"
@@ -113,10 +113,11 @@ export default function Map({ navigation }) {
                 return;
             }
         }
+        console.log(`https://adminandapi.fentecmobility.com/map/nearest-scooter?lat=${location.coords.latitude}&lng=${location.coords.longitude}`);
         if (location) {
             setLoading(true)
             try {
-                const response = await axios.get(`https://a3376b12b14ee6fb735e8fe5a2e0491a.serveo.net/nearest-scooter?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`,
+                const response = await axios.get(`https://adminandapi.fentecmobility.com/map/nearest-scooter?lat=${location.coords.latitude}&lng=${location.coords.longitude}`,
                     {
                         headers: {
                             "api_password": "Fentec@scooters.algaria"
@@ -124,6 +125,7 @@ export default function Map({ navigation }) {
                     });
 
                 if (response.data.status === true) {
+                    console.log(response);
                     setErrors([]);
                     setSuccessMsg(response.data.message);
                     TimerMixin.setTimeout(() => {
@@ -213,6 +215,30 @@ export default function Map({ navigation }) {
                     <ActivityIndicator size="200px" color="#ff7300" />
                 </View>
             )}
+                <Text style={{
+                    position: 'absolute', top: 70, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#e41749',
+                    fontFamily: 'Outfit_600SemiBold',
+                    // fontWeight: 600,
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: errors.length ? 'flex' : 'none'
+                }}>{errors.length ? errors[0] : ''}</Text>
+            <Text style={{
+                position: 'absolute', top: 70, right: 20, color: "#fff",
+                padding: 1 * 16,
+                marginLeft: 10,
+                fontSize: 1 * 16,
+                backgroundColor: '#12c99b',
+                fontFamily: 'Outfit_600SemiBold',
+                // fontWeight: 600,
+                borderRadius: 1.25 * 16,
+                zIndex: 9999999999,
+                display: successMsg == '' ? 'none' : 'flex'
+            }}>{successMsg}</Text>
 
             <Modal
                 animationType='fade'

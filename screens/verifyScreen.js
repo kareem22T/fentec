@@ -77,7 +77,7 @@ export default function Verify({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/active-account`, {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/active-account`, {
                 api_password: 'Fentec@scooters.algaria',
                 code: code,
             },
@@ -109,9 +109,10 @@ export default function Verify({ navigation, route }) {
     }
     const sendCode = async (token) => {
         setLoading(true)
+        console.log(token);
         setErrors([])
         try {
-            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/send-code`, {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/send-code`, {
                 api_password: 'Fentec@scooters.algaria',
             },
                 {

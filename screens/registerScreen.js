@@ -94,7 +94,7 @@ export default function Register({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/register`, {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/register`, {
                 email: email,
                 phone: phone,
                 password: password,

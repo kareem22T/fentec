@@ -83,7 +83,7 @@ export default function YouWon({ navigation }) {
                     </Text>
                     <Image source={require('./../assets/imgs/avatar.png')} alt="fentec logo" style={styles.avatar} />
                     <View style={styles.choices_container}>
-                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
                             <Text style={styles.button_text}>{screenContent.button}</Text>
                         </TouchableOpacity>
                     </View>

@@ -88,7 +88,7 @@ export default function Login({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/login`, {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/login`, {
                 emailorphone: email,
                 password: password,
                 api_password: 'Fentec@scooters.algaria'

@@ -131,7 +131,7 @@ export default function LastStep({ navigation, route }) {
         setDobfocused(true);
     };
 
-    const [dob, setDob] = useState(route.params.user.dob ? route.params.user.dob : null);
+    const [dob, setDob] = useState(route.params.user && route.params.user.dob ? route.params.user.dob : null);
     const [date, setDate] = useState(new Date);
     const [isShowDatePicker, setIsShowDatePicker] = useState(false);
 
@@ -173,7 +173,7 @@ export default function LastStep({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/register_2`, formData,
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/register_2`, formData,
                 {
                     headers: {
                         'AUTHORIZATION': `Bearer ${token}`,
@@ -265,7 +265,7 @@ export default function LastStep({ navigation, route }) {
                             <Image source={{ uri: image }}
                                 style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
                         ) : (
-                            <Image source={{ uri: 'https://1d3c-197-37-12-245.ngrok-free.app/images/uploads/' + route.params.user.photo_path }}
+                            <Image source={{ uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + route.params.user.photo_path }}
                                 style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
                         )
                     ) : (
@@ -336,7 +336,7 @@ export default function LastStep({ navigation, route }) {
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={pickId} style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}>
-                        <Image source={Identity ? { uri: Identity } : (route.params.user ? { uri: 'https://1d3c-197-37-12-245.ngrok-free.app/images/uploads/' + route.params.user.identity_path } : require('./../assets/imgs/icons/cam-solid.png'))}
+                        <Image source={Identity ? { uri: Identity } : (route.params.user ? { uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + route.params.user.identity_path } : require('./../assets/imgs/icons/cam-solid.png'))}
                             style={[{ width: 50, height: 50, resizeMode: 'contain', }, (Identity || route.params.user) && {
                                 borderColor: 'rgba(255, 115, 0, 1)',
                                 borderWidth: 1,

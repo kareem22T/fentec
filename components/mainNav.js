@@ -78,7 +78,7 @@ export default function LoginHeader(props) {
                 <TouchableOpacity style={[styles.choiceWrapper, props.active == 1 && styles.choiceActive]} onPress={() => navigation.push('Profile', { user: user })}>
                     <Entypo name="home" size={40} color={props.active == 1 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.choiceWrapper, props.active == 2 && styles.choiceActive]} onPress={() => navigation.navigate('Map', { user: user })}>
+                <TouchableOpacity style={[styles.choiceWrapper, props.active == 2 && styles.choiceActive]} onPress={() => navigation.push('Map', { user: user })}>
                     <Ionicons name="map-sharp" size={40} color={props.active == 2 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive]} onPress={() => navigation.navigate('Account', { user: user })}>

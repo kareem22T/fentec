@@ -82,6 +82,7 @@ export default function Profile({ navigation }) {
         });
         setNotificationToken(expoPushToken.data)
         console.log('Expo Push Token:', expoPushToken);
+        return expoPushToken.data;
     };
 
     const getStoredToken = async () => {
@@ -103,7 +104,7 @@ export default function Profile({ navigation }) {
     const getUser = async (token, notificationToken) => {
         setErrors([])
         try {
-            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/get-user`, {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/get-user`, {
                 api_password: 'Fentec@scooters.algaria',
                 notification_token: notificationToken,
             },
@@ -135,7 +136,7 @@ export default function Profile({ navigation }) {
     const seenVerifyMsg = async (token) => {
         setErrors([])
         try {
-            const response = await axios.post(`https://1d3c-197-37-12-245.ngrok-free.app/seen-approving-msg`, {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/seen-approving-msg`, {
                 api_password: 'Fentec@scooters.algaria',
             },
                 {
@@ -176,14 +177,15 @@ export default function Profile({ navigation }) {
     }
 
     useEffect(() => {
-        registerForPushNotificationsAsync().then(() => {
-
+        registerForPushNotificationsAsync().then((res) => {
+            let notiToken = res
             getStoredToken().then((res) => {
                 let token = res
                 checkIsFirstTime().then((isfirst) => {
                     if (token) {
                         setToken(token)
-                        getUser(token, notificationToken).then((user) => {
+                        getUser(token, notiToken).then((user) => {
+                            console.log(notiToken);
                             showScreens(isfirst, user, token)
                             if (user && user.approved && !user.approving_msg_seen)
                                 seenVerifyMsg(token)
@@ -260,7 +262,7 @@ export default function Profile({ navigation }) {
                         <View style={styles.head}>
                             {user && user.photo_path ? (
                                 <Image
-                                    source={{ uri: 'https://1d3c-197-37-12-245.ngrok-free.app/images/uploads/' + user.photo_path }}
+                                    source={{ uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + user.photo_path }}
                                     alt="fentec logo"
                                     style={styles.profile_img}
                                 />
