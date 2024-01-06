@@ -81,10 +81,10 @@ export default function LoginHeader(props) {
                 <TouchableOpacity style={[styles.choiceWrapper, props.active == 2 && styles.choiceActive]} onPress={() => navigation.push('Map', { user: user })}>
                     <Ionicons name="map-sharp" size={40} color={props.active == 2 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive]} onPress={() => navigation.navigate('Account', { user: user })}>
+                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive]} onPress={() => navigation.push('Account', { user: user })}>
                     <FontAwesome name="user" size={40} color={props.active == 3 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive, { display: 'none' }]} onPress={() => navigation.navigate('Account', { user: user })}>
+                <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive, { display: 'none' }]} onPress={() => navigation.push('Account', { user: user })}>
                     <FontAwesome name="user" size={40} color={props.active == 3 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                 </TouchableOpacity>
             </View>

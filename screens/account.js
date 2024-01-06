@@ -1,10 +1,12 @@
 import {
-    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, Modal
+    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, Modal, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import TimerMixin from 'react-timer-mixin';
 import * as SecureStore from 'expo-secure-store';
 import Nav from './../components/mainNav';
-import { SimpleLineIcons, MaterialIcons, MaterialCommunityIcons, Entypo, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
+import { Feather, MaterialIcons, MaterialCommunityIcons, Entypo, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -35,6 +37,116 @@ export default function Account({ navigation, route }) {
         "ar": {
         }
     }
+    const [emailfocused, setEmailfocused] = useState(false);
+    const handleEmailFocus = () => {
+        setEmailfocused(true);
+    };
+    const [email, setEmail] = useState(user ? user.email : '');
+    const handleCancelEditEmail = () => {
+        setEmail(user.email)
+        setIsShowEditEmail(false)
+    }
+    const handleEditEmail = async (token) => {
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/edit-email`, {
+                new_email: email,
+                api_password: 'Fentec@scooters.algaria'
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            },);
+
+            if (response.data.status === true) {
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    setLoading(false);
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Verify',
+                            params: {
+                              email: email,
+                              token: response.data.data.token,
+                            },
+                          },
+                        ],
+                      });
+                }, 1500)
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
+    const [phonefocused, setPhonefocused] = useState(false);
+    const handlePhoneFocus = () => {
+        setEmailfocused(true);
+    };
+    const [phone, setPhone] = useState(user ? user.phone : '');
+    const handleCancelEditPhone = () => {
+        setPhone(user.phone)
+        setIShowEditPhone(false)
+        setSuccessMsg('')
+    }
+    const handleEditPhone = async (token) => {
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/edit-phone`, {
+                new_phone: phone,
+                api_password: 'Fentec@scooters.algaria'
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            },);
+
+            if (response.data.status === true) {
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    setLoading(false);
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Profile',
+                            params: {}, // No params to pass in this case
+                          },
+                        ],
+                      });
+                }, 1500)
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
     const [currentLang, setCurrentLag] = useState('ar')
     const [screenContent, setScreenContent] = useState(translations.ar);
 
@@ -65,6 +177,8 @@ export default function Account({ navigation, route }) {
 
     // edit language ....
     const [isShowEditLanguage, setIsShowEditLanguage] = useState(false);
+    const [isShowEditEmail, setIsShowEditEmail] = useState(false);
+    const [iShowEditPhone, setIShowEditPhone] = useState(false);
     const [lang, setLang] = useState('ar');
     const storeLang = async () => {
         await SecureStore.setItemAsync('lang', lang)
@@ -84,18 +198,81 @@ export default function Account({ navigation, route }) {
 
     const handleLogout = async () => {
         await SecureStore.setItemAsync('user_token', '')
-        navigation.push('Profile')
+        navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'Profile',
+                params: {}, // No params to pass in this case
+              },
+            ],
+          });
+        }
+    const [scrollY, setScrollY] = useState(0);
+    const onScroll = (event) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        setScrollY(offsetY);
+    };
+
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState([]);
+    const [successMsg, setSuccessMsg] = useState('');
+    const [token, setToken] = useState('')
+    
+    const getStoredToken = async () => {
+        const user_token = await SecureStore.getItemAsync('user_token');
+        if (user_token)
+            setToken(user_token)
     }
 
     useEffect(() => {
+        getStoredToken()
         getStoredLang();
     }, []);
 
     return (
         <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
-            <Nav active="3" navigation={navigation} />
-            <ScrollView>
+            <Nav active="3" navigation={navigation} user={user}/>
+            <ScrollView onScroll={onScroll} scrollEventThrottle={16} style={{ position: 'relative' }}>
+            <Text style={{
+                    position: 'absolute', top: scrollY + 50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#e41749',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: errors.length ? 'flex' : 'none'
+                }}>{errors.length ? errors[0] : ''}</Text>
+                <Text style={{
+                    position: 'absolute', top: scrollY + 50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#12c99b',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: successMsg == '' ? 'none' : 'flex'
+                }}>{successMsg}</Text>
+                {loading && (
+                    <View style={{
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 336,
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        marginTop: 22,
+                        backgroundColor: 'rgba(0, 0, 0, .5)',
+                        position: 'absolute',
+                        top: 10,
+                        left: 0,
+                    }}>
+                        <ActivityIndicator size="200px" color="#ff7300" />
+                    </View>
+                )}
                 <View style={styles.contianer}>
                     <View style={styles.profile}>
                         <View style={styles.bg}></View>
@@ -122,17 +299,19 @@ export default function Account({ navigation, route }) {
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                         {user && (
-                            <TouchableOpacity style={[styles.input, { paddingLeft: 70 }]}><Text style={[styles.input_text, { color: '#000' }]}>{user.phone}</Text></TouchableOpacity>
+                            <View style={[styles.input, { paddingLeft: 70 }]}><Text style={[styles.input_text, { color: '#000' }]}>{user.phone}</Text></View>
                         )}
                         <FontAwesome name="phone" size={35} color="black" style={{ position: 'absolute', left: 40 }} />
-                        <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" style={{ position: 'absolute', right: 40 }} />
+                        <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" style={{ position: 'absolute', right: 40 }} onPress={() => {setIShowEditPhone(true)}} />
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                         {user && (
-                            <TouchableOpacity style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>{user.email}</Text></TouchableOpacity>
+                            <View style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>{user.email}</Text></View>
                         )}
                         <MaterialIcons name="email" size={35} color="black" style={{ position: 'absolute', left: 40 }} />
-                        <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" style={{ position: 'absolute', right: 40 }} />
+                        <TouchableOpacity onPress={() => setIsShowEditEmail(true)} style={{ position: 'absolute', right: 40 }} >
+                            <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" />
+                        </TouchableOpacity>
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                         <TouchableOpacity style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>Password</Text></TouchableOpacity>
@@ -186,6 +365,98 @@ export default function Account({ navigation, route }) {
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => storeLang()} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
                                 <Text style={[styles.button_text, { color: '#fff' }]}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+
+            </Modal>
+
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={isShowEditEmail}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <MaterialCommunityIcons name="email-edit-outline" size={60} color="rgba(255, 115, 0, 1)" style={{marginBottom: 5}} />
+                        <Text style={styles.name}>Edit Email</Text>
+                        {user && (
+                            <TextInput
+                                placeholder={screenContent.email_e}
+                                onChangeText={setEmail}
+                                value={email}
+                                onFocus={() => handleEmailFocus()}
+                                onBlur={() => setEmailfocused(false)}
+                                style={[
+                                    styles.input,
+                                    emailfocused && {
+                                        borderColor: 'rgba(255, 115, 0, 1)',
+                                        borderWidth: 2
+                                    },
+                                    currentLang == 'ar' && {
+                                        textAlign: 'right',
+                                    },
+                                    {
+                                        marginTop: 10,
+                                        marginBottom: 20
+                                    }
+                                ]}
+
+                            />
+                        )}
+                        <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
+                            <TouchableOpacity onPress={() => handleCancelEditEmail()} style={[styles.btn, { backgroundColor: '#c2c2c2', width: '40%', alignItems: 'center' }]}>
+                                <Text style={[styles.button_text, { color: '#000' }]}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleEditEmail(token)} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
+                                <Text style={[styles.button_text, { color: '#fff' }]}>Edit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+
+            </Modal>
+
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={iShowEditPhone}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                    <Feather name="phone" size={60} color="rgba(255, 115, 0, 1)" />
+                        <Text style={styles.name}>Edit Phone</Text>
+                        {user && (
+                            <TextInput
+                                placeholder={screenContent.email_e}
+                                onChangeText={setPhone}
+                                value={phone}
+                                onFocus={() => handlePhoneFocus()}
+                                onBlur={() => setPhonefocused(false)}
+                                style={[
+                                    styles.input,
+                                    phonefocused && {
+                                        borderColor: 'rgba(255, 115, 0, 1)',
+                                        borderWidth: 2
+                                    },
+                                    currentLang == 'ar' && {
+                                        textAlign: 'right',
+                                    },
+                                    {
+                                        marginTop: 10,
+                                        marginBottom: 20
+                                    }
+                                ]}
+
+                            />
+                        )}
+                        <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
+                            <TouchableOpacity onPress={() => handleCancelEditPhone()} style={[styles.btn, { backgroundColor: '#c2c2c2', width: '40%', alignItems: 'center' }]}>
+                                <Text style={[styles.button_text, { color: '#000' }]}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleEditPhone(token)} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
+                                <Text style={[styles.button_text, { color: '#fff' }]}>Edit</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

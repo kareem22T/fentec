@@ -189,10 +189,28 @@ export default function LastStep({ navigation, route }) {
                 TimerMixin.setTimeout(() => {
                     setLoading(false);
                     if (route.params.user)
-                        navigation.push('Profile')
+                        navigation.reset({
+                            index: 0,
+                            routes: [
+                            {
+                                name: 'Profile',
+                                params: {}, // No params to pass in this case
+                            },
+                            ],
+                        });
                     else
-                        navigation.navigate('WhereKnow', { token: token })
-                }, 1500);
+                        navigation.reset({
+                            index: 0,
+                            routes: [
+                            {
+                                name: 'WhereKnow',
+                                params: {
+                                token: token,
+                                },
+                            },
+                            ],
+                        });
+                    }, 1500);
             } else {
                 setLoading(false);
                 setErrors(response.data.errors);

@@ -96,7 +96,17 @@ export default function WhereKnow({ navigation, route }) {
                 setLoading(false);
                 setErrors([]);
                 // setSuccessMsg(response.data.message);
-                navigation.navigate('YouWon', { token: token })
+                navigation.reset({
+                    index: 0,
+                    routes: [
+                        {
+                        name: 'YouWon',
+                        params: {
+                            token: token,
+                        },
+                        },
+                    ],
+                });
             } else {
                 setLoading(false);
                 setErrors(response.data.errors);

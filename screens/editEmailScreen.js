@@ -20,38 +20,29 @@ const BackgroundImage = () => {
     )
 }
 
-export default function Verify({ navigation, route }) {
+export default function EditEmail({ navigation, route }) {
     const [currentLang, setCurrentLag] = useState('ar')
     const translations = {
         "en": {
-            "msg": "We just have sent you an verification code to your email please, write it here",
-            "sub_msg": "verification code sent to:",
-            "edit_mail": "edit email",
-            "ask_for_code": "Didn't receive the verification code?",
-            "timer_words": "resend in",
-            "btn": "Resend",
-            "code_place": "Verification code",
-            "submit": "Submit"
+            "msg": "Change your Email",
+            "sub_msg": "Here is your old email:",
+            "email_place": "New Email",
+            "edit_mail": "Back",
+            "btn": "Change"
         },
         "fr": {
-            "msg": "Nous venons de vous envoyer un code de vérification à votre e-mail \nS'il vous plaît écrivez le ici",
-            "sub_msg": "Code de vérification envoyé à:",
-            "edit_mail": "Modifier l'e-mail",
-            "ask_for_code": "Didn't receive the verification code?",
-            "timer_words": "Renouvellement en",
-            "btn": "Renvoyer",
-            "code_place": "Code de vérification",
-            "submit": "Soumettre"
+            "msg": "Changez votre e-mail",
+            "sub_msg": "Voici votre ancien email:",
+            "edit_mail": "Dos",
+            "email_place": "Nouveau courriel",
+            "btn": "changement"
         },
         "ar": {
-            "msg": "قد ارسلنا للتو رمز التحقق لبريدك الالكتروني, رجاء كتابته",
-            "sub_msg": "تم ارسال رمز التحقق الي:",
-            "edit_mail": "تعديل البريد الالكتروني",
-            "ask_for_code": "لم تتلقى رمز التحقق؟",
-            "timer_words": "اعد طلب الارسال بعد",
-            "btn": "إعادة إرسال",
-            "code_place": "رمز التحقق",
-            "submit": "تاكيد"
+            "msg": "تغير البريد الالكتروني",
+            "edit_mail": "الرجوع للخلف",
+            "sub_msg": "ها هو بريجك الحالي:",
+            "email_place": "البريد الالكنروني الجديد",
+            "btn": "تغير الان"
         }
     }
     const [screenContent, setScreenContent] = useState(translations.ar);
@@ -63,31 +54,31 @@ export default function Verify({ navigation, route }) {
         }
     }
 
-    const [codeFocused, setCodeFocused] = useState(false);
-    const [code, setCode] = useState('');
-    const handleCodeFocused = () => {
-        setCodeFocused(true);
+    const [emailFocused, setEmailFocused] = useState(false);
+    const [email, setEmail] = useState('');
+    const handleEmailFocused = () => {
+        setEmailFocused(true);
     };
 
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
     const [successMsg, setSuccessMsg] = useState('');
-
-    const verify = async (token) => {
+    const handleEditEmail = async (token) => {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://adminandapi.fentecmobility.com/active-account`, {
-                api_password: 'Fentec@scooters.algaria',
-                code: code,
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/edit-email`, {
+                new_email: email,
+                api_password: 'Fentec@scooters.algaria'
             },
-                {
-                    headers: {
-                        'AUTHORIZATION': `Bearer ${token}`
-                    }
-                },);
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            },);
 
             if (response.data.status === true) {
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
@@ -96,14 +87,15 @@ export default function Verify({ navigation, route }) {
                         index: 0,
                         routes: [
                           {
-                            name: 'Profile',
+                            name: 'Verify',
                             params: {
-                              token: token,
+                              email: email,
+                              token: response.data.data.token,
                             },
                           },
                         ],
                       });
-                }, 1500);
+                }, 1500)
             } else {
                 setLoading(false);
                 setErrors(response.data.errors);
@@ -117,62 +109,9 @@ export default function Verify({ navigation, route }) {
             console.error(error);
         }
     }
-    const sendCode = async (token) => {
-        setLoading(true)
-        console.log(token);
-        setErrors([])
-        try {
-            const response = await axios.post(`https://adminandapi.fentecmobility.com/send-code`, {
-                api_password: 'Fentec@scooters.algaria',
-            },
-                {
-                    headers: {
-                        'AUTHORIZATION': `Bearer ${token}`
-                    }
-                },);
-
-            if (response.data.status === true) {
-                setLoading(false);
-                setErrors([]);
-                setSuccessMsg(response.data.message);
-                TimerMixin.setTimeout(() => {
-                    setSuccessMsg('')
-                    setCountdown(59)
-                }, 2500);
-            } else {
-                setLoading(false);
-                setErrors(response.data.errors);
-                TimerMixin.setTimeout(() => {
-                    setErrors([]);
-                }, 2000);
-            }
-        } catch (error) {
-            setLoading(false);
-            setErrors(["Server error, try again later."]);
-            console.error(error);
-        }
-    }
-
-    const [countdown, setCountdown] = useState(59);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCountdown(prevCountdown => {
-                if (prevCountdown === 0) {
-                    clearInterval(timer); // Stop the timer
-                    // Do something else here when the countdown reaches zero
-                    return 0; // Set countdown to 0
-                } else {
-                    return prevCountdown - 1; // Decrease countdown by 1
-                }
-            });
-        }, 1000);
-
         getStoredLang();
-        sendCode(route.params.token)
-        return () => {
-            clearInterval(timer); // Cleanup: clear the interval when the component unmounts
-        };
     }, []);
 
     return (
@@ -225,57 +164,53 @@ export default function Verify({ navigation, route }) {
             <View style={styles.container}>
                 <View style={{ marginTop: 15 }}>
                     <Text style={styles.msg}>{screenContent.msg}</Text>
-                    <View style={{ gap: 5, marginTop: 10, alignItems: 'center' }}>
+                    <View style={{ gap: 5, marginTop: 10, alignItems: 'center', width: "100%" }}>
                         <Text style={styles.subYemail}>{screenContent.sub_msg}</Text>
-                        <Text style={styles.subYemail}>{route.params.email}</Text>
-                        <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }} onPress={() => 
-                            navigation.reset({
-                                index: 0,
-                                routes: [
+                        <Text style={[styles.subYemail, {marginBottom: 10}]}>{route.params.email}</Text>
+                        <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }} onPress={() => navigation.reset({
+                            index: 0,
+                            routes: [
                                 {
-                                    name: 'EditEmail',
-                                    params: {
-                                    email: route.params.email,
+                                name: 'Verify',
+                                params: {
+                                    email: route.params.email, // Accessing email and token from route.params
                                     token: route.params.token,
-                                    },
                                 },
-                                ],
-                            })
-                        }>
+                                },
+                            ],
+                            })}>
                             <Image source={require('./../assets/imgs/icons/angle-left-orang.png')} style={{ width: 20, height: 20, resizeMode: 'contain', opacity: 1 }} />
                             <Text style={[styles.subYemail, { color: "#ff7300", borderBottomColor: '#ff7300', borderBottomWidth: 1 }]}>{screenContent.edit_mail}</Text>
                         </TouchableOpacity>
-                        <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                        <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, width: "90%" }}>
                             <TextInput
-                                placeholder={screenContent.code_place}
-                                onChangeText={setCode}
-                                value={code}
-                                onFocus={() => handleCodeFocused()}
-                                onBlur={() => setCodeFocused(false)}
+                                placeholder={screenContent.email_place}
+                                onChangeText={setEmail}
+                                value={email}
+                                onFocus={() => handleEmailFocused()}
+                                onBlur={() => setEmailFocused(false)}
                                 style={[
                                     styles.input,
-                                    codeFocused && {
+                                    {
+                                        width: "100%"
+                                    },
+                                    emailFocused && {
                                         borderColor: 'rgba(255, 115, 0, 1)',
                                         borderWidth: 2
                                     },
                                     currentLang == 'ar' && {
                                         textAlign: 'right',
                                     },
-                                    code && {
+                                    email && {
                                         color: '#000'
                                     },
                                 ]} />
-                            <TouchableOpacity style={[styles.btn, { width: 'auto', paddingLeft: 10, paddingRight: 10, height: 66, marginBottom: 0, }]} onPress={() => verify(route.params.token)}><Text style={[styles.button_text, { fontSize: 1.25 * 16, }]}>{screenContent.submit}</Text></TouchableOpacity>
                         </View>
                     </View>
                 </View>
                 <View style={{ width: '100%', gap: 5 }}>
-                    <Text style={styles.subYemail}>
-                        {screenContent.ask_for_code}
-                    </Text>
                     <View style={{ width: '100%', alignItems: 'center', gap: 5 }}>
-                        <Text style={[styles.subYemail, countdown != 0 ? { display: 'flex' } : { display: 'none' }]}>{screenContent.timer_words} {countdown} </Text>
-                        <TouchableOpacity style={[styles.btn, countdown == 0 ? { opacity: 1 } : { opacity: .5 }]} onPress={countdown == 0 ? () => sendCode(route.params.token) : ''}><Text style={styles.button_text}>{screenContent.btn}</Text></TouchableOpacity>
+                        <TouchableOpacity style={[styles.btn]} onPress={() => handleEditEmail(route.params.token)}><Text style={styles.button_text}>{screenContent.btn}</Text></TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -318,6 +253,7 @@ const styles = StyleSheet.create({
         // fontWeight: 600,
         lineHeight: 1.5 * 16,
         textAlign: 'left',
+        width: "100%",
         padding: 1.25 * 16,
         borderRadius: 1.25 * 16,
         backgroundColor: "rgba(255, 255, 255, 1)",

@@ -9,7 +9,7 @@ import axios from 'axios'
 import TimerMixin from 'react-timer-mixin';
 import { PROVIDER_GOOGLE } from 'react-native-maps'
 
-export default function Map({ navigation }) {
+export default function Map({ navigation, route }) {
     const [location, setLocation] = useState(null);
 
     const [scooters, setScooters] = useState([])
@@ -33,6 +33,10 @@ export default function Map({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
     const [successMsg, setSuccessMsg] = useState('');
+    let user;
+    if (route.params.user)
+        user = route.params.user;
+
 
     const cetnerLocation = async () => {
 
@@ -71,13 +75,8 @@ export default function Map({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.get(`https://adminandapi.fentecmobility.com/map/scooters`,
-                {
-                    headers: {
-                        "api_password": "Fentec@scooters.algaria"
-                    }
-                });
-
+            const response = await axios.get(`https://adminandapi.fentecmobility.com/map/scooters`);
+            // console.log(response);
             if (response.data.status === true) {
                 setErrors([]);
                 setSuccessMsg(response.data.message);
@@ -113,7 +112,6 @@ export default function Map({ navigation }) {
                 return;
             }
         }
-        console.log(`https://adminandapi.fentecmobility.com/map/nearest-scooter?lat=${location.coords.latitude}&lng=${location.coords.longitude}`);
         if (location) {
             setLoading(true)
             try {
@@ -197,7 +195,7 @@ export default function Map({ navigation }) {
 
     return (
         <View style={{ flex: 1 }}>
-            <Nav showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2" navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} />
+            <Nav showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2"  user={user} navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} />
 
             {loading && (
                 <View style={{

@@ -107,7 +107,18 @@ export default function Register({ navigation }) {
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
                     setLoading(false);
-                    navigation.navigate('Verify', { email: email, token: response.data.data.token })
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Verify',
+                            params: {
+                              email: email,
+                              token: response.data.data.token,
+                            },
+                          },
+                        ],
+                      });
                 }, 1500)
             } else {
                 setLoading(false);

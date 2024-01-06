@@ -100,7 +100,15 @@ export default function Login({ navigation }) {
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
-                    navigation.push('Profile')
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Profile',
+                            params: {}, // No params to pass in this case
+                          },
+                        ],
+                      });                      
                 }, 1500)
             } else {
                 setLoading(false);

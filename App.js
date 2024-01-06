@@ -24,6 +24,7 @@ import Points from './screens/points';
 import Notifications from './screens/notification';
 import Map from './screens/map';
 import Account from './screens/account';
+import EditEmail from './screens/editEmailScreen';
 
 export default function App() {
   let [fontsLoaded, fontError] = useFonts({
@@ -83,6 +84,11 @@ export default function App() {
         <Stack.Screen
           name="Verify"
           component={VerifyScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EditEmail"
+          component={EditEmail}
           options={{ headerShown: false }}
         />
         <Stack.Screen
