@@ -6,7 +6,7 @@ import axios from 'axios';
 import TimerMixin from 'react-timer-mixin';
 import * as SecureStore from 'expo-secure-store';
 import Nav from './../components/mainNav';
-import { Feather, MaterialIcons, MaterialCommunityIcons, Entypo, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
+import { Feather, MaterialIcons, MaterialCommunityIcons, Entypo, AntDesign, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -147,6 +147,69 @@ export default function Account({ navigation, route }) {
         }
     }
 
+    const [oldPasswordfocused, setOldPasswordfocused] = useState(false);
+    const handleOldPasswordFocus = () => {
+        setEmailfocused(true);
+    };
+    const [oldPassword, setOldPassword] = useState('');
+    const handleCancelEditPassword = () => {
+        setIShowEditPassword(false)
+    }
+    const [newPasswordfocused, setNewPasswordfocused] = useState(false);
+    const handleNewPasswordFocus = () => {
+        setEmailfocused(true);
+    };
+    const [newPassword, setNewPassword] = useState('');
+    const [newPasswordConfirmationfocused, setNewPasswordConfirmationfocused] = useState(false);
+    const handleNewPasswordConfirmationFocus = () => {
+        setEmailfocused(true);
+    };
+    const [newPasswordConfirmation, setNewPasswordConfirmation] = useState('');
+    const handleChangePassword = async (token) => {
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/change-password`, {
+                old_password: oldPassword,
+                new_password: newPassword,
+                new_password_confirmation: newPasswordConfirmation,
+                api_password: 'Fentec@scooters.algaria'
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            },);
+
+            if (response.data.status === true) {
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    setLoading(false);
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Profile',
+                            params: {}, // No params to pass in this case
+                          },
+                        ],
+                      });
+                }, 1500)
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
     const [currentLang, setCurrentLag] = useState('ar')
     const [screenContent, setScreenContent] = useState(translations.ar);
 
@@ -175,10 +238,69 @@ export default function Account({ navigation, route }) {
         }
     };
 
+    const handleChanePhoto = async (token) => {
+        const formData = new FormData();
+
+        if (image)
+            formData.append('profile_img', {
+                name: 'photo.jpg',
+                uri: image,
+                type: 'image/jpeg',
+            })
+
+        formData.append('api_password', 'Fentec@scooters.algaria')
+
+
+        setLoading(true)
+        setErrors([])
+        console.log(token);
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/change-profile-pic`, formData,
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    }
+                },
+
+            );
+
+            if (response.data.status === true) {
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
+                TimerMixin.setTimeout(() => {
+                    setLoading(false);
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Profile',
+                            params: {}, // No params to pass in this case
+                          },
+                        ],
+                      });
+                }, 1500)
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.log(error);
+        }
+    }
+
+
     // edit language ....
     const [isShowEditLanguage, setIsShowEditLanguage] = useState(false);
     const [isShowEditEmail, setIsShowEditEmail] = useState(false);
     const [iShowEditPhone, setIShowEditPhone] = useState(false);
+    const [iShowEditPassword, setIShowEditPassword] = useState(false);
     const [lang, setLang] = useState('ar');
     const storeLang = async () => {
         await SecureStore.setItemAsync('lang', lang)
@@ -278,11 +400,20 @@ export default function Account({ navigation, route }) {
                         <View style={styles.bg}></View>
                         <View style={styles.head}>
                             <TouchableOpacity onPress={pickImage} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Image source={image ? { uri: image } : require('./../assets/imgs/default_user.jpg')}
+                                <Image source={image ? { uri: image } : (user && user.photo_path ? { uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + user.photo_path } : require('./../assets/imgs/default_user.jpg'))}
                                     style={{ width: 100, height: 100, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
-                                <View style={{ width: 30, height: 30, backgroundColor: 'rgba(255, 115, 0, 1)', borderRadius: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: -17 }}>
-                                    <FontAwesome5 name="edit" size={13} color="#fff" />
-                                </View>
+                                {image ? 
+                                (
+                                    <TouchableOpacity style={{ width: 30, height: 30, backgroundColor: 'rgba(255, 115, 0, 1)', borderRadius: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: -17 }} onPress={() => handleChanePhoto(token)}>
+                                        <AntDesign name="check" size={13} color="#fff" />
+                                    </TouchableOpacity>
+                                ) :
+                                (
+                                    <View style={{ width: 30, height: 30, backgroundColor: 'rgba(255, 115, 0, 1)', borderRadius: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: -17 }}>
+                                        <FontAwesome5 name="edit" size={13} color="#fff" />
+                                    </View>
+                                )
+                                }
                             </TouchableOpacity>
 
                             {user && (
@@ -314,9 +445,11 @@ export default function Account({ navigation, route }) {
                         </TouchableOpacity>
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                        <TouchableOpacity style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>Password</Text></TouchableOpacity>
+                        <View style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>Password</Text></View>
                         <Entypo name="lock" size={35} color="black" style={{ position: 'absolute', left: 40 }} />
-                        <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" style={{ position: 'absolute', right: 40 }} />
+                        <TouchableOpacity onPress={() => setIShowEditPassword(true)} style={{ position: 'absolute', right: 40 }} >
+                            <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" />
+                        </TouchableOpacity>
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                         <TouchableOpacity onPress={() => handleLogout()} style={[styles.input, styles.btn]}><Text style={[styles.input_text, { textAlign: 'left', width: '100%' }]}><MaterialCommunityIcons name="logout" size={30} color="black" /> Log Out</Text></TouchableOpacity>
@@ -457,6 +590,94 @@ export default function Account({ navigation, route }) {
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleEditPhone(token)} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
                                 <Text style={[styles.button_text, { color: '#fff' }]}>Edit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+
+            </Modal>
+
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={iShowEditPassword}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <AntDesign name="lock" size={60} color="rgba(255, 115, 0, 1)" />
+                        <Text style={styles.name}>Change Password</Text>
+                        <TextInput
+                            placeholder={"Old Password"}
+                            onChangeText={setOldPassword}
+                            value={oldPassword}
+                            onFocus={() => handleOldPasswordFocus()}
+                            onBlur={() => setOldPasswordfocused(false)}
+                            style={[
+                                styles.input,
+                                oldPasswordfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                                {
+                                    marginTop: 10,
+                                    marginBottom: 20
+                                }
+                            ]}
+
+                        />
+                        <TextInput
+                            placeholder={"New Password"}
+                            onChangeText={setNewPassword}
+                            value={newPassword}
+                            onFocus={() => handleNewPasswordFocus()}
+                            onBlur={() => setNewPasswordfocused(false)}
+                            style={[
+                                styles.input,
+                                newPasswordfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                                {
+                                    marginTop: 10,
+                                    marginBottom: 20
+                                }
+                            ]}
+
+                        />
+                        <TextInput
+                            placeholder={"New Password Confirmation"}
+                            onChangeText={setNewPasswordConfirmation}
+                            value={newPasswordConfirmation}
+                            onFocus={() => handleNewPasswordConfirmationFocus()}
+                            onBlur={() => setNewPasswordConfirmationfocused(false)}
+                            style={[
+                                styles.input,
+                                newPasswordConfirmationfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                                {
+                                    marginTop: 10,
+                                    marginBottom: 20
+                                }
+                            ]}
+
+                        />
+                        <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
+                            <TouchableOpacity onPress={() => handleCancelEditPassword()} style={[styles.btn, { backgroundColor: '#c2c2c2', width: '40%', alignItems: 'center' }]}>
+                                <Text style={[styles.button_text, { color: '#000' }]}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleChangePassword(token)} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
+                                <Text style={[styles.button_text, { color: '#fff' }]}>Change</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
