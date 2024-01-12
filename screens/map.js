@@ -8,6 +8,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios'
 import TimerMixin from 'react-timer-mixin';
 import { PROVIDER_GOOGLE } from 'react-native-maps'
+import Icon from 'react-native-vector-icons/Entypo';
 
 export default function Map({ navigation, route }) {
     const [location, setLocation] = useState(null);
@@ -305,7 +306,11 @@ export default function Map({ navigation, route }) {
                 provider={PROVIDER_GOOGLE}
             >
                 {location && (
-                    <Marker coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }} icon={require('./../assets/imgs/icons/current_icon.png')} style={[{ width: 20, height: 20, resizeMode: 'contain' }]} />
+                    <Marker
+                        coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
+                        icon={<Icon name="location-pin" size={24} color="black" />}
+                        style={[{ width: 24, height: 24 }]} // Adjust size as needed
+                        />
                 )}
                 {scooters.length > 0 && (
                     // Iterate through the scooters array

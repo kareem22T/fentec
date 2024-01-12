@@ -714,7 +714,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Outfit_600SemiBold',
         lineHeight: 1.5 * 16,
         textAlign: 'center',
-        marginTop: 70
+        marginTop: 50
     },
     profile: {
         // padding: 16,

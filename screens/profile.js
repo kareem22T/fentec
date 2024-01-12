@@ -7,7 +7,7 @@ import { Ionicons, MaterialIcons, MaterialCommunityIcons, Entypo, FontAwesome, F
 import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
-
+import { AppState } from 'react-native';
 const BackgroundImage = () => {
     return (
         <Image source={require('./../assets/imgs/home_bg.png')} style={{
@@ -20,8 +20,15 @@ const BackgroundImage = () => {
         }} />
     )
 }
-
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
 export default function Profile({ navigation }) {
+    const [appState, setAppState] = useState(AppState.currentState);
     const translations = {
         "en": {
             "title": "Thanks for joining",
@@ -198,7 +205,6 @@ export default function Profile({ navigation }) {
             const subscription = Notifications.addNotificationReceivedListener(notification => {
                 console.log('Notification received:', notification);
             });
-
             return () => {
                 if (subscription) {
                     subscription.remove();
@@ -208,12 +214,11 @@ export default function Profile({ navigation }) {
 
         getStoredLang();
     }, []);
-
     return (
         <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
             <Nav active="1" navigation={navigation} user={user} />
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications', { user: user })} style={{ position: 'absolute', zIndex: 999, top: 40, right: 40 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Notifications', { user: user })} style={{ position: 'absolute', zIndex: 999, top: 30, right: 40 }}>
                 <Ionicons name="notifications" size={40} color="rgba(255, 115, 0, 1)" />
             </TouchableOpacity>
             {loading && (
@@ -226,7 +231,23 @@ export default function Profile({ navigation }) {
                     marginTop: 22,
                     backgroundColor: '#fff',
                     position: 'absolute',
-                    top: 10,
+                    top: 0,
+                    left: 0,
+                }}>
+                    <ActivityIndicator size="200px" color="#ff7300" />
+                </View>
+            )}
+            {loading && (
+                <View style={{
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 9999999999,
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    marginTop: 22,
+                    backgroundColor: '#fff',
+                    position: 'absolute',
+                    top: 0,
                     left: 0,
                 }}>
                     <ActivityIndicator size="200px" color="#ff7300" />
@@ -367,7 +388,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Outfit_600SemiBold',
         lineHeight: 1.5 * 16,
         textAlign: 'center',
-        marginTop: 90
+        marginTop: 70
     },
     approvingAlert: {
         padding: 15,
