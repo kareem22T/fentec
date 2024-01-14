@@ -20,13 +20,6 @@ const BackgroundImage = () => {
         }} />
     )
 }
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
-    }),
-  });
 export default function Profile({ navigation }) {
     const [appState, setAppState] = useState(AppState.currentState);
     const translations = {
@@ -68,29 +61,6 @@ export default function Profile({ navigation }) {
             setCurrentLag(storedLang)
         }
     }
-
-    const registerForPushNotificationsAsync = async () => {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-
-        if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-        }
-
-        if (finalStatus !== 'granted') {
-            console.log('Failed to get push token for push notification!');
-            return;
-        }
-
-        // Get the token that uniquely identifies this device
-        const expoPushToken = await Notifications.getExpoPushTokenAsync({
-            projectId: 'ffffa495-1c0e-44a9-8788-c5b2c429bb5b',
-        });
-        setNotificationToken(expoPushToken.data)
-        console.log('Expo Push Token:', expoPushToken);
-        return expoPushToken.data;
-    };
 
     const getStoredToken = async () => {
         const user_token = await SecureStore.getItemAsync('user_token');
@@ -184,34 +154,21 @@ export default function Profile({ navigation }) {
     }
 
     useEffect(() => {
-        registerForPushNotificationsAsync().then((res) => {
-            let notiToken = res
-            getStoredToken().then((res) => {
-                let token = res
-                checkIsFirstTime().then((isfirst) => {
-                    if (token) {
-                        setToken(token)
-                        getUser(token, notiToken).then((user) => {
-                            console.log(notiToken);
-                            showScreens(isfirst, user, token)
-                            if (user && user.approved && !user.approving_msg_seen)
-                                seenVerifyMsg(token)
-                        })
-                    } else {
-                        showScreens(isfirst, res)
-                    }
-                })
-            });
-            const subscription = Notifications.addNotificationReceivedListener(notification => {
-                console.log('Notification received:', notification);
-            });
-            return () => {
-                if (subscription) {
-                    subscription.remove();
+        getStoredToken().then((res) => {
+            let token = res
+            checkIsFirstTime().then((isfirst) => {
+                if (token) {
+                    setToken(token)
+                    getUser(token).then((user) => {
+                        showScreens(isfirst, user, token)
+                        if (user && user.approved && !user.approving_msg_seen)
+                            seenVerifyMsg(token)
+                    })
+                } else {
+                    showScreens(isfirst, res)
                 }
-            };
+            })
         });
-
         getStoredLang();
     }, []);
     return (
@@ -221,22 +178,6 @@ export default function Profile({ navigation }) {
             <TouchableOpacity onPress={() => navigation.navigate('Notifications', { user: user })} style={{ position: 'absolute', zIndex: 999, top: 30, right: 40 }}>
                 <Ionicons name="notifications" size={40} color="rgba(255, 115, 0, 1)" />
             </TouchableOpacity>
-            {loading && (
-                <View style={{
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 9999999999,
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    marginTop: 22,
-                    backgroundColor: '#fff',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                }}>
-                    <ActivityIndicator size="200px" color="#ff7300" />
-                </View>
-            )}
             {loading && (
                 <View style={{
                     width: '100%',

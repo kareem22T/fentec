@@ -49,9 +49,13 @@
     },
     "extra": {
       "eas": {
-        "projectId": "ffffa495-1c0e-44a9-8788-c5b2c429bb5b"
+        "projectId": "8b66ce42-416e-4b7b-8c5c-ba3418816d18"
       }
     },
-    "owner": "kareem11"
+    "owner": "kareem11",
+    "runtimeVersion": "exposdk:46.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/ffffa495-1c0e-44a9-8788-c5b2c429bb5b"
+    }
   }
 }
