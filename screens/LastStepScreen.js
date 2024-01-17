@@ -234,7 +234,7 @@ export default function LastStep({ navigation, route }) {
         //     <Button title="Pick an image from camera roll" onPress={pickImage} />
         //     {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
         // </View>
-        <SafeAreaView style={styles.wrapper}>
+        <ScrollView style={styles.wrapper} contentContainerStyle={{flexGrow: 1}}>
             <LoginHeader active={3}></LoginHeader>
             <BackgroundImage></BackgroundImage>
             <Text style={{
@@ -367,7 +367,7 @@ export default function LastStep({ navigation, route }) {
                     </TouchableOpacity>
                 </View>
             </View>
-        </SafeAreaView >
+        </ScrollView>
     );
 }
 

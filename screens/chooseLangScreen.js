@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     choose_btn: {
         cursor: 'pointer',
         flexDirection: 'column',
-        padding: 20,
+        padding: 16,
         backgroundColor: 'transparent',
         border: 'none',
         borderRadius: 20,
@@ -115,9 +115,9 @@ const styles = StyleSheet.create({
         opacity: .6
     },
     btn_big_text: {
-        fontSize: 2.5 * 16,
+        fontSize: 2.3 * 16,
         fontFamily: 'Outfit_600SemiBold',
-        lineHeight: 3.9 * 16,
+        lineHeight: 3.2 * 16,
         letterSpacing: 0,
         textAlign: 'center',
     },
@@ -129,9 +129,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     btn_big_text_ar: {
-        fontSize: 2.5 * 16,
+        fontSize: 2.3 * 16,
         fontFamily: 'Outfit_600SemiBold',
-        lineHeight: 3.9 * 16,
+        lineHeight: 3.2 * 16,
         letterSpacing: 0,
         textAlign: 'center',
     },

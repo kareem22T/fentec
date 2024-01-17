@@ -141,15 +141,48 @@ export default function Profile({ navigation }) {
 
     const showScreens = (first = true, user, token) => {
         if (!user && first) {
-            navigation.navigate('Welcome')
+            navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'Welcome',
+                    params: {}, // No params to pass in this case
+                  },
+                ],
+              });                      
         } else if (!user && !first) {
-            navigation.navigate('Login')
+            navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'Login',
+                    params: {}, // No params to pass in this case
+                  },
+                ],
+              });                      
+
         } else if (user.verify && user.name != null) {
             setLoading(false)
         } else if (user && !user.verify) {
-            navigation.navigate('Verify', { email: user.email, token: token });
+            navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'Verify',
+                    params: { email: user.email, token: token }, // No params to pass in this case
+                  },
+                ],
+              });                      
         } else if (!user.name) {
-            navigation.navigate('Last', { email: user.email, token: token });
+            navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'Last',
+                    params: { email: user.email, token: token }, // No params to pass in this case
+                  },
+                ],
+              });                      
         }
     }
 

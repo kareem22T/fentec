@@ -55,7 +55,7 @@ export default function PreviewApp({ navigation }) {
                 <Text>{screenContent.title} {slideNo}</Text>
                 <View style={styles.navigation}>
 
-                    <TouchableOpacity style={styles.navigate_btn} onPress={slideNo > 1 ? () => setSlideNo(slideNo - 1) : () => navigation.navigate('Lang')}>
+                    <TouchableOpacity style={styles.navigate_btn} onPress={slideNo > 1 ? () => setSlideNo(slideNo - 1) : () => navigation.navigate('chooseLanguage')}>
                         <Image source={require('./../assets/imgs/icons/angle-left.png')} style={styles.navigate_img} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.navigate_btn} onPress={slideNo < 3 ? () => setSlideNo(slideNo + 1) : () => setIsFirstTime().then(() => { navigation.navigate('Register') })}>

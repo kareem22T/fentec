@@ -129,105 +129,105 @@ export default function Login({ navigation }) {
     }, []);
 
     return (
-        <SafeAreaView style={styles.wrapper}>
-            <LoginHeader active={3}></LoginHeader>
-            <BackgroundImage></BackgroundImage>
-            <Text style={{
-                position: 'absolute', top: 50, right: 20, color: "#fff",
-                padding: 1 * 16,
-                marginLeft: 10,
-                fontSize: 1 * 16,
-                backgroundColor: '#e41749',
-                fontFamily: 'Outfit_600SemiBold',
-                borderRadius: 1.25 * 16,
-                zIndex: 9999999999,
-                display: errors.length ? 'flex' : 'none'
-            }}>{errors.length ? errors[0] : ''}</Text>
-            <Text style={{
-                position: 'absolute', top: 50, right: 20, color: "#fff",
-                padding: 1 * 16,
-                marginLeft: 10,
-                fontSize: 1 * 16,
-                backgroundColor: '#12c99b',
-                fontFamily: 'Outfit_600SemiBold',
-                borderRadius: 1.25 * 16,
-                zIndex: 9999999999,
-                display: successMsg == '' ? 'none' : 'flex'
-            }}>{successMsg}</Text>
-            {loading && (
-                <View style={{
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 336,
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    marginTop: 22,
-                    backgroundColor: 'rgba(0, 0, 0, .5)',
-                    position: 'absolute',
-                    top: 10,
-                    left: 0,
-                }}>
-                    <ActivityIndicator size="200px" color="#ff7300" />
-                </View>
-            )}
-            <View style={styles.contianer}>
-                <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10, marginTop: 35 }}>
-                    <Text style={styles.question}>{screenContent.head}</Text>
-                    <TouchableOpacity><Text style={styles.ans} onPress={() => navigation.navigate('Register')}>{screenContent.register}</Text></TouchableOpacity>
-                </View>
-                <Text style={styles.or}>{screenContent.or}</Text>
-                <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
-                    <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
-                    <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
-                    <Image style={styles.g_f_img} source={require('./../assets/imgs/facebook.png')} />
-                    <Text style={styles.f_btn_text}>{screenContent.face_btn}</Text>
-                </TouchableOpacity>
-                <Text style={styles.or}>{screenContent.or}</Text>
-                <View style={{ gap: 15, width: '100%', alignItems: 'center' }}>
-                    <TextInput
-                        placeholder={screenContent.email_e}
-                        onChangeText={setEmail}
-                        value={email}
-                        onFocus={() => handleEmailFocus()}
-                        onBlur={() => setEmailfocused(false)}
-                        style={[
-                            styles.input,
-                            emailfocused && {
-                                borderColor: 'rgba(255, 115, 0, 1)',
-                                borderWidth: 2
-                            },
-                            currentLang == 'ar' && {
-                                textAlign: 'right',
-                            },
-                        ]}
-
-                    />
-                    <TextInput
-                        placeholder={screenContent.p_password}
-                        onChangeText={setPassword}
-                        value={password}
-                        secureTextEntry={true}
-                        onFocus={() => handlePassFocus()}
-                        onBlur={() => setPassfocused(false)}
-                        style={[
-                            styles.input,
-                            passfocused && {
-                                borderColor: 'rgba(255, 115, 0, 1)',
-                                borderWidth: 2
-                            },
-                            currentLang == 'ar' && {
-                                textAlign: 'right',
-                            },
-                        ]}
-                    />
-                    <TouchableOpacity style={styles.button} onPress={() => loginMethode()}>
-                        <Text style={styles.button_text}>{screenContent.login}</Text>
+        <ScrollView style={styles.wrapper} contentContainerStyle={{flexGrow: 1}}>
+                <LoginHeader active={3}></LoginHeader>
+                <BackgroundImage></BackgroundImage>
+                <Text style={{
+                    position: 'absolute', top: 50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#e41749',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: errors.length ? 'flex' : 'none'
+                }}>{errors.length ? errors[0] : ''}</Text>
+                <Text style={{
+                    position: 'absolute', top: 50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#12c99b',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: successMsg == '' ? 'none' : 'flex'
+                }}>{successMsg}</Text>
+                {loading && (
+                    <View style={{
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 336,
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        marginTop: 22,
+                        backgroundColor: 'rgba(0, 0, 0, .5)',
+                        position: 'absolute',
+                        top: 10,
+                        left: 0,
+                    }}>
+                        <ActivityIndicator size="200px" color="#ff7300" />
+                    </View>
+                )}
+                <View style={styles.contianer}>
+                    <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10, marginTop: 35 }}>
+                        <Text style={styles.question}>{screenContent.head}</Text>
+                        <TouchableOpacity><Text style={styles.ans} onPress={() => navigation.navigate('Register')}>{screenContent.register}</Text></TouchableOpacity>
+                    </View>
+                    <Text style={styles.or}>{screenContent.or}</Text>
+                    <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
+                        <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
+                        <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
+                        <Image style={styles.g_f_img} source={require('./../assets/imgs/facebook.png')} />
+                        <Text style={styles.f_btn_text}>{screenContent.face_btn}</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.or}>{screenContent.or}</Text>
+                    <View style={{ gap: 15, width: '100%', alignItems: 'center' }}>
+                        <TextInput
+                            placeholder={screenContent.email_e}
+                            onChangeText={setEmail}
+                            value={email}
+                            onFocus={() => handleEmailFocus()}
+                            onBlur={() => setEmailfocused(false)}
+                            style={[
+                                styles.input,
+                                emailfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                            ]}
+
+                        />
+                        <TextInput
+                            placeholder={screenContent.p_password}
+                            onChangeText={setPassword}
+                            value={password}
+                            secureTextEntry={true}
+                            onFocus={() => handlePassFocus()}
+                            onBlur={() => setPassfocused(false)}
+                            style={[
+                                styles.input,
+                                passfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                            ]}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={() => loginMethode()}>
+                            <Text style={styles.button_text}>{screenContent.login}</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-        </SafeAreaView>
+        </ScrollView>
     );
 }
 
