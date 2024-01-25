@@ -24,25 +24,76 @@ export default function Profile({ navigation }) {
     const [appState, setAppState] = useState(AppState.currentState);
     const translations = {
         "en": {
-            "title": "Thanks for joining",
-            "title_span": "Fentec",
-            "collect_q": "You won free",
-            "collect_span": "+10 Points",
-            "button": "Use them!"
+            "msg_1": "You Account has been rejected because:",
+            "msg_2": "Your Account is under review we will approve your account in some hours !",
+            "msg_3": "You will receive an Email with approve or reject if your information wasn't correct.",
+            "msg_4": "Your Account has been approved !",
+            "msg_5": "You can enjoy the experience now.",
+            "title_1": "Hello friend !",
+            "title_2": "Ride responsible, Enjoy freely",
+            "trips": "Trips",
+            "points": "Points",
+            "navigate_msg": "Navigate to nearest points seller",
+            "share_msg_1": "Share app with your",
+            "share_msg_2": "friends to get free points",
+            "how_to_use_1": "How to",
+            "how_to_use_2": "use the",
+            "how_to_use_3": "application",
+            "how_to_ride_1": "How to",
+            "how_to_ride_2": "ride the",
+            "how_to_ride_3": "scooter",
+            "contact_us": "Contact us",
+            "tandc": "Terms and conditions",
+            "seanda": "Service agreement",
+            "privace": "Privacy police",
         },
         "fr": {
-            "title": "Merci de rejoindre",
-            "title_span": " de Fentec`",
-            "collect_q": "Vouz avez gagne",
-            "collect_span": "+10 points",
-            "button": "Utilisez les!"
+            "msg_1": "Votre compte a été rejeté car:",
+            "msg_2": "Votre compte est en cours de révision, nous approuverons votre compte dans quelques heures !",
+            "msg_3": "Vous recevrez un e-mail avec approuver ou rejeter si vos informations n'étaient pas correctes.",
+            "msg_4": "Your Account has been approved !",
+            "msg_5": "Vous pouvez profiter de l'expérience maintenant.",
+            "title_1": "Salut Notre Ami !",
+            "title_2": "Roulez avec responsabilitè, Profitez librement",
+            "trips": "Parcours",
+            "points": "Points",
+            "navigate_msg": "Au point de rechargement le plus proche",
+            "share_msg_1": "Partagez l'application avec ",
+            "share_msg_2": "vos amis pour obtenir des points gratuits",
+            "how_to_use_1": "Comment",
+            "how_to_use_2": "utiliser",
+            "how_to_use_3": "l'application",
+            "how_to_ride_1": "Comment ",
+            "how_to_ride_2": "conduire le ",
+            "how_to_ride_3": "scooter",
+            "contact_us": "Contactez-nous",
+            "tandc": "Termes et conditions",
+            "seanda": "Service agreement",
+            "privace": "Politique de confidentialité",
         },
         "ar": {
-            "title": "شكرا للانضمام",
-            "title_span": "فنتك",
-            "collect_q": " قد ربحت مجاناً",
-            "collect_span": "+10 نقاط",
-            "button": "استخدمهم الان!"
+            "msg_1": "لقد تم رفض حسابك للأسباب التالية:",
+            "msg_2": "حسابك قيد المراجعة، وسنوافق على حسابك خلال بضع ساعات!",
+            "msg_3": "ستصلك رسالة بالبريد الإلكتروني بالموافقة أو الرفض إذا لم تكن معلوماتك صحيحة.",
+            "msg_4": "تمت الموافقة على حسابك!",
+            "msg_5": "يمكنك الاستمتاع بالتجربة الآن.",
+            "title_1": "مرحبا يا صديقي!",
+            "title_2": "تنقل بمسؤلية, تنقل بحرية",
+            "trips": "الرحلات",
+            "points": "النقاط",
+            "navigate_msg": "انتقل إلى أقرب نقاط بائع نقاط",
+            "share_msg_1": "شارك التطبيق مع",
+            "share_msg_2": "أصدقائك للحصول على نقاط مجانية",
+            "how_to_use_1": "كيف",
+            "how_to_use_2": "تستخدم",
+            "how_to_use_3": "التطبيق",
+            "how_to_ride_1": "كيفية  ",
+            "how_to_ride_2": "ركوب ",
+            "how_to_ride_3": "الاسكوتر",
+            "contact_us": "تواصل معنا",
+            "tandc": "الأحكام والشروط",
+            "seanda": "اتفاقية خدمات",
+            "privace": "سياسة الخصوصية",
         }
     }
     const [errors, setErrors] = useState([]);
@@ -230,27 +281,29 @@ export default function Profile({ navigation }) {
             <ScrollView>
                 <View style={styles.contianer}>
                     {(user && user.rejected == true) && (<Text style={[styles.title, styles.approvingAlert]}>
-                        You Account has been rejected because: {'\n'}
+                        {screenContent.msg_1} {'\n'}
                         <Text>
                             {user.rejection_reason} {'\n'}
                         </Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Last', { user: user, token: token })}><Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>Edit Profile Now</Text></TouchableOpacity>
                     </Text>)}
                     {(user && !user.approved && !user.rejected) && (<Text style={[styles.title, styles.approvingAlert]}>
-                        Your Account is under review we will approve your account in some hours ! {'\n'}
+
+                        {screenContent.msg_2} {'\n'}
                         <Text>
-                            You will receive an Email with approve or reject if your information wasn't correct.
+                        {screenContent.msg_3}
+                            
                         </Text>
                     </Text>)}
                     {(user && user.approved == true && !user.approving_msg_seen) && (<Text style={[styles.title, styles.approvingAlert, { backgroundColor: "#12c99b", borderColor: '#12c99b' }]}>
-                        Your Account has been approved ! {'\n'}
+                        {screenContent.msg_4} {'\n'}
                         <Text>
-                            You can enjoy the experience now.
+                        {screenContent.msg_5}
                         </Text>
                     </Text>)}
-                    <Text style={[styles.title, ((user && !user.approved) || (user && !user.approving_msg_seen)) && { marginTop: 10 }]}>
-                        Hello friend,{'\n'}
-                        Ride responsible, Enjoy freely
+                    <Text style={[styles.title, ((user && !user.approved) || (user && !user.approving_msg_seen)) && { marginTop: 10 }, currentLang == 'ar' && {lineHeight: 35, fontSize: 25}]}>
+                    {screenContent.title_1} {'\n'}
+                    {screenContent.title_2}
                     </Text>
                     <View style={styles.profile}>
                         <View style={styles.bg}></View>
@@ -270,11 +323,11 @@ export default function Profile({ navigation }) {
                         </View>
                         <View style={styles.details}>
                             <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Trips', { user: user })}>
-                                <Text style={styles.trips_text}>Trips</Text>
+                                <Text style={styles.trips_text}>{screenContent.trips}</Text>
                                 <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>0</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Points', { user: user })}>
-                                <Text style={styles.trips_text}>Points</Text>
+                            <TouchableOpacity style={styles.trips} onPress={() => navigation.push('Points', { user: user , token: token })}>
+                                <Text style={styles.trips_text}>{screenContent.points}</Text>
                                 {user && (
                                     <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>{user.coins}</Text>
                                 )}
@@ -284,15 +337,15 @@ export default function Profile({ navigation }) {
                     </View>
                     <View style={styles.contianer_bg}>
                         <Image source={require('./../assets/imgs/map.png')} style={{ width: '100%', height: 200, borderRadius: 16, overflow: 'hidden' }} />
-                        <Text style={styles.navigate_Text}>Navigate to nearest points seller</Text>
+                        <Text style={[styles.navigate_Text, currentLang == "ar" && {fontSize: 22}]}>{screenContent.navigate_msg}</Text>
                     </View>
                     <View style={styles.profile}>
                         <View style={styles.bg}></View>
                         <View style={styles.head}>
                             <Image source={require('./../assets/imgs/share.png')} alt="fentec logo" style={{ width: 250, height: 120, resizeMode: 'contain' }} />
-                            <Text style={styles.name}>
-                                Share app with your {'\n'}
-                                friends to get free points
+                            <Text style={[styles.name, currentLang == "ar" && {fontFamily: "Outfit_600SemiBold"}]}>
+                                {screenContent.share_msg_1} {'\n'}
+                                {screenContent.share_msg_2}
                             </Text>
                         </View>
                         <TouchableOpacity style={styles.btn}><Text style={styles.button_text}>Share</Text></TouchableOpacity>
@@ -300,34 +353,34 @@ export default function Profile({ navigation }) {
                     <View style={styles.how_container}>
                         <View style={styles.how_element}>
                             <Ionicons name="ios-help-circle-outline" size={60} color="rgba(255, 115, 0, 1)" />
-                            <Text style={styles.name}>
-                                How to {'\n'}
-                                use the {'\n'}
-                                application
+                            <Text style={[styles.name, currentLang == "ar" && {fontFamily: "Outfit_600SemiBold"}]}>
+                                {screenContent.how_to_use_1} {'\n'}
+                                {screenContent.how_to_use_2} {'\n'}
+                                {screenContent.how_to_use_3}
                             </Text>
                         </View>
                         <View style={styles.how_element}>
                             <MaterialCommunityIcons name="human-scooter" size={60} color="rgba(255, 115, 0, 1)" />
-                            <Text style={styles.name}>
-                                How to {'\n'}
-                                ride the {'\n'}
-                                scooter
+                            <Text style={[styles.name, currentLang == "ar" && {fontFamily: "Outfit_600SemiBold"}]}>
+                                {screenContent.how_to_ride_1} {'\n'}
+                                {screenContent.how_to_ride_2} {'\n'}
+                                {screenContent.how_to_ride_3}
                             </Text>
                         </View>
                     </View>
 
                     <View style={{ marginTop: 10 }}>
-                        <Text style={[styles.name, { fontSize: 22, fontFamily: 'Outfit_700Bold' }]}>Contact us</Text>
+                        <Text style={[styles.name, { fontSize: 22, fontFamily: 'Outfit_700Bold' }]}>{screenContent.contact_us}</Text>
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 15, marginBottom: 15 }}>
                             <Entypo name="facebook" size={35} color="'rgba(255, 115, 0, 1)'" />
                             <FontAwesome5 name="instagram-square" size={35} color="'rgba(255, 115, 0, 1)'" />
                             <MaterialIcons name="email" size={44} color="'rgba(255, 115, 0, 1)'" />
                             <FontAwesome name="phone-square" size={37} color="'rgba(255, 115, 0, 1)'" />
                         </View>
-                        <Text style={[styles.name, { color: 'rgba(255, 115, 0, 1)' }]}>
-                            Terms and conditions {'\n'}
-                            Service agreement {'\n'}
-                            Privacy police
+                        <Text style={[styles.name, { color: 'rgba(255, 115, 0, 1)' }, currentLang == "ar" && {fontSize: 22, fontFamily: 'Outfit_700Bold' } ]}>
+                            {screenContent.tandc} {'\n'}
+                            {screenContent.seanda} {'\n'}
+                            {screenContent.privace}
                         </Text>
                     </View>
                 </View>

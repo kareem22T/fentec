@@ -31,10 +31,49 @@ export default function Account({ navigation, route }) {
 
     const translations = {
         "en": {
+            "logout": "Log Out",
+            "password": "Password",
+            "change_laguage": "Change Language",
+            "edit_email": "Edit Email",
+            "edit_phone": "Edit Phone",
+            "change_password": "Change Password",
+            "old_password": "Old Password",
+            "new_password": "New Password",
+            "new_password_com": "New Password Confirmation",
+            "change": "Change",
+            "edit": "Edit",
+            "cancel": "Cancel",
+            "save": "Save",
         },
         "fr": {
+            "logout": "Se déconnecter",
+            "password": "Mot de passe",
+            "change_laguage": "Changer de Langue",
+            "edit_email": "Modifier l'e-mail",
+            "edit_phone": "Modifier le téléphone",
+            "change_password": "Changer le mot de passe",
+            "old_password": "ancien mot de passe",
+            "new_password": "nouveau mot de passe",
+            "new_password_com": "Confirmation mot de passe",
+            "change": "Changes le",
+            "edit": "Modifier",
+            "cancel": "Annuler",
+            "save": "Modifier",
         },
         "ar": {
+            "logout": "تسجيل خروج",
+            "password": "كلمة المرور",
+            "change_laguage": "تغيير اللغة",
+            "edit_email": "تعديل البريد الإلكتروني",
+            "edit_phone": "تعديل رقم الهاتف",
+            "change_password": "تغير كلمة المرور",
+            "old_password": "كلمة المرور القديمة",
+            "new_password": "كلمة المرور الجديدة",
+            "new_password_com": "تأكيد كلمة السر الجديدة",
+            "change": "تغير",
+            "edit": "تعديل",
+            "cancel": "الغاء",
+            "save": "حفظ",
         }
     }
     const [emailfocused, setEmailfocused] = useState(false);
@@ -445,14 +484,14 @@ export default function Account({ navigation, route }) {
                         </TouchableOpacity>
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                        <View style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>Password</Text></View>
+                        <View style={[styles.input, { paddingLeft: 70, paddingRight: 60 }]}><Text style={[styles.input_text, { color: '#000', fontSize: 16, lineHeight: 30 }]}>{screenContent.password}</Text></View>
                         <Entypo name="lock" size={35} color="black" style={{ position: 'absolute', left: 40 }} />
                         <TouchableOpacity onPress={() => setIShowEditPassword(true)} style={{ position: 'absolute', right: 40 }} >
                             <FontAwesome5 name="edit" size={30} color="rgba(255, 115, 0, 1)" />
                         </TouchableOpacity>
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                        <TouchableOpacity onPress={() => handleLogout()} style={[styles.input, styles.btn]}><Text style={[styles.input_text, { textAlign: 'left', width: '100%' }]}><MaterialCommunityIcons name="logout" size={30} color="black" /> Log Out</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleLogout()} style={[styles.input, styles.btn]}><Text style={[styles.input_text, { textAlign: 'left', width: '100%' }]}><MaterialCommunityIcons name="logout" size={30} color="black" /> { screenContent.logout }</Text></TouchableOpacity>
                     </View>
                 </View>
             </ScrollView>
@@ -465,7 +504,7 @@ export default function Account({ navigation, route }) {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <FontAwesome name="language" size={60} color="rgba(255, 115, 0, 1)" />
-                        <Text style={styles.name}>Change Language</Text>
+                        <Text style={[styles.name, lang == 'ar' && {lineHeight: 40, fontSize: 28}]}>{screenContent.change_laguage}</Text>
                         <View style={styles.lan_btns}>
                             <TouchableOpacity style={[styles.choose_btn, lang == 'ar' && {
                                 borderColor: 'rgba(255, 115, 0, 1)',
@@ -494,10 +533,10 @@ export default function Account({ navigation, route }) {
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
                             <TouchableOpacity onPress={() => setIsShowEditLanguage(false)} style={[styles.btn, { backgroundColor: '#c2c2c2', width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#000' }]}>Cancel</Text>
+                                <Text style={[styles.button_text, { color: '#000' }]}>{screenContent.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => storeLang()} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#fff' }]}>Save</Text>
+                                <Text style={[styles.button_text, { color: '#fff' }]}>{screenContent.save}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -513,7 +552,7 @@ export default function Account({ navigation, route }) {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <MaterialCommunityIcons name="email-edit-outline" size={60} color="rgba(255, 115, 0, 1)" style={{marginBottom: 5}} />
-                        <Text style={styles.name}>Edit Email</Text>
+                        <Text style={[styles.name, lang == 'ar' && {lineHeight: 40, fontSize: 28}]}>{screenContent.edit_email}</Text>
                         {user && (
                             <TextInput
                                 placeholder={screenContent.email_e}
@@ -527,10 +566,8 @@ export default function Account({ navigation, route }) {
                                         borderColor: 'rgba(255, 115, 0, 1)',
                                         borderWidth: 2
                                     },
-                                    currentLang == 'ar' && {
-                                        textAlign: 'right',
-                                    },
                                     {
+                                        padding: 1.25 * 16,
                                         marginTop: 10,
                                         marginBottom: 20
                                     }
@@ -540,10 +577,10 @@ export default function Account({ navigation, route }) {
                         )}
                         <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
                             <TouchableOpacity onPress={() => handleCancelEditEmail()} style={[styles.btn, { backgroundColor: '#c2c2c2', width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#000' }]}>Cancel</Text>
+                                <Text style={[styles.button_text, { color: '#000' }]}>{screenContent.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleEditEmail(token)} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#fff' }]}>Edit</Text>
+                                <Text style={[styles.button_text, { color: '#fff' }]}>{screenContent.edit}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -559,7 +596,7 @@ export default function Account({ navigation, route }) {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                     <Feather name="phone" size={60} color="rgba(255, 115, 0, 1)" />
-                        <Text style={styles.name}>Edit Phone</Text>
+                    <Text style={[styles.name, lang == 'ar' && {lineHeight: 40, fontSize: 28}]}>{screenContent.edit_phone}</Text>
                         {user && (
                             <TextInput
                                 placeholder={screenContent.email_e}
@@ -573,9 +610,6 @@ export default function Account({ navigation, route }) {
                                         borderColor: 'rgba(255, 115, 0, 1)',
                                         borderWidth: 2
                                     },
-                                    currentLang == 'ar' && {
-                                        textAlign: 'right',
-                                    },
                                     {
                                         marginTop: 10,
                                         marginBottom: 20
@@ -586,10 +620,10 @@ export default function Account({ navigation, route }) {
                         )}
                         <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
                             <TouchableOpacity onPress={() => handleCancelEditPhone()} style={[styles.btn, { backgroundColor: '#c2c2c2', width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#000' }]}>Cancel</Text>
+                                <Text style={[styles.button_text, { color: '#000' }]}>{screenContent.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleEditPhone(token)} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#fff' }]}>Edit</Text>
+                                <Text style={[styles.button_text, { color: '#fff' }]}>{screenContent.edit}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -605,9 +639,9 @@ export default function Account({ navigation, route }) {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <AntDesign name="lock" size={60} color="rgba(255, 115, 0, 1)" />
-                        <Text style={styles.name}>Change Password</Text>
+                        <Text style={[styles.name, lang == 'ar' && {lineHeight: 40, fontSize: 28}]}>{screenContent.change_password}</Text>
                         <TextInput
-                            placeholder={"Old Password"}
+                            placeholder={screenContent.old_password}
                             onChangeText={setOldPassword}
                             value={oldPassword}
                             onFocus={() => handleOldPasswordFocus()}
@@ -629,7 +663,7 @@ export default function Account({ navigation, route }) {
 
                         />
                         <TextInput
-                            placeholder={"New Password"}
+                            placeholder={screenContent.new_password}
                             onChangeText={setNewPassword}
                             value={newPassword}
                             onFocus={() => handleNewPasswordFocus()}
@@ -651,7 +685,7 @@ export default function Account({ navigation, route }) {
 
                         />
                         <TextInput
-                            placeholder={"New Password Confirmation"}
+                            placeholder={screenContent.new_password_com}
                             onChangeText={setNewPasswordConfirmation}
                             value={newPasswordConfirmation}
                             onFocus={() => handleNewPasswordConfirmationFocus()}
@@ -674,10 +708,10 @@ export default function Account({ navigation, route }) {
                         />
                         <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
                             <TouchableOpacity onPress={() => handleCancelEditPassword()} style={[styles.btn, { backgroundColor: '#c2c2c2', width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#000' }]}>Cancel</Text>
+                                <Text style={[styles.button_text, { color: '#000' }]}>{screenContent.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleChangePassword(token)} style={[styles.btn, { width: '40%', alignItems: 'center' }]}>
-                                <Text style={[styles.button_text, { color: '#fff' }]}>Change</Text>
+                                <Text style={[styles.button_text, { color: '#fff' }]}>{screenContent.change}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -696,7 +730,7 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         resizeMode: "contain",
-        marginTop: 70
+        marginTop: 70,
     },
     contianer: {
         padding: '1.25rem',

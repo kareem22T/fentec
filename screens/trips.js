@@ -19,13 +19,19 @@ const BackgroundImage = () => {
     )
 }
 
-export default function Trips({ navigation }) {
+export default function Trips({ navigation, route }) {
     const translations = {
         "en": {
+            "trips": "My Trips",
+            "points": "Points",
         },
         "fr": {
+            "trips": "Mes parcours",
+            "points": "Points",
         },
         "ar": {
+            "trips": "رحلاتي",
+            "points": "نقاط",
         }
     }
     const [currentLang, setCurrentLag] = useState('ar')
@@ -46,18 +52,27 @@ export default function Trips({ navigation }) {
     return (
         <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
-            <Nav active="1" navigation={navigation} />
+            <Nav active="1" navigation={navigation} user={route.params.user} />
             <ScrollView>
                 <View style={styles.contianer}>
                     <View style={styles.profile}>
                         <View style={styles.bg}></View>
                         <View style={styles.head}>
-                            <Image source={require('./../assets/imgs/default_user.jpg')}
-                                style={{ width: 100, height: 100, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
-                            <Text style={styles.name}>Kareem Mohamed</Text>
+                            {route.params.user && route.params.user.photo_path ? (
+                                <Image
+                                    source={{ uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + route.params.user.photo_path }}
+                                    alt="fentec logo"
+                                    style={{ width: 100, height: 100, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                            ) : (
+                                <Image source={require('./../assets/imgs/user.jpg')} alt="fentec logo" style={styles.profile_img} />
+                            )}
+
+                            {route.params.user && (
+                                <Text style={styles.name}>{route.params.user.name}</Text>
+                            )}
                         </View>
                     </View>
-                    <Text style={styles.head}>My trips</Text>
+                    <Text style={[styles.head, {textAlign: 'center'}, currentLang == "ar" && {fontSize: 30, lineHeight: 43}]}>{ screenContent.trips }</Text>
                     <View style={styles.contianer_bg}>
                         <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
                             <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
@@ -67,7 +82,7 @@ export default function Trips({ navigation }) {
                             </View>
                             <View style={{ height: 70, justifyContent: 'space-between' }}>
                                 <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
+                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 Points</Text>
                             </View>
                         </View>
                     </View>

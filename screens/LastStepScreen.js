@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Image, View, Platform, SafeAreaView, StyleSheet, Text, TextInput, Modal, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Image, View, Platform, ScrollView, StyleSheet, Text, TextInput, Modal, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import LoginHeader from '../components/loginHeader';
