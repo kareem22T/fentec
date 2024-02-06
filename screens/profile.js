@@ -8,6 +8,7 @@ import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import { AppState } from 'react-native';
+
 const BackgroundImage = () => {
     return (
         <Image source={require('./../assets/imgs/home_bg.png')} style={{
@@ -20,11 +21,16 @@ const BackgroundImage = () => {
         }} />
     )
 }
+
+
 export default function Profile({ navigation }) {
     const [appState, setAppState] = useState(AppState.currentState);
     const translations = {
         "en": {
-            "msg_1": "You Account has been rejected because:",
+            "msg_1": "Your Account has been rejected because:",
+            "msg_ban": "Your Account has been Banned because:",
+            "more_details": "for More Details",
+            "Call": "Call",
             "msg_2": "Your Account is under review we will approve your account in some hours !",
             "msg_3": "You will receive an Email with approve or reject if your information wasn't correct.",
             "msg_4": "Your Account has been approved !",
@@ -49,6 +55,9 @@ export default function Profile({ navigation }) {
         },
         "fr": {
             "msg_1": "Votre compte a été rejeté car:",
+            "msg_ban": "Votre compte a été banni parce que:",
+            "more_details": "pour plus de détails",
+            "Call": "Appelle",
             "msg_2": "Votre compte est en cours de révision, nous approuverons votre compte dans quelques heures !",
             "msg_3": "Vous recevrez un e-mail avec approuver ou rejeter si vos informations n'étaient pas correctes.",
             "msg_4": "Your Account has been approved !",
@@ -73,6 +82,9 @@ export default function Profile({ navigation }) {
         },
         "ar": {
             "msg_1": "لقد تم رفض حسابك للأسباب التالية:",
+            "msg_ban": "لقد تم حظر حسابك للأسباب التالية:",
+            "Call": "اتصل",
+            "more_details": "للمزيد من التفاصيل ",
             "msg_2": "حسابك قيد المراجعة، وسنوافق على حسابك خلال بضع ساعات!",
             "msg_3": "ستصلك رسالة بالبريد الإلكتروني بالموافقة أو الرفض إذا لم تكن معلوماتك صحيحة.",
             "msg_4": "تمت الموافقة على حسابك!",
@@ -236,6 +248,28 @@ export default function Profile({ navigation }) {
               });                      
         }
     }
+    const registerForPushNotificationsAsync = async () => {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+
+        if (finalStatus !== 'granted') {
+            console.log('Failed to get push token for push notification!');
+            return;
+        }
+
+        // Get the token that uniquely identifies this device
+        const expoPushToken = await Notifications.getDevicePushTokenAsync({
+            projectId: '0b8b914c-162e-4a76-8e5b-cb57403454cc',
+        });
+        setNotificationToken(expoPushToken.data)
+        console.log('Expo Push Token:', expoPushToken);
+        return expoPushToken.data;
+    };
 
     useEffect(() => {
         getStoredToken().then((res) => {
@@ -287,7 +321,14 @@ export default function Profile({ navigation }) {
                         </Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Last', { user: user, token: token })}><Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>Edit Profile Now</Text></TouchableOpacity>
                     </Text>)}
-                    {(user && !user.approved && !user.rejected) && (<Text style={[styles.title, styles.approvingAlert]}>
+                    {(user && user.isBanned == true) && (<Text style={[styles.title, styles.approvingAlert]}>
+                        {screenContent.msg_ban} {'\n'}
+                        <Text>
+                            {user.ban_reason} {'\n'}
+                        </Text>
+                        <Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>{screenContent.Call} 1234567 {screenContent.more_details}</Text>
+                    </Text>)}
+                    {(user && !user.approved && !user.rejected && !user.isBanned) && (<Text style={[styles.title, styles.approvingAlert]}>
 
                         {screenContent.msg_2} {'\n'}
                         <Text>
