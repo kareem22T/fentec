@@ -2,13 +2,32 @@ import {
     StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, Modal, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import TimerMixin from 'react-timer-mixin';
 import * as SecureStore from 'expo-secure-store';
 import Nav from './../components/mainNav';
 import { Feather, MaterialIcons, MaterialCommunityIcons, Entypo, AntDesign, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import TimerMixin from "react-timer-mixin";
+import axios from 'axios';
+import { AppState } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import { AppRegistry } from 'react-native';
+import { name as appName } from './../app.json';
+import PushNotification from 'react-native-push-notification';
+PushNotification.createChannel(
+  {
+    channelId: 'default-channel-id',
+    channelName: 'Default Channel',
+    channelDescription: 'A default notification channel',
+    soundName: 'default',
+    importance: 4,
+    vibrate: true,
+  },
+  created => console.log(`Channel created: ${created}`)
+);
+
+// Register the app
+AppRegistry.registerComponent(appName, () => App);
 
 
 const BackgroundImage = () => {
@@ -385,9 +404,52 @@ export default function Account({ navigation, route }) {
         if (user_token)
             setToken(user_token)
     }
+    const [isNotification, setIsNotification] = useState(false)
+    const [notificationTitle, setNotificationTitle] = useState(null)
+    const [notificationBody, setNotificationBody] = useState(null)
 
     useEffect(() => {
         getStoredToken()
+        const getFCMToken = async () => {
+            const fcmToken = await messaging().getToken();
+            if (!await SecureStore.getItemAsync('fcm_token'))
+                await SecureStore.setItemAsync("fcm_token", fcmToken)
+        
+            let tokenFcm = await SecureStore.getItemAsync('fcm_token')
+            console.log('FCM Token:', tokenFcm);
+
+            await messaging().subscribeToTopic('all_users');
+            console.log('Subscribed to topic: all_users');
+          };
+        
+          getFCMToken();
+          messaging().setBackgroundMessageHandler(async remoteMessage => {
+            console.log('Message handled in the background!', remoteMessage);
+          });
+          const unsubscribe = messaging().onMessage(async remoteMessage => {
+            console.log('Received FCM Notification:', remoteMessage.notification);
+            setIsNotification(true)
+            setNotificationTitle(remoteMessage.notification.title)
+            setNotificationBody(remoteMessage.notification.body)
+
+            // getUser(token)
+
+            TimerMixin.setTimeout(() => {
+                setIsNotification(false)
+            }, 3000);
+
+            // Display a local notification
+            PushNotification.localNotification({
+              channelId: 'default-channel-id', // Specify your channel ID here
+              title: remoteMessage.data.title,
+              message: remoteMessage.data.body,
+              data: remoteMessage.data.data,
+              smallIcon: '../assets/icon', // Specify the name of the small icon
+            });
+          });  
+      
+          getStoredLang();
+          return unsubscribe;
         getStoredLang();
     }, []);
 
@@ -433,6 +495,29 @@ export default function Account({ navigation, route }) {
                     }}>
                         <ActivityIndicator size="200px" color="#ff7300" />
                     </View>
+                )}
+                {isNotification && (
+                    <TouchableOpacity onPress={() => navigation.navigate('Notifications', { user: user })} style={{
+                        width: '94%',
+                        zIndex: 9999999999,
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        borderRadius: 16,
+                        borderWidth: 2,
+                        borderColor: "rgba(255, 115, 0, 1)",
+                        marginTop: 22,
+                        backgroundColor: '#fff',
+                        position: 'absolute',
+                        top: 20,
+                        left: "3%",
+                        padding: 10
+                    }}>
+                        <View style={{flexDirection: 'row', gap: 5, alignItems: "center"}}>
+                            <Ionicons name="notifications" size={24} color="rgba(255, 115, 0, 1)" />
+                            <Text style={{fontSize: 20, fontFamily: "Outfit_700Bold"}}>{notificationTitle}</Text>
+                        </View>
+                        <Text style={{fontSize: 16, fontFamily: "Outfit_500Medium", paddingLeft: 29}}>{notificationBody}</Text>
+                    </TouchableOpacity>
                 )}
                 <View style={styles.contianer}>
                     <View style={styles.profile}>

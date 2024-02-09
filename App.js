@@ -15,6 +15,8 @@ import PreviewApp from './screens/previewScreen';
 import RegisterScreen from './screens/registerScreen';
 import VerifyScreen from './screens/verifyScreen';
 import LoginScreen from './screens/loginScreen';
+import EnterEmailScreen from './screens/enterEmailScreen';
+import ForgotPasswordScreen from './screens/forgotPasswordScreen';
 import LastStep from './screens/LastStepScreen';
 import WhereKnow from './screens/whereYouKnow';
 import YouWon from './screens/YouWon';
@@ -74,6 +76,16 @@ export default function App() {
         <Stack.Screen
           name="Login"
           component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EnterEmail"
+          component={EnterEmailScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ForgotPasswordScreen"
+          component={ForgotPasswordScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen

@@ -6,8 +6,27 @@ import Nav from './../components/mainNav';
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, Entypo, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
+import TimerMixin from "react-timer-mixin";
 import axios from 'axios';
 import { AppState } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import { AppRegistry } from 'react-native';
+import { name as appName } from './../app.json';
+import PushNotification from 'react-native-push-notification';
+PushNotification.createChannel(
+  {
+    channelId: 'default-channel-id',
+    channelName: 'Default Channel',
+    channelDescription: 'A default notification channel',
+    soundName: 'default',
+    importance: 4,
+    vibrate: true,
+  },
+  created => console.log(`Channel created: ${created}`)
+);
+
+// Register the app
+AppRegistry.registerComponent(appName, () => App);
 
 const BackgroundImage = () => {
     return (
@@ -173,6 +192,35 @@ export default function Profile({ navigation }) {
         }
     }
 
+    const setNotificationTokenUser = async (token, notificationToken) => {
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/user/save-notification-token`, {
+                api_password: 'Fentec@scooters.algaria',
+                notification_token: notificationToken,
+            },
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`
+                    }
+                },);
+
+            if (response.data.status === true) {
+                
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
     const seenVerifyMsg = async (token) => {
         setErrors([])
         try {
@@ -271,6 +319,9 @@ export default function Profile({ navigation }) {
         return expoPushToken.data;
     };
 
+    const [isNotification, setIsNotification] = useState(false)
+    const [notificationTitle, setNotificationTitle] = useState(null)
+    const [notificationBody, setNotificationBody] = useState(null)
     useEffect(() => {
         getStoredToken().then((res) => {
             let token = res
@@ -287,14 +338,63 @@ export default function Profile({ navigation }) {
                 }
             })
         });
-        getStoredLang();
+        const getFCMToken = async () => {
+            const fcmToken = await messaging().getToken();
+            if (!await SecureStore.getItemAsync('fcm_token'))
+                await SecureStore.setItemAsync("fcm_token", fcmToken)
+        
+            let tokenFcm = await SecureStore.getItemAsync('fcm_token')
+            console.log('FCM Token:', tokenFcm);
+
+            getStoredToken().then((res) => {
+                let token = res
+                setNotificationTokenUser(token, tokenFcm)
+            });    
+
+            await messaging().subscribeToTopic('all_users');
+            console.log('Subscribed to topic: all_users');
+          };
+        
+          getFCMToken();
+          messaging().setBackgroundMessageHandler(async remoteMessage => {
+            console.log('Message handled in the background!', remoteMessage);
+          });
+          const unsubscribe = messaging().onMessage(async remoteMessage => {
+            console.log('Received FCM Notification:', remoteMessage.notification);
+            setIsNotification(true)
+            setNotificationTitle(remoteMessage.notification.title)
+            setNotificationBody(remoteMessage.notification.body)
+
+            getUser(token)
+
+            TimerMixin.setTimeout(() => {
+                setIsNotification(false)
+            }, 4000);
+
+            // Display a local notification
+            PushNotification.localNotification({
+              channelId: 'default-channel-id', // Specify your channel ID 
+              title: remoteMessage.data.title,
+              message: remoteMessage.data.body,
+              data: remoteMessage.data.data,
+              smallIcon: '../assets/icon', // Specify the name of the small icon
+            });
+          });  
+      
+          getStoredLang();
+          return unsubscribe;      
     }, []);
     return (
         <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
             <Nav active="1" navigation={navigation} user={user} />
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications', { user: user })} style={{ position: 'absolute', zIndex: 999, top: 30, right: 40 }}>
+            <TouchableOpacity onPress={() => navigation.push('Notifications', { user: user })} style={{ position: 'absolute', zIndex: 999, top: 30, right: 40 }}>
                 <Ionicons name="notifications" size={40} color="rgba(255, 115, 0, 1)" />
+                {
+                    (user && user.has_unseened_notifications == true) && (
+                        <View style={[styles.title, styles.approvingAlert, {width: 20, height: 20, borderRadius: 20, marginTop: 0, padding: 0, borderColor: "white", position: 'absolute', top: 0 }]}></View>
+                    )
+                }
             </TouchableOpacity>
             {loading && (
                 <View style={{
@@ -311,6 +411,29 @@ export default function Profile({ navigation }) {
                 }}>
                     <ActivityIndicator size="200px" color="#ff7300" />
                 </View>
+            )}
+            {isNotification && (
+                <TouchableOpacity onPress={() => navigation.push('Notifications', { user: user })} style={{
+                    width: '94%',
+                    zIndex: 9999999999,
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    borderRadius: 16,
+                    borderWidth: 2,
+                    borderColor: "rgba(255, 115, 0, 1)",
+                    marginTop: 22,
+                    backgroundColor: '#fff',
+                    position: 'absolute',
+                    top: 20,
+                    left: "3%",
+                    padding: 10
+                }}>
+                    <View style={{flexDirection: 'row', gap: 5, alignItems: "center"}}>
+                        <Ionicons name="notifications" size={24} color="rgba(255, 115, 0, 1)" />
+                        <Text style={{fontSize: 20, fontFamily: "Outfit_700Bold"}}>{notificationTitle}</Text>
+                    </View>
+                    <Text style={{fontSize: 16, fontFamily: "Outfit_500Medium", paddingLeft: 29}}>{notificationBody}</Text>
+                </TouchableOpacity>
             )}
             <ScrollView>
                 <View style={styles.contianer}>

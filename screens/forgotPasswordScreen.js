@@ -21,51 +21,68 @@ const BackgroundImage = () => {
     )
 }
 
-export default function Login({ navigation }) {
+export default function ForgotPassword({ navigation }) {
     const [currentLang, setCurrentLag] = useState('ar')
     const translations = {
         "en": {
-            "head": "Do not have an account?",
-            "login": "Log in",
+            "head": "We have sent you verification Code on your Email",
+            "code": "Verfication Code",
             "register": "Sign up",
             "or": "or",
             "google_btn": "Continue with Google",
             "face_btn": "Continue with Facebook",
-            "email_e": "Email or Phone Number",
+            "email_e": "Email",
             "phone": "Phone Number",
             "p_password": "Password",
-            "forgotPassword": "Forgot Your Password?"
+            "p_password_Confirmation": "Password Confirmation",
+            "forgotPassword": "Forgot Your Password?",
+            "btn": "Reset Password",
+            "reset": "Reset Password",
         },
         "fr": {
-            "head": "Vous n'avez pas de compte??",
+            "head": "Nous vous avons envoyé un code de vérification sur votre e-mail",
             "login": "Se connecter",
+            "code": "Le code de vérification",
             "register": "s'inscrire",
             "or": "ou",
             "google_btn": "Continuez avec Google",
             "face_btn": "Continuez avec Facebook",
             "email_e": "E-mail",
             "phone": "Numéro de téléphone",
+            "reset": "réinitialiser le mot de passe",
             "p_password": "Mot de passe",
+            "btn": "Réinitialiser",
+            "p_password_Confirmation": "Confirmation mot de passe",
             "forgotPassword": "Mot de passe oublié?"
         },
         "ar": {
-            "head": "ليس لديك حساب؟",
+            "head": "لقد أرسلنا لك رمز التحقق على بريدك الإلكتروني",
             "login": "تسجيل الدخول",
             "register": "تسجيل",
             "or": "أو",
+            "code": "رمز التحقق",
             "google_btn": "تابع بواسطة جوجل",
             "face_btn": "تابع بواسطة فيسبوك",
-            "email_e": "البريد الالكتروني او رقم الهاتف",
+            "email_e": "البريد الالكتروني   ",
+            "reset": "إعادة تعيين كلمة المرور",
             "phone": "رقم الهاتف",
             "p_password": "كلمة المرور",
+            "p_password_Confirmation": "تأكيد كلمة المرور",
+            "btn": "اعادة تعين",
             "forgotPassword": "نسيت كلمة السر؟"
         }
     }
     const [screenContent, setScreenContent] = useState(translations.ar);
 
+    const [code, setCode] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
+    const [codefocused, setCodefocused] = useState(false);
+    const handleCodeFocus = () => {
+        setCodefocused(true);
+    };
     const [emailfocused, setEmailfocused] = useState(false);
     const handleEmailFocus = () => {
         setEmailfocused(true);
@@ -73,6 +90,11 @@ export default function Login({ navigation }) {
     const [passfocused, setPassfocused] = useState(false);
     const handlePassFocus = () => {
         setPassfocused(true);
+    };
+
+    const [passConfirmationfocused, setPassConfirmationfocused] = useState(false);
+    const handlePassConfirmationFocus = () => {
+        setPassConfirmationfocused(true);
     };
 
     const getStoredLang = async () => {
@@ -87,18 +109,19 @@ export default function Login({ navigation }) {
     const [errors, setErrors] = useState([]);
     const [successMsg, setSuccessMsg] = useState('');
 
-    const loginMethode = async () => {
+    const ForogtPassword = async () => {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://adminandapi.fentecmobility.com/login`, {
-                emailorphone: email,
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/forgot-password`, {
+                code: code,
+                email: email,
                 password: password,
+                password_confirmation: password,
                 api_password: 'Fentec@scooters.algaria'
             });
 
             if (response.data.status === true) {
-                await SecureStore.setItemAsync('user_token', response.data.data.token)
                 setLoading(false);
                 setErrors([]);
                 setSuccessMsg(response.data.message);
@@ -107,7 +130,7 @@ export default function Login({ navigation }) {
                         index: 0,
                         routes: [
                           {
-                            name: 'Profile',
+                            name: 'Login',
                             params: {}, // No params to pass in this case
                           },
                         ],
@@ -174,21 +197,29 @@ export default function Login({ navigation }) {
                     </View>
                 )}
                 <View style={styles.contianer}>
-                    <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10, marginTop: 35 }}>
-                        <Text style={styles.question}>{screenContent.head}</Text>
-                        <TouchableOpacity><Text style={styles.ans} onPress={() => navigation.navigate('Register')}>{screenContent.register}</Text></TouchableOpacity>
+                    <View style={{justifyContent: 'center', alignItems: 'center', gap: 20}}>
+                        <Text style={{fontFamily: "Outfit_600SemiBold", fontSize: 23}}>{screenContent.reset}</Text>
+                        <Image source={require('./../assets/imgs/forgot.png')} style={{ width: 85, height: 85, resizeMode: 'contain' }}/>
                     </View>
-                    <Text style={styles.or}>{screenContent.or}</Text>
-                    <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
-                        <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
-                        <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
-                        <Image style={styles.g_f_img} source={require('./../assets/imgs/facebook.png')} />
-                        <Text style={styles.f_btn_text}>{screenContent.face_btn}</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.or}>{screenContent.or}</Text>
                     <View style={{ gap: 15, width: '100%', alignItems: 'center' }}>
+                        <TextInput
+                            placeholder={screenContent.code}
+                            onChangeText={setCode}
+                            value={code}
+                            onFocus={() => handleCodeFocus()}
+                            onBlur={() => setCodefocused(false)}
+                            style={[
+                                styles.input,
+                                codefocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                            ]}
+
+                        />
                         <TextInput
                             placeholder={screenContent.email_e}
                             onChangeText={setEmail}
@@ -225,12 +256,27 @@ export default function Login({ navigation }) {
                                 },
                             ]}
                         />
+                        <TextInput
+                            placeholder={screenContent.p_password_Confirmation}
+                            onChangeText={setPasswordConfirmation}
+                            value={passwordConfirmation}
+                            secureTextEntry={true}
+                            onFocus={() => handlePassConfirmationFocus()}
+                            onBlur={() => setPassConfirmationfocused(false)}
+                            style={[
+                                styles.input,
+                                passConfirmationfocused && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 2
+                                },
+                                currentLang == 'ar' && {
+                                    textAlign: 'right',
+                                },
+                            ]}
+                        />
                         <View style={{width: "100%", alignItems: 'center'}}>
-                            <TouchableOpacity style={styles.button} onPress={() => loginMethode()}>
-                                <Text style={styles.button_text}>{screenContent.login}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate("EnterEmail")}>
-                                <Text style={{fontFamily: "Outfit_500Medium", color: "rgba(255, 115, 0, 1)"}}>{screenContent.forgotPassword}</Text>
+                            <TouchableOpacity style={styles.button} onPress={() => ForogtPassword()}>
+                                <Text style={styles.button_text}>{screenContent.btn}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

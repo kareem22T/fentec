@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:22085097857:android:e4c87322d7fe2204fe7080",
+        "mobilesdk_app_id": "1:22085097857:android:4e04bda59077f970fe7080",
         "android_client_info": {
-          "package_name": "com.kareem11.fentec_v3"
+          "package_name": "com.kareem11.fentecmobility"
         }
       },
       "oauth_client": [],
