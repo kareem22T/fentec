@@ -80,7 +80,7 @@ export default function Map({ navigation, route }) {
             // console.log(response);
             if (response.data.status === true) {
                 setErrors([]);
-                setSuccessMsg(response.data.message);
+                // setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
                     setLoading(false);
                     setScooters(response.data.data)
@@ -126,7 +126,7 @@ export default function Map({ navigation, route }) {
                 if (response.data.status === true) {
                     console.log(response);
                     setErrors([]);
-                    setSuccessMsg(response.data.message);
+                    // setSuccessMsg(response.data.message);
                     TimerMixin.setTimeout(() => {
                         setLoading(false);
                         setNearestScooter(response.data.data)

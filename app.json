@@ -6,8 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "notification":{
-      "icon":"./assets/icon.png",
+    "notification": {
+      "icon": "./assets/icon.png",
       "color": "#ff7300"
     },
     "plugins": [
@@ -35,6 +35,11 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyADMSyZQR7V38GWvZ3MEl_DcDsn0pTS0WU"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -46,13 +51,12 @@
       ],
       "package": "com.kareem11.fentecmobility"
     },
-    
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "0b8b914c-162e-4a76-8e5b-cb57403454cc"
+        "projectId": "0419f1e1-8069-42cc-ac23-9e90a92495af"
       }
     },
     "owner": "kareem11",
