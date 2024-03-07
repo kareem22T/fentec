@@ -43,11 +43,6 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyADMSyZQR7V38GWvZ3MEl_DcDsn0pTS0WU"
-        }
-      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -55,8 +50,15 @@
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.FOREGROUND_SERVICE"
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyADMSyZQR7V38GWvZ3MEl_DcDsn0pTS0WU"
+        }
+      },
       "package": "com.kareem11.fentecmobility"
     },
     "web": {
@@ -68,9 +70,9 @@
       }
     },
     "owner": "kareem11",
-    "runtimeVersion": "exposdk:50.0.0",
+    "runtimeVersion": "exposdk:46.0.0",
     "updates": {
-      "url": "https://u.expo.dev/0b8b914c-162e-4a76-8e5b-cb57403454cc"
+      "url": "https://u.expo.dev/7d964c21-e412-429b-af20-3b18caa045b2"
     }
   }
 }
