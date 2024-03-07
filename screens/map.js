@@ -290,12 +290,12 @@ export default function Map({ navigation, route }) {
                         listView: { backgroundColor: "white" }
                     }}
                 />
-                <View style={[styles.input, { width: 'auto', padding: 18, height: 60, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 15 }]}>
+                {/* <View style={[styles.input, { width: 'auto', padding: 18, height: 60, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 15 }]}>
                     <FontAwesome5 name="coins" size={24} color="rgba(255, 199, 0, 1)" />
                     {user && (
                         <Text style={{ fontSize: 18, fontFamily: 'Outfit_600SemiBold', }}>{user.coins}</Text>
                     )}
-                </View>
+                </View> */}
             </View>
 
             <MapView

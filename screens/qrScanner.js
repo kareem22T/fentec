@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, Button, ActivityIndicator } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-
-export default function App() {
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+import TimerMixin from 'react-timer-mixin';
+export default function App(props) {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    const [text, setText] = useState('Not yet scanned')
+    const [token, setToken] = useState('')
 
     const askForCameraPermission = () => {
         (async () => {
@@ -14,15 +16,63 @@ export default function App() {
         })()
     }
 
+    const getStoredToken = async () => {
+        const user_token = await SecureStore.getItemAsync('user_token');
+        if (user_token)
+            return user_token
+
+        return '';
+    }
+
+
+    const [successMsg, setSuccessMsg] = useState('');
+    const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+
     // Request Camera Permission
     useEffect(() => {
         askForCameraPermission();
+        getStoredToken().then(res => {
+            setToken(res)
+        })
     }, []);
 
     // What happens when we scan the bar code
-    const handleBarCodeScanned = ({ type, data }) => {
+    const handleBarCodeScanned = async ({ type, data }) => {
         setScanned(true);
-        setText(data)
+        try {
+            setLoading(true)
+            const response = await axios.post("https://adminandapi.fentecmobility.com/unlock-scooter", {
+                api_password: 'Fentec@scooters.algaria',
+                scooter_serial: data
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            },);
+            if (response.data.status === true) {
+                await SecureStore.setItemAsync('is_on_journey', "true");
+                setSuccessMsg(response.data.message)
+                TimerMixin.setTimeout(() => {
+                    props.navigation.push('Map', {user: props.user})
+                }, 2000)    
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+            }
+
+            setLoading(false);
+
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Something wrong, try again!"]);
+            console.error(error);
+            TimerMixin.setTimeout(() => {
+                setErrors([]);
+            }, 3000)
+        }    
         console.log('Type: ' + type + '\nData: ' + data)
     };
 
@@ -43,16 +93,45 @@ export default function App() {
 
     // Return the View
     return (
-        <View style={styles.container}>
-            <View style={styles.barcodebox}>
-                <BarCodeScanner
-                    onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                    style={{ height: 550, width: 550 }} />
-            </View>
-            <Text style={styles.maintext}>{text}</Text>
+        <>
+            <Text style={{
+                position: 'fixed', top: 0 + 0, right: 0, color: "#fff",
+                padding: 1 * 16,
+                marginLeft: 10,
+                fontSize: 1 * 16,
+                backgroundColor: '#e41749',
+                fontFamily: 'Outfit_600SemiBold',
+                borderRadius: 1.25 * 16,
+                zIndex: 9999999999,
+                display: errors.length ? 'flex' : 'none'
+            }}>{errors.length ? errors[0] : ''}</Text>
+            <Text style={{
+                position: 'fixed', top: 0 + 0, right: 0, color: "#fff",
+                padding: 1 * 16,
+                marginLeft: 10,
+                fontSize: 1 * 16,
+                backgroundColor: '#12c99b',
+                fontFamily: 'Outfit_600SemiBold',
+                borderRadius: 1.25 * 16,
+                zIndex: 9999999999,
+                display: successMsg == '' ? 'none' : 'flex'
+            }}>{successMsg}</Text>
+            <View style={styles.container}>
+                <View style={styles.barcodebox}>
+                    <BarCodeScanner
+                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                        style={{ height: 550, width: 550 }} />
+                </View>
 
-            {scanned && <Button title={'Scan again?'} onPress={() => setScanned(false)} color='tomato' />}
-        </View>
+                {
+                    loading && (
+                        <ActivityIndicator size="200px" color="#ff7300" />
+                    )
+                }
+
+                {scanned && !loading && <Button title={'Scan again?'} onPress={() => setScanned(false)} color='tomato' />}
+            </View>
+        </>
     );
 }
 
@@ -75,6 +154,7 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         backgroundColor: 'rgba(255, 115, 0, 1)',
         borderColor: 'gray',
-        borderWidth: 1
+        borderWidth: 1,
+        marginBottom: 20
     }
 });

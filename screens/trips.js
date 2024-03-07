@@ -73,7 +73,7 @@ export default function Trips({ navigation, route }) {
                         </View>
                     </View>
                     <Text style={[styles.head, {textAlign: 'center'}, currentLang == "ar" && {fontSize: 30, lineHeight: 43}]}>{ screenContent.trips }</Text>
-                    <View style={styles.contianer_bg}>
+                    {/* <View style={styles.contianer_bg}>
                         <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
                             <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
                             <View style={{ height: 70, justifyContent: 'space-between' }}>
@@ -176,7 +176,7 @@ export default function Trips({ navigation, route }) {
                                 <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
                             </View>
                         </View>
-                    </View>
+                    </View> */}
                 </View>
             </ScrollView>
 

@@ -328,7 +328,8 @@ export default function Profile({ navigation }) {
             checkIsFirstTime().then((isfirst) => {
                 if (token) {
                     setToken(token)
-                    getUser(token).then((user) => {
+                    getUser(token).then(async user => {
+                        await messaging().subscribeToTopic('Journey_channel_' + user.id );
                         showScreens(isfirst, user, token)
                         if (user && user.approved && !user.approving_msg_seen)
                             seenVerifyMsg(token)
@@ -360,16 +361,20 @@ export default function Profile({ navigation }) {
             console.log('Message handled in the background!', remoteMessage);
           });
           const unsubscribe = messaging().onMessage(async remoteMessage => {
-            console.log('Received FCM Notification:', remoteMessage.notification);
-            setIsNotification(true)
-            setNotificationTitle(remoteMessage.notification.title)
-            setNotificationBody(remoteMessage.notification.body)
+            console.log('Received FCM Notification:', remoteMessage);
+            if (remoteMessage.from !== "/topics/Journey_channel_" + user.id) {
 
-            getUser(token)
-
-            TimerMixin.setTimeout(() => {
-                setIsNotification(false)
-            }, 4000);
+                setIsNotification(true)
+                setNotificationTitle(remoteMessage.notification.title)
+                setNotificationBody(remoteMessage.notification.body)
+                
+                if (remoteMessage.from !== "/topics/all_users")
+                    getUser(token)
+                
+                TimerMixin.setTimeout(() => {
+                    setIsNotification(false)
+                }, 4000);
+            }
 
             // Display a local notification
             PushNotification.localNotification({

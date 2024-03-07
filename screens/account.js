@@ -427,16 +427,19 @@ export default function Account({ navigation, route }) {
             console.log('Message handled in the background!', remoteMessage);
           });
           const unsubscribe = messaging().onMessage(async remoteMessage => {
-            console.log('Received FCM Notification:', remoteMessage.notification);
-            setIsNotification(true)
-            setNotificationTitle(remoteMessage.notification.title)
-            setNotificationBody(remoteMessage.notification.body)
+            if (remoteMessage.from !== "/topics/Journey_channel") {
 
-            // getUser(token)
-
-            TimerMixin.setTimeout(() => {
-                setIsNotification(false)
-            }, 3000);
+                setIsNotification(true)
+                setNotificationTitle(remoteMessage.notification.title)
+                setNotificationBody(remoteMessage.notification.body)
+                
+                if (remoteMessage.from !== "/topics/all_users")
+                    getUser(token)
+                
+                TimerMixin.setTimeout(() => {
+                    setIsNotification(false)
+                }, 4000);
+            }
 
             // Display a local notification
             PushNotification.localNotification({
