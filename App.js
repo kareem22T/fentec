@@ -27,6 +27,7 @@ import Notifications from './screens/notification';
 import Map from './screens/map';
 import Account from './screens/account';
 import EditEmail from './screens/editEmailScreen';
+import takePhoto from './screens/takePhotoScreen';
 
 export default function App() {
   let [fontsLoaded, fontError] = useFonts({
@@ -86,6 +87,11 @@ export default function App() {
         <Stack.Screen
           name="ForgotPasswordScreen"
           component={ForgotPasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="takePhoto"
+          component={takePhoto}
           options={{ headerShown: false }}
         />
         <Stack.Screen
