@@ -150,7 +150,7 @@ export default function Register({ navigation }) {
                 <LoginHeader active={3}></LoginHeader>
                 <BackgroundImage></BackgroundImage>
                 <Text style={{
-                    position: 'absolute', top: scrollY + 50, right: 20, color: "#fff",
+                    position: 'absolute', top:  50, right: 20, color: "#fff",
                     padding: 1 * 16,
                     marginLeft: 10,
                     fontSize: 1 * 16,
@@ -161,7 +161,7 @@ export default function Register({ navigation }) {
                     display: errors.length ? 'flex' : 'none'
                 }}>{errors.length ? errors[0] : ''}</Text>
                 <Text style={{
-                    position: 'absolute', top: scrollY + 50, right: 20, color: "#fff",
+                    position: 'absolute', top:  50, right: 20, color: "#fff",
                     padding: 1 * 16,
                     marginLeft: 10,
                     fontSize: 1 * 16,

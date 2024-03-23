@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "fentec",
-    "slug": "fentec-mobitlity",
-    "version": "1.0.0",
+    "name": "Fentec Mobility",
+    "slug": "fentec-mobility",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -66,7 +66,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "7d964c21-e412-429b-af20-3b18caa045b2"
+        "projectId": "8a2b8bab-dcc1-42af-8085-e08e28e7ab79"
       }
     },
     "owner": "kareem11",

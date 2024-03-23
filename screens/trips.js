@@ -1,10 +1,11 @@
 import {
-    StyleSheet, Text, SafeAreaView, View, Image, ScrollView,
+    StyleSheet, Text, SafeAreaView, View, Image, ScrollView, TouchableOpacity
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import Nav from './../components/mainNav';
-
+import axios from 'axios';
+import TimerMixin from 'react-timer-mixin';
 
 const BackgroundImage = () => {
     return (
@@ -34,6 +35,10 @@ export default function Trips({ navigation, route }) {
             "points": "نقاط",
         }
     }
+    const [errors, setErrors] = useState([]);
+    const [successMsg, setSuccessMsg] = useState('');
+    const [loading, setLoading] = useState(true);
+
     const [currentLang, setCurrentLag] = useState('ar')
     const [screenContent, setScreenContent] = useState(translations.ar);
 
@@ -44,8 +49,60 @@ export default function Trips({ navigation, route }) {
         }
     }
 
+    const [trips, setTrips] = useState([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [lastPage, setLastPage] = useState(null);
+
+    const handlePrev = () => {
+        if (currentPage > 1) {
+            let current = currentPage -1
+            getTripHistory(route.params.user.id, current)
+        }
+    }
+    
+    const handleNext = () => {
+        if (currentPage < lastPage) {
+            let current = currentPage + 1
+            getTripHistory(route.params.user.id, current)
+        }
+    }
+
+    const getTripHistory = async (user_id, current = 1) => {
+        setLoading(true);
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/get-trips`, {
+                api_password: 'Fentec@scooters.algaria',
+                page: current,
+                user_id: user_id,
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${route.params.token}`
+                }
+            })
+                setLoading(false);
+                setErrors(response.data.errors);
+                setTrips(response.data.data)
+                setCurrentPage(response.data.current_page)
+                setLastPage(response.data.last_page)
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);                
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
+    // TimerMixin.setTimeout(() => {
+    //     getTripHistory(route.params.user.id)
+    // }, 2000);                
+
 
     useEffect(() => {
+        getTripHistory(route.params.user.id)
         getStoredLang();
     }, []);
 
@@ -73,110 +130,45 @@ export default function Trips({ navigation, route }) {
                         </View>
                     </View>
                     <Text style={[styles.head, {textAlign: 'center'}, currentLang == "ar" && {fontSize: 30, lineHeight: 43}]}>{ screenContent.trips }</Text>
-                    {/* <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
+                <View style={styles.contianer}>
+                    {                    
+                        trips.length > 0 &&
+                        (
+                            
+                            <View style={{width: "100%", alignItems: 'center'}}>
+                                {trips.map((trip) => (
+                                    <View style={styles.contianer_bg}>
+                                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
+                                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
+                                            <View style={{ height: 66, justifyContent: 'space-between', width: "60%", gap: 5 }}>
+                                                <Text style={{ fontSize: 13, fontFamily: 'Outfit_700Bold', width: "100%" }}>{trip.starting_location}</Text>
+                                                <Text style={{ fontSize: 13, fontFamily: 'Outfit_700Bold', width: "100%"  }}>{trip.ending_location}</Text>
+                                            </View>
+                                            <View style={{ height: 66, justifyContent: 'space-between' }}>
+                                                <Text style={{ fontSize: 18, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>{new Date(trip.ended_at).toLocaleDateString("en-US", { day: "2-digit", month: "short" })}</Text>
+                                                <Text style={{ fontSize: 18, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>- {(trip.duration * 5) + 10}</Text>
+                                            </View>
+                                        </View>                                
+                                    </View>                                
+                                ))}
+                                {
+                                    lastPage > 1 && (
+                                        <View style={{flexDirection: 'row', gap: 10, justifyContent: 'center', alignItems: 'center', padding: 10}}>
+                                            <TouchableOpacity onPress={() => handlePrev()} style={{backgroundColor: "rgba(255, 115, 0, 1)", width:35, height: 35, borderRadius: 17.5, justifyContent: 'center', alignItems: 'center'}}>
+                                                <Image source={require('./../assets/imgs/icons/angle-left.png')} style={styles.navigate_img} />
+                                            </TouchableOpacity>
+                                            <Text style={{fontFamily: "Outfit_600SemiBold", fontSize: 18}}>{currentPage} / {lastPage}</Text>
+                                            <TouchableOpacity onPress={() => handleNext()} style={{backgroundColor: "rgba(255, 115, 0, 1)", width:35, height: 35, borderRadius: 17.5, justifyContent: 'center', alignItems: 'center'}}>
+                                                <Image source={require('./../assets/imgs/icons/angle-right.png')} style={styles.navigate_img} />
+                                            </TouchableOpacity>
+                                        </View>
+                                            
+                                        )
+                                    }
                             </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 Points</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
-                            </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
-                            </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
-                            </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
-                            </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
-                            </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
-                            </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.contianer_bg}>
-                        <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'space-between', padding: 10 }}>
-                            <Image source={require('./../assets/imgs/icons/destination_icon.png')} style={{ height: 70, resizeMode: 'contain' }} />
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>3th wood street</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold' }}>65 Marlen park</Text>
-                            </View>
-                            <View style={{ height: 70, justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>12/12</Text>
-                                <Text style={{ fontSize: 20, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>-50 points</Text>
-                            </View>
-                        </View>
-                    </View> */}
+                        )
+                    }
+                </View>
                 </View>
             </ScrollView>
 
@@ -187,6 +179,12 @@ export default function Trips({ navigation, route }) {
 const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
+    },
+    navigate_img: {
+        width: 25,
+        height: 25,
+        resizeMode: 'contain',
+        opacity: 1,
     },
     logo: {
         width: 100,

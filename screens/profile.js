@@ -135,6 +135,7 @@ export default function Profile({ navigation }) {
     const [user, setUser] = useState(null)
     const [notificationToken, setNotificationToken] = useState('')
     const [token, setToken] = useState('')
+    const [tripsNum, setTripsNum] = useState(0)
 
     const getStoredLang = async () => {
         const storedLang = await SecureStore.getItemAsync('lang');
@@ -389,6 +390,33 @@ export default function Profile({ navigation }) {
           getStoredLang();
           return unsubscribe;      
     }, []);
+    const getTripsNum = async (user_id, current = 1) => {
+        setLoading(true);
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/get-trips-num`, {
+                api_password: 'Fentec@scooters.algaria',
+                user_id: user_id,
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            })
+                setTripsNum(response.data)
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);                
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }    
+    useEffect(() => {
+        if (user)
+        getTripsNum(user.id)
+    }, [user])
     return (
         <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
@@ -491,9 +519,9 @@ export default function Profile({ navigation }) {
                             )}
                         </View>
                         <View style={styles.details}>
-                            <TouchableOpacity style={styles.trips} onPress={() => navigation.navigate('Trips', { user: user })}>
+                            <TouchableOpacity style={styles.trips} onPress={() => navigation.push('Trips', { user: user, token: token })}>
                                 <Text style={styles.trips_text}>{screenContent.trips}</Text>
-                                <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>0</Text>
+                                <Text style={[styles.trips_text, { color: "rgba(255, 115, 0, 1)" }]}>{tripsNum}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.trips} onPress={() => navigation.push('Points', { user: user , token: token })}>
                                 <Text style={styles.trips_text}>{screenContent.points}</Text>

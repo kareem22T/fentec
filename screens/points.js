@@ -1,12 +1,13 @@
 import {
-    StyleSheet, Text, SafeAreaView, View, Image, ScrollView, Modal
+    StyleSheet, Text, SafeAreaView, View, Image, ScrollView, Modal, TextInput, TouchableOpacity, ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import Nav from './../components/mainNav';
 import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios';
-
+import { Ionicons } from '@expo/vector-icons';
+import TimerMixin from 'react-timer-mixin';
 
 const BackgroundImage = () => {
     return (
@@ -48,6 +49,13 @@ export default function Points({ navigation, route }) {
     const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState([])
+    const [couponTempral, setCouponTempral] = useState(0)
+
+    const [coupon, setCoupon] = useState("");
+    const [couponFocus, setCouponFocus] = useState(false);
+    const handleCouponFocus = () => {
+        setCouponFocus(true);
+    };
 
     const getStoredLang = async () => {
         const storedLang = await SecureStore.getItemAsync('lang');
@@ -85,6 +93,41 @@ export default function Points({ navigation, route }) {
         }
     }
 
+    const useCopon = async (token) => {
+        setErrors([])
+        setLoading(true)
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/use-coupon`, {
+                api_password: 'Fentec@scooters.algaria',
+                code: coupon,
+            },
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`
+                    }
+                },);
+
+            if (response.data.status === true) {
+                setLoading(false);
+                setSuccessMsg(response.data.message);
+                setCouponTempral(parseInt(couponTempral) + parseInt(response.data.data))
+                TimerMixin.setTimeout(() => {
+                    setSuccessMsg("");
+                }, 2000);
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
     useEffect(() => {
         getHistory(route.params.token).then(res => {
             setHistory(res)
@@ -96,6 +139,44 @@ export default function Points({ navigation, route }) {
         <SafeAreaView style={styles.wrapper}>
             <BackgroundImage></BackgroundImage>
             <Nav active="1" navigation={navigation} user={route.params.user} />
+            <Text style={{
+                    position: 'absolute', top:  50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#e41749',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: errors.length ? 'flex' : 'none'
+                }}>{errors.length ? errors[0] : ''}</Text>
+                <Text style={{
+                    position: 'absolute', top:  50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#12c99b',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: successMsg == '' ? 'none' : 'flex'
+                }}>{successMsg}</Text>
+                {loading && (
+                    <View style={{
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 336,
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        marginTop: 22,
+                        backgroundColor: 'rgba(0, 0, 0, .5)',
+                        position: 'absolute',
+                        top: 10,
+                        left: 0,
+                    }}>
+                        <ActivityIndicator size="200px" color="#ff7300" />
+                    </View>
+                )}
             <ScrollView>
                 <View style={styles.contianer}>
                     <View style={styles.profile}>
@@ -118,7 +199,7 @@ export default function Points({ navigation, route }) {
                     <Text style={[styles.head, currentLang == "ar" && {fontSize: 30, lineHeight: 43}]}>{screenContent.my_points}</Text>
                     <View>
                         {route.params.user && (
-                            <Text style={[styles.head, { color: 'rgba(255, 115, 0, 1)' }]}><FontAwesome5 name="coins" size={24} color="rgba(255, 115, 0, 1)" /> {route.params.user.coins}</Text>
+                            <Text style={[styles.head, { color: 'rgba(255, 115, 0, 1)' }]}><FontAwesome5 name="coins" size={24} color="rgba(255, 115, 0, 1)" /> {parseInt(route.params.user.coins) + parseInt(couponTempral)}</Text>
                         )}
                     </View>
                     <View style={[styles.contianer_bg, { padding: 20 }]}>
@@ -130,6 +211,27 @@ export default function Points({ navigation, route }) {
                         {route.params.user && (
                             <Text style={[styles.head, { color: "rgba(255, 115, 0, 1)", textAlign: 'center' }]}>{ "SpecialUser_" +  route.params.user.id}</Text>
                         )}
+                        </View>
+                        <View style={{flexDirection: "row", gap: 10}}>
+                            
+                            <TextInput
+                                placeholder={"Use Coupon Code"}
+                                onChangeText={setCoupon}
+                                value={coupon}
+                                onFocus={() => handleCouponFocus()}
+                                onBlur={() => setCouponFocus(false)}
+                                style={[
+                                    styles.input,
+                                    couponFocus && {
+                                        borderColor: 'rgba(255, 115, 0, 1)',
+                                        borderWidth: 2
+                                    }
+                                ]}
+
+                            />
+                            <TouchableOpacity onPress={() => useCopon(route.params.token)} style={{width: "25%", backgroundColor: "rgba(255, 115, 0, 1)", padding: 10,borderRadius: 16, justifyContent: 'center', alignItems: 'center'}}>
+                                <Ionicons name="send-outline" size={30} color="white" />
+                            </TouchableOpacity>
                         </View>
                     </View>
                     {                    
@@ -228,6 +330,23 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginTop: 60
+    },
+    input: {
+        fontFamily: 'Outfit_600SemiBold',
+        fontSize: 1.25 * 16,
+        textAlign: 'left',
+        padding: 1 * 16,
+        borderRadius: 1.25 * 16,
+        backgroundColor: "#fff",
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        width: "75%",
     },
     head: {
         alignItems: "center",

@@ -1,4 +1,4 @@
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker, Callout, Polygon } from 'react-native-maps';
 import { StyleSheet, View, Text, ActivityIndicator, Modal, TouchableOpacity, Linking } from 'react-native';
 import Nav from './../components/mainNav';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -20,9 +20,11 @@ export default function Map({ navigation, route }) {
 
     const [showScooterDetails, setShowScooterDetails] = useState(false)
     const [readyToNavigate, setReadyToNavigate] = useState({})
-
+    const [currentBattary, setCurrentBattary] = useState(0)
+    const [currentDurationFar, setCurrentDurationFar] = useState()
     const [showQrScanner, setShowQrScanner] = useState(false)
 
+    const [showNav, setShowNav] = useState(true)
     const [region, setRegion] = React.useState({
         latitude: 30.0480392,
         longitude: 31.2363747,
@@ -38,7 +40,23 @@ export default function Map({ navigation, route }) {
     if (route.params.user)
         user = route.params.user;
 
-
+    const calculateDistance = async (origin, destination, apiKey) => {
+        try {
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origin}&destinations=${destination}&key=${apiKey}`);
+            
+            // Extracting duration from response
+            const durationText = response.data.rows[0].elements[0].duration.text;
+            const durationValue = response.data.rows[0].elements[0].duration.value;
+    
+            console.log(`Duration: ${durationText}`);
+    
+            return durationText;
+        } catch (error) {
+            console.error('Error calculating duration:', error);
+            throw error;
+        }
+    }
+    
     const cetnerLocation = async () => {
 
         // Get the user's current location permission status.
@@ -157,9 +175,28 @@ export default function Map({ navigation, route }) {
         setShowScooterDetails(false)
     };
 
-    const handleMarkerPress = (coords) => {
+    const handleMarkerPress = (coords, batt) => {
+        setShowNav(false)
         setReadyToNavigate(coords)
+        console.log(batt);
+        setCurrentBattary(batt)
         setShowScooterDetails(true)
+        if (location) {
+            const origin = `${location.coords.latitude},${location.coords.longitude}`; // replace latitude and longitude with actual values
+            const destination = `${coords.latitude},${coords.longitude}`; // replace latitude and longitude with actual values
+            const apiKey = 'AIzaSyD92ePxBG5Jk6mM3djSW49zs3dRKJroWRk';
+    
+            calculateDistance(origin, destination, apiKey)
+            .then(duration => {
+                // Use the duration value as needed
+                setCurrentDurationFar(duration)
+            })
+            .catch(error => {
+                // Handle error
+                console.error('Error:', error);
+            })
+        }
+        setShowNav(true)
     }
 
 
@@ -193,10 +230,26 @@ export default function Map({ navigation, route }) {
             }
         })();
     }, []);
+    const [zones, setZones] = useState([]);
 
+    useEffect(() => {
+      const fetchZones = async () => {
+        const response = await fetch("https://adminandapi.fentecmobility.com/get-zones");
+        const zoneData = await response.json();
+        setZones(zoneData);
+        console.log(zoneData[0].path);
+      };
+    
+      fetchZones();
+    }, []);
+    
     return (
         <View style={{ flex: 1 }}>
-            <Nav showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2"  user={user} navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} />
+            {
+                showNav && (
+                    <Nav scooterDurationFar={currentDurationFar} battary_charge={currentBattary} showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2"  user={user} navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} />
+                )
+            }
 
             {loading && (
                 <View style={{
@@ -305,6 +358,25 @@ export default function Map({ navigation, route }) {
                 mapType='terrain'
                 provider={PROVIDER_GOOGLE}
             >
+                {
+                    zones && (
+                        zones.map((zone, index) => (
+                              <Polygon
+                                key={index}
+                                coordinates={JSON.parse(zone.path).map(item => ({ latitude: item.lat, longitude: item.lng }))}
+                                fillColor={parseInt(zone.type) == 0 ? 'rgba(255, 0, 0, .35)' : (parseInt(zone.type) == 1 ? 'rgba(0, 255, 0, .35)' : 'rgba(255, 165, 0, .35)')}
+                                strokeColor='#000'
+                                options={{
+                                    strokeColor: '#000',
+                                    strokeOpacity: 0.8,
+                                    strokeWeight: 2,
+                                    fillColor: "#ff0000",
+                                    fillOpacity: 0.35,
+                                  }} // Pass options as a single object
+                              />
+                        ))
+                    )
+                }
                 {location && (
                     <Marker
                         coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
@@ -315,7 +387,7 @@ export default function Map({ navigation, route }) {
                 {scooters.length > 0 && (
                     // Iterate through the scooters array
                     scooters.map((scooter) => (
-                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) })} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={parseInt(scooter.battary_charge) > 65 ? require('./../assets/imgs/icons/high_charge.png') : (parseInt(scooter.battary_charge) < 30 ? require('./../assets/imgs/icons/low_charge.png') : require('./../assets/imgs/icons/medium_charge.png'))}>
+                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.battary_charge)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={parseInt(scooter.battary_charge) > 60 ? require('./../assets/imgs/icons/high_charge.png') : (parseInt(scooter.battary_charge) < 30 ? require('./../assets/imgs/icons/low_charge.png') : require('./../assets/imgs/icons/medium_charge.png'))}>
                         </Marker>
                     ))
                 )}

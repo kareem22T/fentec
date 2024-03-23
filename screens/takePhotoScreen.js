@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, Linking, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Linking, Platform, ActivityIndicator } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,6 +8,8 @@ import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import TimerMixin from 'react-timer-mixin';
 import axios from 'axios';
+import * as ImageManipulator from 'expo-image-manipulator';
+
 const CameraComponent = ({navigation, route}) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -62,57 +64,77 @@ const CameraComponent = ({navigation, route}) => {
         }
       };
 
-    const takePhoto = async () => {
+      const takePhoto = async () => {
         if (cameraRef.current) {
-            let photo = await cameraRef.current.takePictureAsync();
-            setPhoto(photo);
+          // Capture the photo with desired options (e.g., ratio, quality)
+          let photo = await cameraRef.current.takePictureAsync({
+            quality: 0.8, // Adjust quality for compression (0-1, lower = smaller size)
+            aspect: [4, 3], // Optional: Set aspect ratio (e.g., 4:3 for portrait)
+          });
+      
+          // Compress the captured photo using ImageManipulator
+          const compressedPhoto = await ImageManipulator.manipulateAsync(
+            photo.uri,
+            [], // Optional: Add resize or other manipulation options here
+            { compress: 0.4 } // Adjust compression level (0-1, lower = smaller size)
+          );
+      
+          // Update the photo state with the compressed version
+          setPhoto(compressedPhoto);
         }
-    };
-
-    const retakePhoto = () => {
+      };
+        const retakePhoto = () => {
         setPhoto(null);
     };
 
     const sendPhotoToBackend = async () => {
+        setLoading(true)
         try {
-          const formData = new FormData();
-          formData.append('photo', {
-            uri: photo,
-            type: 'image/jpeg', // or whatever file type you're sending
-            name: 'photo.jpg',
-          });
-    
-          const response = await axios.post('https://adminandapi.fentecmobility.com/submit-trip', formData, {
-            headers: {
-                'AUTHORIZATION': `Bearer ${route.params.token}`,
-                'Content-Type': 'multipart/form-data',
-            },
-          });
-    
-          if (response.data.status === true) {
-            setErrors([]);
-            setSuccessMsg(response.data.message);
-            TimerMixin.setTimeout(() => {
+            const formData = new FormData();
+            formData.append('photo', {
+                name: 'photo.jpg', // Optional, if the server expects a specific filename
+              uri: photo.uri,
+              type: 'image/jpeg',
+            });
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/submit-trip`, formData,
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${route.params.token}`,
+                        'Content-Type': 'multipart/form-data',
+                    }
+                },
+
+            );
+
+            if (response.data.status === true) {
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    setLoading(false);
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                        {
+                            name: 'Profile',
+                            params: {}, // No params to pass in this case
+                        },
+                        ],
+                    });
+                }, 1500);
+            } else {
                 setLoading(false);
-                navigation.reset({
-                    index: 0,
-                    routes: [
-                    {
-                        name: 'Profile',
-                        params: {}, // No params to pass in this case
-                    },
-                    ],
-                });
-            }, 1500);
-        } else {
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
             setLoading(false);
-            setErrors(response.data.errors);
+            setErrors(["Server error, try again later."]);
+            console.log(error);
             TimerMixin.setTimeout(() => {
                 setErrors([]);
             }, 2000);
-        }
-    } catch (error) {
-          console.error('Error sending photo to backend:', error);
         }
       };
       
@@ -285,7 +307,7 @@ const CameraComponent = ({navigation, route}) => {
                 </View>
             ) : (
                 <Camera
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, resizMode: "contain" }}
                     type={type}
                     flashMode={flashMode}
                     ref={cameraRef}

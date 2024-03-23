@@ -11,6 +11,7 @@ import * as SecureStore from 'expo-secure-store';
 import TimerMixin from 'react-timer-mixin';
 import Slider from 'react-native-slide-to-unlock';
 import axios from 'axios';
+import { AntDesign } from '@expo/vector-icons';
 
 PushNotification.createChannel(
   {
@@ -60,7 +61,45 @@ export default function LoginHeader(props) {
 
         return '';
     }
+    const unlockManualy = async () => {
+        // console.log("hello");
+        try {
+            setLoading(true)
+            const response = await axios.post("https://adminandapi.fentecmobility.com/unlock-scooter", {
+                api_password: 'Fentec@scooters.algaria',
+                scooter_serial: serialNum
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            },);
+            if (response.data.status === true) {
+                await SecureStore.setItemAsync('is_on_journey', "true");
+                setSuccessMsg(response.data.message)
+                TimerMixin.setTimeout(() => {
+                    props.navigation.push('Map', {user: user})
+                }, 2000)    
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
 
+            setLoading(false);
+
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Something wrong, try again!"]);
+            console.error(error);
+            TimerMixin.setTimeout(() => {
+                setErrors([]);
+            }, 3000)
+        }    
+    }
+    
     const handleEndJourney = async () => {
         // setIsOnJourney(false)
         try {
@@ -77,6 +116,16 @@ export default function LoginHeader(props) {
                 setIsOnJourney(false)
                 await SecureStore.setItemAsync('is_on_journey', "");
                 setSuccessMsg(response.data.message);
+                navigation.reset({
+                    index: 0,
+                    routes: [
+                    {
+                        name: 'takePhoto',
+                        params: {token: token}, // No params to pass in this case
+                    },
+                    ],
+                });
+
                 TimerMixin.setTimeout(() => {
                     setSuccessMsg("")
                     setLoading(false)
@@ -156,6 +205,19 @@ export default function LoginHeader(props) {
                 zIndex: 9999999999,
                 display: successMsg == '' ? 'none' : 'flex'
             }}>{successMsg}</Text>
+            <Text style={{
+                position: 'absolute', top: 70, right: 20, color: "#fff",
+                padding: 1 * 16,
+                marginLeft: 10,
+                fontSize: 1 * 16,
+                backgroundColor: '#e41749',
+                fontFamily: 'Outfit_600SemiBold',
+                // fontWeight: 600,
+                borderRadius: 1.25 * 16,
+                zIndex: 9999999999,
+                display: errors.length ? 'flex' : 'none'
+            }}>{errors.length ? errors[0] : ''}</Text>
+
             <View style={styles.wrapper}>
                 {
                     !isOnJourney && props.active == 2? (
@@ -174,15 +236,15 @@ export default function LoginHeader(props) {
                         ) : (props.showScanner === false ? (
                             <View style={[styles.choiceWrapper, styles.choiceActive, { width: '90%', gap: 10, position: 'relative' }]}>
                                 <View>
-                                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}><Text><Entypo name="battery" size={30} color="black" /> </Text><Text style={{ fontSize: 18 }}>90% - Ride for 50 Km</Text></View>
+                                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}><Text><Entypo name="battery" size={30} color="black" /> </Text><Text style={{ fontSize: 18 }}>{props.battary_charge + "% Battary Charge"}</Text></View>
                                     <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}><Text><FontAwesome5 name="money-bill" size={24} color="black" /></Text><Text style={{ fontSize: 18 }}>5 points/minute</Text></View>
                                 </View>
                                 <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between', marginTop: 10 }}>
                                     <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]} onPress={showQrScanner} ><MaterialCommunityIcons name="qrcode-scan" size={28} color="black" /></TouchableOpacity>
-                                    <Text style={[styles.choiceWrapper, styles.choiceActive, { width: '58%', textAlign: 'center', fontSize: 18, fontFamily: 'Outfit_600SemiBold', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}>5 min. from you</Text>
+                                    <Text style={[styles.choiceWrapper, styles.choiceActive, { width: '58%', textAlign: 'center', fontSize: 18, fontFamily: 'Outfit_600SemiBold', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}>{props.scooterDurationFar + " far"}</Text>
                                     <TouchableOpacity onPress={navToScooter} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}><FontAwesome5 name="directions" size={30} color="black" /></TouchableOpacity>
                                 </View>
-                                <TouchableOpacity style={{ position: 'absolute', top: 15, right: 15 }} onPress={closeDetailsScooter}><Ionicons name="md-close-circle-sharp" size={28} color="red" /></TouchableOpacity>
+                                <TouchableOpacity style={{ position: 'absolute', top: 15, right: 15 }} onPress={closeDetailsScooter}><AntDesign name="close" size={28} color="red" /></TouchableOpacity>
                             </View>
                         ) : (
                             <View style={[styles.choiceWrapper, styles.choiceActive, { width: '90%', gap: 10, position: 'relative', }]}>
@@ -194,6 +256,7 @@ export default function LoginHeader(props) {
                                         value={serialNum}
                                         onFocus={() => handelserialNumfocused()}
                                         onBlur={() => setSerialNumfocused(false)}
+                                        keyboardType="numeric"
                                         style={[
                                             styles.input,
                                             serialNumfocused && {
@@ -203,9 +266,9 @@ export default function LoginHeader(props) {
                                         ]}
         
                                     />
-                                    <TouchableOpacity onPress={navToScooter} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 60, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 16 }]}><FontAwesome5 name="unlock" size={30} color="black" /></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => unlockManualy()} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 60, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 16 }]}><FontAwesome5 name="unlock" size={30} color="black" /></TouchableOpacity>
                                 </View>
-                                <TouchableOpacity style={{ position: 'absolute', top: -8, right: -8 }} onPress={closeScanner}><Ionicons name="md-close-circle-sharp" size={28} color="red" /></TouchableOpacity>
+                                <TouchableOpacity style={{ position: 'absolute', top: -8, right: -8 }} onPress={closeScanner}><Text style={{width: 30, height: 30, backgroundColor: "red", borderRadius: 40, fontFamily: "Outfit_700Bold", fontSize: 18, color: "white", textAlign: 'center', justifyContent: 'center', alignItems: 'center'}}>x</Text></TouchableOpacity>
                             </View>
                         )
                         )
