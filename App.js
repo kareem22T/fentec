@@ -28,6 +28,7 @@ import Map from './screens/map';
 import Account from './screens/account';
 import EditEmail from './screens/editEmailScreen';
 import takePhoto from './screens/takePhotoScreen';
+import TakePhotoId from './screens/takeIdPhoto';
 
 export default function App() {
   let [fontsLoaded, fontError] = useFonts({
@@ -112,6 +113,11 @@ export default function App() {
         <Stack.Screen
           name="Last"
           component={LastStep}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TakePhotoId"
+          component={TakePhotoId}
           options={{ headerShown: false }}
         />
         <Stack.Screen

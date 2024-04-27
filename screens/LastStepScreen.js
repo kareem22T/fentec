@@ -3,10 +3,12 @@ import { TouchableOpacity, Image, View, Platform, ScrollView, StyleSheet, Text, 
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import LoginHeader from '../components/loginHeader';
-import DatePicker from 'react-native-modern-datepicker'
 import * as SecureStore from 'expo-secure-store';
 import TimerMixin from 'react-timer-mixin';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { AntDesign } from '@expo/vector-icons';
+import DatePicker from '@react-native-community/datetimepicker';
+import { Entypo } from "@expo/vector-icons";
 
 const BackgroundImage = () => {
     return (
@@ -23,10 +25,13 @@ const BackgroundImage = () => {
 
 export default function LastStep({ navigation, route }) {
     const [currentLang, setCurrentLag] = useState('ar')
+    const [showDobDatePicker, setShowDobDatePicker] = useState(false)
     const translations = {
         "en": {
             "head": route.params.user ? "Edit Profile" : "Last step",
             "name": "Name",
+            "open_cam": "Open Camera",
+            "open_gallery": "Select from gallery",
             "start": route.params.user ? "Edit Data" : "Let's Start !",
             "id": "Identity Verification",
             'dob': 'Date of Birth'
@@ -34,6 +39,8 @@ export default function LastStep({ navigation, route }) {
         "fr": {
             "head": "Dernière étape",
             "name": "Nom",
+            "open_cam": "Ouvrir la caméra",
+            "open_gallery": "la galerie",
             "start": "Allons-y",
             "id": "vérification d'identité",
             'dob': "date de naissance"
@@ -41,6 +48,8 @@ export default function LastStep({ navigation, route }) {
         "ar": {
             "head": route.params.user ? "تعديل الحساب" : "اخر خطوة",
             'name': "الاسم",
+            "open_cam": "استعمل الكاميرا",
+            "open_gallery": "اختر من المعرض",
             "start": route.params.user ? "تحديث البيانات" : "لنبدأ !",
             "id": "صورة من الهوية الشخصية",
             'dob': 'تاريخ الميلاد'
@@ -48,6 +57,7 @@ export default function LastStep({ navigation, route }) {
     }
     const [screenContent, setScreenContent] = useState(translations.ar);
 
+    const [showChoices, setShowChoices] = useState()
     const getStoredLang = async () => {
         const storedLang = await SecureStore.getItemAsync('lang');
         if (storedLang) {
@@ -85,7 +95,8 @@ export default function LastStep({ navigation, route }) {
         }
     };
 
-    const [Identity, setIdentity] = useState(null);
+    
+    const [Identity, setIdentity] = useState();
 
     const pickId = async () => {
         try {
@@ -131,7 +142,7 @@ export default function LastStep({ navigation, route }) {
         setDobfocused(true);
     };
 
-    const [dob, setDob] = useState(route.params.user && route.params.user.dob ? route.params.user.dob : null);
+    const [dob, setDob] = useState(route.params.user && route.params.user.dob ? new Date(route.params.user.dob) : null);
     const [date, setDate] = useState(new Date);
     const [isShowDatePicker, setIsShowDatePicker] = useState(false);
 
@@ -144,14 +155,20 @@ export default function LastStep({ navigation, route }) {
         setDate(porpDate)
     }
 
+    const handlechangeDob = (date) => {
+        console.log(date.toISOString());
+        setDob(date)
+        setShowDobDatePicker(false)    
+    }
+
     const sendLastStepData = async (token) => {
         const formData = new FormData();
-
+// console.log(dob);
         if (name)
             formData.append('name', name)
 
         if (dob)
-            formData.append('dob', dob)
+            formData.append('dob', new Date(dob).toISOString().slice(0, 10))
 
         if (Identity)
             formData.append('identity', {
@@ -226,6 +243,12 @@ export default function LastStep({ navigation, route }) {
     }
 
     useEffect(() => {
+        if (route.params.idPhoto)
+            setIdentity(route.params.idPhoto)
+        if (route.params.name)
+            setName(route.params.name)
+        if (route.params.dob)
+            setDob(route.params.dob)
         getStoredLang();
     }, []);
 
@@ -237,6 +260,16 @@ export default function LastStep({ navigation, route }) {
         <ScrollView style={styles.wrapper} contentContainerStyle={{flexGrow: 1}}>
             <LoginHeader active={3}></LoginHeader>
             <BackgroundImage></BackgroundImage>
+            {
+                showDobDatePicker && (
+                    <DatePicker
+                    date={new Date().toString()}
+                    value={dob ? dob : new Date()}
+                    onChange={(date) => handlechangeDob(new Date(date['nativeEvent']['timestamp']))}
+                    icon={<Entypo name="chevron-right" size={40} color="#689CA3" />}
+                    />
+                )
+            }
             <Text style={{
                 position: 'absolute', top: 50, right: 20, color: "#fff",
                 padding: 1 * 16,
@@ -341,26 +374,46 @@ export default function LastStep({ navigation, route }) {
 
                     </Modal>
 
-                    <TouchableOpacity onPress={ShowDatePicker} style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={() => setShowDobDatePicker(true)} style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                         <Text style={[styles.input, { color: 'gray' }, currentLang == 'ar' && {
                             textAlign: 'right',
                         },
-                        isShowDatePicker && {
+                        showDobDatePicker && {
                             borderColor: 'rgba(255, 115, 0, 1)',
                             borderWidth: 2
                         },
                         ]}>
-                            {dob && (dob)} {!dob && (screenContent.dob)}
+                            {dob && ( dob ?  String(new Date(dob).getDate()).padStart(2, '0') + " " + new Date(dob).toLocaleDateString("en-US", { month: 'long' }) + ", " + String(new Date(dob).getFullYear()) : "----")} {!dob && (screenContent.dob)}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={pickId} style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}>
-                        <Image source={Identity ? { uri: Identity } : (route.params.user ? { uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + route.params.user.identity_path } : require('./../assets/imgs/icons/cam-solid.png'))}
-                            style={[{ width: 50, height: 50, resizeMode: 'contain', }, (Identity || route.params.user) && {
-                                borderColor: 'rgba(255, 115, 0, 1)',
-                                borderWidth: 1,
-                                borderRadius: 4
-                            }]} />
+                    <TouchableOpacity onPress={() => setShowChoices(true)} style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}>
+                        {Identity ? (
+                            <Image source={Identity ? { uri: Identity } : (route.params.user ? { uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + route.params.user.identity_path } : require('./../assets/imgs/icons/cam-solid.png'))}
+                                style={[{ width: 50, height: 50, resizeMode: 'contain', }, (Identity || route.params.user) && {
+                                    borderColor: 'rgba(255, 115, 0, 1)',
+                                    borderWidth: 1,
+                                    borderRadius: 4
+                                }]} />
+
+                        ) :
+                        (
+                            <AntDesign name="idcard" size={45} color="black" />
+                        )}
                         <Text style={styles.id_text}>{screenContent.id}</Text>
+                        {showChoices && (
+                            <View style={{flexDirection: "row", width: "100%", gap: 10, justifyContent: "center", alignItems: 'center', marginTop: 10}}>
+                                <TouchableOpacity onPress={() => navigation.navigate("TakePhotoId", {token: route.params.token, name: name, dob: dob})} style={{padding: 8, borderRadius: 8, backgroundColor: "rgba(255,115,0,1)", width: '46%'}}>
+                                    <Text style={{textAlign: 'center', color: "white"}}>
+                                        {screenContent.open_cam}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={pickId} style={{padding: 8, borderRadius: 8, backgroundColor: "rgba(255,115,0,1)", width: '46%'}}>
+                                    <Text style={{textAlign: 'center', color: "white"}}>
+                                        {screenContent.open_gallery}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button} onPress={() => sendLastStepData(route.params.token)} >
                         <Text style={styles.button_text}>{screenContent.start}</Text>

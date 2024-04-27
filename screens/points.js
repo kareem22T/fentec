@@ -209,7 +209,7 @@ export default function Points({ navigation, route }) {
                         </Text>
                         <View style={[styles.contianer_bg, { padding: 20, width: '100%' }]}>
                         {route.params.user && (
-                            <Text style={[styles.head, { color: "rgba(255, 115, 0, 1)", textAlign: 'center' }]}>{ "SpecialUser_" +  route.params.user.id}</Text>
+                            <Text style={[styles.head, { color: "rgba(255, 115, 0, 1)", textAlign: 'center' }]}>{ "ID_" +  String(route.params.user.id).padStart(4, '0')}</Text>
                         )}
                         </View>
                         <View style={{flexDirection: "row", gap: 10}}>
