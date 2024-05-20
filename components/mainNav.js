@@ -6,24 +6,11 @@ import { useState, useEffect } from 'react';
 import messaging from '@react-native-firebase/messaging';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './../app.json';
-import PushNotification from 'react-native-push-notification';
 import * as SecureStore from 'expo-secure-store';
 import TimerMixin from 'react-timer-mixin';
 import Slider from 'react-native-slide-to-unlock';
 import axios from 'axios';
 import { AntDesign } from '@expo/vector-icons';
-
-PushNotification.createChannel(
-  {
-    channelId: 'default-channel-id',
-    channelName: 'Default Channel',
-    channelDescription: 'A default notification channel',
-    soundName: 'default',
-    importance: 4,
-    vibrate: true,
-  },
-  created => console.log(`Channel created: ${created}`)
-);
 
 // Register the app
 AppRegistry.registerComponent(appName, () => App);

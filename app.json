@@ -2,7 +2,7 @@
   "expo": {
     "name": "Fentec Mobility",
     "slug": "fentec-mobility",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,18 +11,26 @@
       "color": "#ff7300"
     },
     "plugins": [
+      "./plugins/custom-android-styles.js",
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
       "@react-native-firebase/crashlytics",
-      "./plugins/custom-android-styles.js",
       [
-        "expo-camera",
+        "expo-image-picker",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "expo-font",
+      "expo-secure-store",
       [
         "expo-location",
         {
@@ -40,7 +48,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "y"
+      "bundleIdentifier": "com.kareem11.fentecmobility",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "1",
+      "config": {
+        "googleMapsApiKey": "AIzaSyADMSyZQR7V38GWvZ3MEl_DcDsn0pTS0WU"
+      }
     },
     "android": {
       "googleServicesFile": "./google-services.json",

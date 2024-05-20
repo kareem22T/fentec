@@ -13,19 +13,6 @@ import { AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './../app.json';
-import PushNotification from 'react-native-push-notification';
-PushNotification.createChannel(
-  {
-    channelId: 'default-channel-id',
-    channelName: 'Default Channel',
-    channelDescription: 'A default notification channel',
-    soundName: 'default',
-    importance: 4,
-    vibrate: true,
-  },
-  created => console.log(`Channel created: ${created}`)
-);
-
 // Register the app
 AppRegistry.registerComponent(appName, () => App);
 
@@ -442,13 +429,6 @@ export default function Account({ navigation, route }) {
             }
 
             // Display a local notification
-            PushNotification.localNotification({
-              channelId: 'default-channel-id', // Specify your channel ID here
-              title: remoteMessage.data.title,
-              message: remoteMessage.data.body,
-              data: remoteMessage.data.data,
-              smallIcon: '../assets/icon', // Specify the name of the small icon
-            });
           });  
       
           getStoredLang();
