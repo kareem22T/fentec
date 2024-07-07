@@ -7,6 +7,11 @@ import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import TimerMixin from 'react-timer-mixin';
 
+import * as Google from "expo-auth-session/providers/google";
+import * as Facebook from "expo-auth-session/providers/facebook";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 const BackgroundImage = () => {
     return (
@@ -65,6 +70,113 @@ export default function Login({ navigation }) {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [googlePassword, setGooglePassword] = useState("");
+    const [name, setName] = useState("");
+  // Handle sign in with Google
+  const [gToken, setgToken] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
+  const getLocalUser = async () => {
+    const data = await SecureStore.getItemAsync("userData");
+    if (!data) return null;
+    return JSON.parse(data);
+  };
+
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: "22085097857-mqlve8k4delb5b0i2vdik1g8hki9vr3g.apps.googleusercontent.com",
+    iosClientId: "22085097857-vqgh29rhn6v7h2u892hvqltrbh9dfk9i.apps.googleusercontent.com"
+  });
+
+  const handleBack = () => {
+    setShowPhonePopUp(false)
+    setEmail("")
+    setName("")
+    setGooglePassword("")
+  }
+
+  useEffect(() => {
+    handleEffect();
+  }, [response, gToken]);
+
+    async function handleEffect() {
+        const user = await getLocalUser();
+        if (!user) {
+        if (response?.type === "success") {
+            // setToken(response.authentication.accessToken);
+            getUserInfo(response.authentication.accessToken);
+        }
+        } else {
+        setUserInfo(user);
+        setErrors([])
+        console.log(user);
+        setName(user.name)
+        setEmail(user.email)
+        setGooglePassword("Google")
+        setShowPhonePopUp(true)
+        console.log("loaded locally");
+        }
+    }
+
+    const getUserInfo = async (gToken) => {
+        if (!gToken) return;
+        try {
+        //   setLoading(true);
+          const response = await fetch(
+            "https://www.googleapis.com/userinfo/v2/me",
+            {
+              headers: { Authorization: `Bearer ${gToken}` },
+            }
+          );
+    
+          const user = await response.json();
+          console.log(user);
+          setLoading(true)
+          setErrors([])
+          try {
+              const response = await axios.post(`https://adminandapi.fentecmobility.com/register`, {
+                  email: user.email,
+                  password: "Google",
+                  sign_up_type: "Google",
+                  api_password: 'Fentec@scooters.algaria'
+              });
+  
+              if (response.data.status === true) {
+                  await SecureStore.setItemAsync('user_token', response.data.data.token)
+                  setLoading(false);
+                  setErrors([]);
+                  setSuccessMsg(response.data.message);
+                  TimerMixin.setTimeout(() => {
+                      navigation.reset({
+                          index: 0,
+                          routes: [
+                            {
+                              name: 'Profile',
+                              params: {}, // No params to pass in this case
+                            },
+                          ],
+                        });                      
+                  }, 1500)
+              } else {
+                  setLoading(false);
+                  setErrors(response.data.errors);
+                  TimerMixin.setTimeout(() => {
+                      setErrors([]);
+                  }, 2000);
+              }
+          } catch (error) {
+              setLoading(false);
+              setErrors(["Server error, try again later."]);
+              console.error(error);
+          }
+            setUserInfo(user);
+        } catch (error) {
+          // Add your own error handler here
+        }
+      };
+    
+
+    const registerGoogle = async () => {
+    }
 
     const [emailfocused, setEmailfocused] = useState(false);
     const handleEmailFocus = () => {
@@ -92,6 +204,7 @@ export default function Login({ navigation }) {
         setErrors([])
         try {
             const response = await axios.post(`https://adminandapi.fentecmobility.com/login`, {
+                lang: currentLang,
                 emailorphone: email,
                 password: password,
                 api_password: 'Fentec@scooters.algaria'
@@ -173,20 +286,24 @@ export default function Login({ navigation }) {
                         <ActivityIndicator size="200px" color="#ff7300" />
                     </View>
                 )}
-                <View style={styles.contianer}>
+                <View style={[styles.contianer]}>
                     <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10, marginTop: 35 }}>
                         <Text style={styles.question}>{screenContent.head}</Text>
                         <TouchableOpacity><Text style={styles.ans} onPress={() => navigation.navigate('Register')}>{screenContent.register}</Text></TouchableOpacity>
                     </View>
                     <Text style={styles.or}>{screenContent.or}</Text>
-                    <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
+                    <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]} 
+                    disabled={!request}
+                    onPress={() => {
+                      promptAsync();
+                    }}>
                         <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
                         <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
+                    {/* <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
                         <Image style={styles.g_f_img} source={require('./../assets/imgs/facebook.png')} />
                         <Text style={styles.f_btn_text}>{screenContent.face_btn}</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <Text style={styles.or}>{screenContent.or}</Text>
                     <View style={{ gap: 15, width: '100%', alignItems: 'center' }}>
                         <TextInput
@@ -234,6 +351,8 @@ export default function Login({ navigation }) {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    <View></View>
+                    <View></View>
                 </View>
         </ScrollView>
     );

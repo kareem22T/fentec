@@ -23,6 +23,7 @@ const Lang = ({ navigation }) => {
 
     const storeLang = async () => {
         await SecureStore.setItemAsync('lang', lang)
+        await SecureStore.setItemAsync('isFirstTime', 'no')
     }
 
     return (
@@ -50,7 +51,7 @@ const Lang = ({ navigation }) => {
                         borderWidth: 3,
                         opacity: 1
                     }]} onPress={() => setLang('en')}>
-                        <Text style={styles.btn_big_text}>Hello</Text>
+                        <Text style={styles.btn_big_text}>Welcome</Text>
                         <Text style={styles.btn_small_text}>English</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.choose_btn, lang == 'fr' && {
@@ -59,14 +60,14 @@ const Lang = ({ navigation }) => {
                         borderWidth: 3,
                         opacity: 1
                     }]} onPress={() => setLang('fr')}>
-                        <Text style={styles.btn_big_text}>Bonjour</Text>
+                        <Text style={styles.btn_big_text}>Bienvenue</Text>
                         <Text style={styles.btn_small_text}>Française</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.navigation}>
                     <Text style={{ opacity: 0 }}>d</Text>
                     <TouchableOpacity style={styles.navigate_btn} onPress={() => storeLang().then(() => {
-                        navigation.navigate('Preview')
+                        navigation.navigate('Register')
                     })}>
                         <Image source={require('./../assets/imgs/icons/angle-right.png')} style={styles.navigate_img} />
                     </TouchableOpacity>

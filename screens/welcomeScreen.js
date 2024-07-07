@@ -23,7 +23,7 @@ export default function Welcome({ navigation }) {
             <View style={styles.contianer}>
                 <Text style={styles.heading}>
                     Welcome {'\n'}
-                    to <Text style={styles.heading_span}>Fentec</Text> {'\n'}
+                    to <Text style={styles.heading_span}>FenTec</Text> {'\n'}
                     Mobility
                 </Text>
                 <Image source={require('./../assets/imgs/adaptive-icon.png')} alt="fentec logo" style={styles.logo} />

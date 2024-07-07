@@ -247,6 +247,8 @@ export default function LastStep({ navigation, route }) {
             setIdentity(route.params.idPhoto)
         if (route.params.name)
             setName(route.params.name)
+        if (route.params.googleName)
+            setName(route.params.googleName)
         if (route.params.dob)
             setDob(route.params.dob)
         getStoredLang();

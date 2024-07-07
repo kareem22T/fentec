@@ -43,7 +43,7 @@ export default function Profile({ navigation }) {
             "msg_4": "Your Account has been approved !",
             "msg_5": "You can enjoy the experience now.",
             "title_1": "Hello friend !",
-            "title_2": "Ride responsible, Enjoy freely",
+            "title_2": "Ride Responsibly and Enjoy Freely",
             "trips": "Trips",
             "points": "Points",
             "navigate_msg": "Navigate to nearest points seller",
@@ -62,9 +62,9 @@ export default function Profile({ navigation }) {
         },
         "fr": {
             "msg_1": "Votre compte a été rejeté car:",
-            "msg_ban": "Votre compte a été banni parce que:",
+            "msg_ban": "Votre compte a été suspendu en raison de:",
             "more_details": "pour plus de détails",
-            "Call": "Appelle",
+            "Call": "Appelez",
             "msg_2": "Votre compte est en cours de révision, nous approuverons votre compte dans quelques heures !",
             "msg_3": "Vous recevrez un e-mail avec approuver ou rejeter si vos informations n'étaient pas correctes.",
             "msg_4": "Your Account has been approved !",
@@ -97,7 +97,7 @@ export default function Profile({ navigation }) {
             "msg_4": "تمت الموافقة على حسابك!",
             "msg_5": "يمكنك الاستمتاع بالتجربة الآن.",
             "title_1": "مرحبا يا صديقي!",
-            "title_2": "تنقل بمسؤلية, تنقل بحرية",
+            "title_2": "تنقل بمسؤولية وتمتع بحرية",
             "trips": "الرحلات",
             "points": "النقاط",
             "navigate_msg": "انتقل إلى أقرب نقاط بائع نقاط",
@@ -462,7 +462,7 @@ export default function Profile({ navigation }) {
                         <Text>
                             {user.ban_reason} {'\n'}
                         </Text>
-                        <Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>{screenContent.Call} 1234567 {screenContent.more_details}</Text>
+                        <Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>{screenContent.Call} +213676551489 {screenContent.more_details}</Text>
                     </Text>)}
                     {(user && !user.approved && !user.rejected && !user.isBanned) && (<Text style={[styles.title, styles.approvingAlert]}>
 
