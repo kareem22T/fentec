@@ -32,6 +32,7 @@ const BackgroundImage = () => {
 
 export default function Profile({ navigation }) {
     const [appState, setAppState] = useState(AppState.currentState);
+    const [isSurvey, SetIsSurvey] = useState(false)
     const translations = {
         "en": {
             "msg_1": "Your Account has been rejected because:",
@@ -59,6 +60,14 @@ export default function Profile({ navigation }) {
             "tandc": "Terms and conditions",
             "seanda": "Service agreement",
             "privace": "Privacy police",
+            "leave_feedback": "Leave a feedback",
+            "submit": "Submit",
+            "comment": "Comment (optional)",
+            "bad": "Bad",
+            "good": "Good",
+            "cool": "Cool!",
+            "survey_success_msg": "Your review has been sent successfully. Thank you",
+            "survey_error_msg": "Please choose your impression of the experience!",
         },
         "fr": {
             "msg_1": "Votre compte a été rejeté car:",
@@ -69,6 +78,7 @@ export default function Profile({ navigation }) {
             "msg_3": "Vous recevrez un e-mail avec approuver ou rejeter si vos informations n'étaient pas correctes.",
             "msg_4": "Your Account has been approved !",
             "msg_5": "Vous pouvez profiter de l'expérience maintenant.",
+            "leave_feedback": "Laisser un commentaire",
             "title_1": "Salut Notre Ami !",
             "title_2": "Roulez avec responsabilitè, Profitez librement",
             "trips": "Parcours",
@@ -86,6 +96,13 @@ export default function Profile({ navigation }) {
             "tandc": "Termes et conditions",
             "seanda": "Service agreement",
             "privace": "Politique de confidentialité",
+            "submit": "Soumettre",
+            "comment": "Commentaire (facultatif)",
+            "bad": "Mauvais",
+            "good": "Bien",
+            "cool": "Cool!",
+            "survey_success_msg": "Votre avis a été envoyé avec succès. Merci!",
+            "survey_error_msg": "Veuillez choisir votre impression de l'expérience!",
         },
         "ar": {
             "msg_1": "لقد تم رفض حسابك للأسباب التالية:",
@@ -98,6 +115,7 @@ export default function Profile({ navigation }) {
             "msg_5": "يمكنك الاستمتاع بالتجربة الآن.",
             "title_1": "مرحبا يا صديقي!",
             "title_2": "تنقل بمسؤولية وتمتع بحرية",
+            "leave_feedback": "اترك لنا انطباعك",
             "trips": "الرحلات",
             "points": "النقاط",
             "navigate_msg": "انتقل إلى أقرب نقاط بائع نقاط",
@@ -113,6 +131,13 @@ export default function Profile({ navigation }) {
             "tandc": "الأحكام والشروط",
             "seanda": "اتفاقية خدمات",
             "privace": "سياسة الخصوصية",
+            "submit": "ارسال",
+            "comment": "التعليق (اختياري)",
+            "bad": "سيء",
+            "good": "جيد",
+            "cool": "رائع!",
+            "survey_success_msg": "تم ارسال تقيمك بنجاح شكرا لك!",
+            "survey_error_msg": "يرجع اختيار انطباعك عن التجربة!",
         }
     }
     const [errors, setErrors] = useState([]);
@@ -124,6 +149,9 @@ export default function Profile({ navigation }) {
     const [notificationToken, setNotificationToken] = useState('')
     const [token, setToken] = useState('')
     const [tripsNum, setTripsNum] = useState(0)
+    const [showFeedBack, setShowFedBack] = useState(false)
+    const [selectedReaction, setSelectedReaction] = useState(null)
+    const [comment, setComment] = useState(null)
 
     const getStoredLang = async () => {
         const storedLang = await SecureStore.getItemAsync('lang');
@@ -312,6 +340,18 @@ export default function Profile({ navigation }) {
     const [notificationTitle, setNotificationTitle] = useState(null)
     const [notificationBody, setNotificationBody] = useState(null)
     useEffect(() => {
+        const testShowSurvey = async () =>{
+            let sur = await SecureStore.setItemAsync('surveay', "true");
+            if (sur) {
+                SetIsSurvey(true)
+            } else {
+                SetIsSurvey(false)
+            }
+        }
+
+        testShowSurvey();
+
+
         getStoredToken().then((res) => {
             let token = res
             checkIsFirstTime().then((isfirst) => {
@@ -397,6 +437,51 @@ export default function Profile({ navigation }) {
         if (user)
         getTripsNum(user.id)
     }, [user])
+    useEffect(() => {
+        const getShowSurvey = async () => {
+            let showSur = await SecureStore.getItem('show_survey')
+            console.log("xxx", showSur);
+            if (showSur) {
+                setShowFedBack(true)
+            }
+        }
+
+        getShowSurvey()
+
+    }, [showFeedBack])
+    const handleSubmitSurvey = async () => {
+        setLoading(true);
+        setErrors([])
+        if (!selectedReaction) {
+
+            setErrors([screenContent.survey_error_msg]);
+            setLoading(false);
+        } else
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/put-survey`, {
+                api_password: 'Fentec@scooters.algaria',
+                comment: comment,
+                reaction: selectedReaction
+            },
+            {
+                headers: {
+                    'AUTHORIZATION': `Bearer ${token}`
+                }
+            })
+                let showSur = await SecureStore.setItemAsync('show_survey', '')
+                setShowFedBack(false)
+                setSuccessMsg(screenContent.survey_success_msg);
+                TimerMixin.setTimeout(() => {
+                    setLoading(false)
+                    setSuccessMsg("")
+                    setErrors([]);
+                }, 2000);                
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
     return (
         <SafeAreaView style={[styles.wrapper]}>
             <BackgroundImage></BackgroundImage>
@@ -448,6 +533,65 @@ export default function Profile({ navigation }) {
                     <Text style={{fontSize: 16, fontFamily: "Outfit_500Medium", paddingLeft: 29}}>{notificationBody}</Text>
                 </TouchableOpacity>
             )}
+            {
+                showFeedBack && (
+                    <View style={{height: "100%", width: "100%", position: "absolute", top: 0, left: 0, zIndex: 99999, backgroundColor: "rgba(0, 0, 0, .4)"}}>
+                        <View style={[{position: "absolute", bottom: 40, width: "100%", left: 0, paddingHorizontal: 20, zIndex: 9999999}]}>
+                            <View style={[styles.contianer_bg, styles.shadow, {width: "100%", padding: 20}]}>
+                                <Text style={{fontSize: 22, fontFamily: 'Outfit_700Bold', textAlign: "center", marginBottom: 8}}>{ screenContent.leave_feedback }</Text>
+                                <View style={{display: 'flex', justifyContent: "center", alignItems: "center", gap: 24, flexDirection: "row"}}>
+                                    <TouchableOpacity onPress={() => {setSelectedReaction(1)}} style={[(selectedReaction !== 1 && selectedReaction !== null) && {opacity: .5}]}>
+                                        <Image source={require('./../assets/imgs/bad-icon.png')} style={{width: 60, height: 60, resizeMode: "cover"}} />
+                                        <Text style={{fontSize: 18, fontFamily: "Outfit_600SemiBold", textAlign: "center", marginTop: 8}}>{screenContent.bad}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {setSelectedReaction(2)}} style={[(selectedReaction !== 2 && selectedReaction !== null) && {opacity: .5}]}>
+                                        <Image source={require('./../assets/imgs/good.png')} style={{width: 60, height: 60, resizeMode: "cover"}}/>
+                                        <Text style={{fontSize: 18, fontFamily: "Outfit_600SemiBold", textAlign: "center", marginTop: 8}}>{screenContent.good}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {setSelectedReaction(3)}} style={[(selectedReaction !== 3 && selectedReaction !== null) && {opacity: .5}]}>
+                                        <Image source={require('./../assets/imgs/cool.png')} style={{width: 60, height: 60, resizeMode: "cover"}}/>
+                                        <Text style={{fontSize: 18, fontFamily: "Outfit_600SemiBold", textAlign: "center", marginTop: 8}}>{screenContent.cool}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <TextInput
+                                style={[styles.contianer_bg, {width: "100%", borderRadius: 10, height: 120, padding: 12, fontSize: 16, textAlignVertical: 'top'}]}
+                                multiline
+                                value={comment}
+                                onChangeText={text => setComment(text)}
+                                placeholder={screenContent.comment}
+                                />
+                                <TouchableOpacity onPress={() => handleSubmitSurvey()} style={[styles.button, {width: "100%", padding: 12, borderRadius: 10}]}>
+                                    <Text style={styles.button_text}>
+                                        {screenContent.submit}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                )
+            }
+            <Text style={{
+                    position: 'absolute', top:  50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#e41749',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: errors.length ? 'flex' : 'none'
+                }}>{errors.length ? errors[0] : ''}</Text>
+                <Text style={{
+                    position: 'absolute', top:  50, right: 20, color: "#fff",
+                    padding: 1 * 16,
+                    marginLeft: 10,
+                    fontSize: 1 * 16,
+                    backgroundColor: '#12c99b',
+                    fontFamily: 'Outfit_600SemiBold',
+                    borderRadius: 1.25 * 16,
+                    zIndex: 9999999999,
+                    display: successMsg == '' ? 'none' : 'flex'
+                }}>{successMsg}</Text>
             <ScrollView>
                 <View style={styles.contianer}>
                     {(user && user.rejected == true) && (<Text style={[styles.title, styles.approvingAlert]}>
@@ -631,6 +775,24 @@ const styles = StyleSheet.create({
         fontFamily: 'Outfit_500Medium',
         fontSize: 22,
         textAlign: 'center'
+    },
+    button: {
+        padding: 18,
+        borderRadius: 1.25 * 16,
+        fontSize: 1.25 * 16,
+        width: "95%",
+        backgroundColor: "#ff7300",
+        transition: "all .3s ease-in",
+        marginBottom: 1.25 * 16,
+    },
+    button_text: {
+        color: "#fff",
+        fontFamily: 'Outfit_700Bold',
+        fontSize: 28,
+        textAlign: "center",
+    },
+    popup: {
+
     },
     details: {
         width: '100%',

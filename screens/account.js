@@ -1027,7 +1027,7 @@ const styles = StyleSheet.create({
         borderColor: 'gray'
     },
     btn_small_text: {
-        fontSize: 19,
+        fontSize: 16,
         fontFamily: "Outfit_600SemiBold",
         textAlign: 'center',
     }

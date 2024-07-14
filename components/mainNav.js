@@ -11,6 +11,7 @@ import TimerMixin from 'react-timer-mixin';
 import Slider from 'react-native-slide-to-unlock';
 import axios from 'axios';
 import { AntDesign } from '@expo/vector-icons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 // Register the app
 AppRegistry.registerComponent(appName, () => App);
@@ -21,6 +22,7 @@ export default function LoginHeader(props) {
     let getNearstScooter = props.getNearstScooter
     let closeDetailsScooter = props.closeDetailsScooter
     let navToScooter = props.navToScooter
+    let whereIdTheScooter = props.whereIdTheScooter
     let closeScanner = props.closeScanner
     let showQrScanner = props.showQrScanner
     let user = props.user
@@ -102,6 +104,8 @@ export default function LoginHeader(props) {
             if (response.data.status === true) {
                 setIsOnJourney(false)
                 await SecureStore.setItemAsync('is_on_journey', "");
+                await SecureStore.setItemAsync('surveay', "true");
+                await SecureStore.setItemAsync('show_survey', 'true')
                 setSuccessMsg(response.data.message);
                 navigation.reset({
                     index: 0,
@@ -166,6 +170,7 @@ export default function LoginHeader(props) {
                 
             if(remoteMessage.data && remoteMessage.data.lock) {
                 setSuccessMsg("Trip Ended Successfuly, Hop you Enjoied it!");
+                await SecureStore.setItemAsync('show_survey', 'true')
                 setIsOnJourney(false)
                 await SecureStore.setItemAsync('is_on_journey', "");
                 TimerMixin.setTimeout(() => {
@@ -228,8 +233,9 @@ export default function LoginHeader(props) {
                                 </View>
                                 <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between', marginTop: 10 }}>
                                     <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]} onPress={showQrScanner} ><MaterialCommunityIcons name="qrcode-scan" size={28} color="black" /></TouchableOpacity>
-                                    <Text style={[styles.choiceWrapper, styles.choiceActive, { width: '58%', textAlign: 'center', fontSize: 18, fontFamily: 'Outfit_600SemiBold', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}>{props.scooterDurationFar + " far"}</Text>
+                                    <Text style={[styles.choiceWrapper, styles.choiceActive, { width: '50%', textAlign: 'center', fontSize: 18, fontFamily: 'Outfit_600SemiBold', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}>{props.scooterDurationFar + " far"}</Text>
                                     <TouchableOpacity onPress={navToScooter} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}><FontAwesome5 name="directions" size={30} color="black" /></TouchableOpacity>
+                                    <TouchableOpacity onPress={whereIdTheScooter} style={{justifyContent: "center",alignItems: 'center'}}><FontAwesome6 name="bell" size={30} color="black" /></TouchableOpacity>
                                 </View>
                                 <TouchableOpacity style={{ position: 'absolute', top: 15, right: 15 }} onPress={closeDetailsScooter}><AntDesign name="close" size={28} color="red" /></TouchableOpacity>
                             </View>

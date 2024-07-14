@@ -67,7 +67,7 @@ const Lang = ({ navigation }) => {
                 <View style={styles.navigation}>
                     <Text style={{ opacity: 0 }}>d</Text>
                     <TouchableOpacity style={styles.navigate_btn} onPress={() => storeLang().then(() => {
-                        navigation.navigate('Register')
+                        navigation.navigate('Preview')
                     })}>
                         <Image source={require('./../assets/imgs/icons/angle-right.png')} style={styles.navigate_img} />
                     </TouchableOpacity>

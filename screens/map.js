@@ -23,6 +23,7 @@ export default function Map({ navigation, route }) {
     const [currentBattary, setCurrentBattary] = useState(0)
     const [currentDurationFar, setCurrentDurationFar] = useState()
     const [showQrScanner, setShowQrScanner] = useState(false)
+    const [scooterIdSelected, setScooterIdSelected] = useState(0)
 
     const [showNav, setShowNav] = useState(true)
     const [region, setRegion] = React.useState({
@@ -117,6 +118,28 @@ export default function Map({ navigation, route }) {
         }
     }
 
+    const handleNotifyScooter = async () => {
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.get(`https://adminandapi.fentecmobility.com/map/scooter-notify?id=${scooterIdSelected}`);
+            // console.log(response);
+            if (response.data.status === true) {
+                setErrors([]);
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
     const getNearstScooter = async () => {
         setErrors([])
         // Get the user's current location permission status.
@@ -175,12 +198,13 @@ export default function Map({ navigation, route }) {
         setShowScooterDetails(false)
     };
 
-    const handleMarkerPress = (coords, batt) => {
+    const handleMarkerPress = (coords, batt, id) => {
         setShowNav(false)
         setReadyToNavigate(coords)
         console.log(batt);
         setCurrentBattary(batt)
         setShowScooterDetails(true)
+        setScooterIdSelected(id)
         if (location) {
             const origin = `${location.coords.latitude},${location.coords.longitude}`; // replace latitude and longitude with actual values
             const destination = `${coords.latitude},${coords.longitude}`; // replace latitude and longitude with actual values
@@ -247,7 +271,7 @@ export default function Map({ navigation, route }) {
         <View style={{ flex: 1 }}>
             {
                 showNav && (
-                    <Nav scooterDurationFar={currentDurationFar} battary_charge={currentBattary} showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2"  user={user} navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} />
+                    <Nav scooterDurationFar={currentDurationFar} battary_charge={currentBattary} showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} whereIdTheScooter={() => handleNotifyScooter()} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2"  user={user} navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} />
                 )
             }
 
@@ -387,7 +411,7 @@ export default function Map({ navigation, route }) {
                 {scooters.length > 0 && (
                     // Iterate through the scooters array
                     scooters.map((scooter) => (
-                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.battary_charge)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={parseInt(scooter.battary_charge) > 60 ? require('./../assets/imgs/icons/high_charge.png') : (parseInt(scooter.battary_charge) < 30 ? require('./../assets/imgs/icons/low_charge.png') : require('./../assets/imgs/icons/medium_charge.png'))}>
+                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.battary_charge, scooter.id)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={parseInt(scooter.battary_charge) > 60 ? require('./../assets/imgs/icons/high_charge.png') : (parseInt(scooter.battary_charge) < 30 ? require('./../assets/imgs/icons/low_charge.png') : require('./../assets/imgs/icons/medium_charge.png'))}>
                         </Marker>
                     ))
                 )}
