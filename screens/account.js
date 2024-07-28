@@ -215,6 +215,7 @@ export default function Account({ navigation, route }) {
         setErrors([])
         try {
             const response = await axios.post(`https://adminandapi.fentecmobility.com/change-password`, {
+                lang: currentLang,
                 old_password: oldPassword,
                 new_password: newPassword,
                 new_password_confirmation: newPasswordConfirmation,

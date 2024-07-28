@@ -126,6 +126,7 @@ export default function Map({ navigation, route }) {
             // console.log(response);
             if (response.data.status === true) {
                 setErrors([]);
+                setLoading(false);
             } else {
                 setLoading(false);
                 setErrors(response.data.errors);

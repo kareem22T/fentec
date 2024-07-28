@@ -17,6 +17,31 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 AppRegistry.registerComponent(appName, () => App);
 
 export default function LoginHeader(props) {
+    const translations = {
+        "en": {
+            "write_code": 'Please write the Scooter ID.',
+            "slide": 'Slide to end your trip and take photo of the parked scooter.',
+        },
+        "fr": {
+            "write_code": 'Glisser vers la droite pour terminer votre parcours et prendre une photo du trottinette garée.',
+            "slide": 'Glisser vers la droite pour terminer votre parcours et prendre une photo du trottinette garée.',
+        },
+        "ar": {
+            "write_code": 'الرجاء كتابة رمز المركبة.',
+            "write_code": 'إسحب إلى اليمين لإنهاء رحلتك و أخذ صورة للمركبة مركونة.',
+        }
+    }
+    const [currentLang, setCurrentLag] = useState('ar')
+    const [screenContent, setScreenContent] = useState(translations.ar);
+
+    const getStoredLang = async () => {
+        const storedLang = await SecureStore.getItemAsync('lang');
+        if (storedLang) {
+            setScreenContent(translations[storedLang])
+            setCurrentLag(storedLang)
+        }
+    }
+
     navigation = props.navigation
     let goToMyLocation = props.goToMyLocation
     let getNearstScooter = props.getNearstScooter
@@ -55,6 +80,7 @@ export default function LoginHeader(props) {
         try {
             setLoading(true)
             const response = await axios.post("https://adminandapi.fentecmobility.com/unlock-scooter", {
+                lang: currentLang,
                 api_password: 'Fentec@scooters.algaria',
                 scooter_serial: serialNum
             },
@@ -141,6 +167,7 @@ export default function LoginHeader(props) {
 
 
     useEffect(() => {
+        getStoredLang()
         getStoredToken().then(res => {
             setToken(res)
         })
@@ -244,7 +271,7 @@ export default function LoginHeader(props) {
                                 <QrScanner navigation={navigation} user={user}/>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
                                     <TextInput
-                                        placeholder={'Write code manually'}
+                                        placeholder={screenContent.write_code}
                                         onChangeText={setSerialNum}
                                         value={serialNum}
                                         onFocus={() => handelserialNumfocused()}
@@ -353,7 +380,7 @@ export default function LoginHeader(props) {
                                             </View>
                                         }
                                         >
-                                        <Text style={{backgroundColor: "white", fontFamily: "Outfit_600SemiBold", fontSize: 18, textAlign: "center", paddingLeft: 30}}>{'Slide To End Journey ' + '\n' + 'And Take photo'}</Text>
+                                        <Text style={{backgroundColor: "white", fontFamily: "Outfit_600SemiBold", fontSize: 13, textAlign: "center", paddingLeft: 30}}>{screenContent.slide}</Text>
                                 </Slider>
                             )
                         ) : 

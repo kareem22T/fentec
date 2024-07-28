@@ -77,6 +77,7 @@ export default function EnterEmail({ navigation, route }) {
         try {
             const response = await axios.post(`https://adminandapi.fentecmobility.com/send-forgot-code`, {
                 api_password: 'Fentec@scooters.algaria',
+                lang: currentLang,
                 email: email
             },)
             if (response.data.status === true) {

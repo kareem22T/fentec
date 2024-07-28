@@ -11,6 +11,34 @@ import axios from 'axios';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 const CameraComponent = ({navigation, route}) => {
+    const translations = {
+        "en": {
+            "takeInstruction": "1-Please park the scooter in a secure place. ",
+            "takeInstruction2": "2-Tie it to a post or tree.",
+            "takeInstruction3": " 3-Take a clear photo of the scooter. ",
+            "note": "Please note, if you do not follow the previous steps, your account will be suspended.",
+        },
+        "fr": {
+            "takeInstruction": "1-Veuillez garer la trottinette dans un endroit sécurisé.",
+            "takeInstruction2": "2-Attachez-le à un poteau ou à un arbre. ",
+            "takeInstruction3": "3-Prenez une photo claire du trottinette.",
+            "note": " Attention, si vous ne suivez pas les étapes précédentes, votre compte sera suspendu.",
+        },
+        "ar": {
+            "takeInstruction": "الرجاء ركن المركبة في مكان آمن. ",
+            "takeInstruction2": "ربطها بعمود أو شجرة.",
+            "takeInstruction3": "أخذ صورة واضحة.",
+            "note": "حذاري في حالة عدم القيام بالخطوات السابقة سيتم إيقاف حسابك.",
+        }
+    }
+    const [screenContent, setScreenContent] = useState(translations.ar);
+
+    const getStoredLang = async () => {
+        const storedLang = await SecureStore.getItemAsync('lang');
+        if (storedLang)
+            setScreenContent(translations[storedLang])
+    }
+
     const [hasPermission, setHasPermission] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -34,6 +62,7 @@ const CameraComponent = ({navigation, route}) => {
       };
                 
     useEffect(() => {
+        getStoredLang()
         (async () => {
             const { status } = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === 'granted');
@@ -144,10 +173,10 @@ const CameraComponent = ({navigation, route}) => {
                 <Text style={{ marginTop: 50, textAlign: 'center', color: "#ff7300", fontFamily: 'Outfit_500Medium', width: "100%", padding: 16, fontSize: 18 }}>No access to camera</Text>
                 <View style={{  gap: 0, justifyContent: 'center', alignItems: 'center', width: "100%"}}>
                     <Text style={{ textAlign: 'center', color: "black", fontFamily: "Outfit_600SemiBold", width: "100%", padding: 16, fontSize: 22 }}>
-                        Take a photo of the scooter parking and send it to end the trip successfully.
+                        {screenContent.takeInstruction} {'\n'} {screenContent.takeInstruction2} {'\n'} {screenContent.takeInstruction3}
                     </Text>
                     <Text style={{ textAlign: 'center', color: "#ff7300", fontFamily: 'Outfit_500Medium', width: "100%", padding: 16, fontSize: 18 }}>
-                        Note: If you do not send the image, your account may be banned or you may be exposed to liability if damage occurs to the scooter.
+                        {screenContent.note}
                     </Text>
                 </View>
                 <View style={{  bottom: 10, left: 0, width: "100%", justifyContent: 'center', alignItems: "center"}}>
@@ -183,10 +212,10 @@ const CameraComponent = ({navigation, route}) => {
                 <Text style={{ marginTop: 50, textAlign: 'center', color: "#ff7300", fontFamily: 'Outfit_500Medium', width: "100%", padding: 16, fontSize: 18 }}>No access to camera</Text>
                 <View style={{  gap: 0, justifyContent: 'center', alignItems: 'center', width: "100%"}}>
                     <Text style={{ textAlign: 'center', color: "black", fontFamily: "Outfit_600SemiBold", width: "100%", padding: 16, fontSize: 22 }}>
-                        Take a photo of the scooter parking and send it to end the trip successfully.
+                        {screenContent.takeInstruction} {'\n'} {screenContent.takeInstruction2} {'\n'} {screenContent.takeInstruction3}
                     </Text>
                     <Text style={{ textAlign: 'center', color: "#ff7300", fontFamily: 'Outfit_500Medium', width: "100%", padding: 16, fontSize: 18 }}>
-                        Note: If you do not send the image, your account may be banned or you may be exposed to liability if damage occurs to the scooter.
+                        {screenContent.note}
                     </Text>
                 </View>
                 <View style={{  bottom: 10, left: 0, width: "100%", justifyContent: 'center', alignItems: "center"}}>
@@ -348,10 +377,10 @@ const CameraComponent = ({navigation, route}) => {
             )}
             <View style={{ position: 'absolute', top: 200, left: 0, gap: 0, justifyContent: 'center', alignItems: 'center', width: "100%"}}>
                 <Text style={{ textAlign: 'center', color: "white", fontFamily: "Outfit_600SemiBold", width: "100%", padding: 16, fontSize: 22 }}>
-                    Take a photo of the scooter parking and send it to end the trip successfully.
+                    {screenContent.takeInstruction} {'\n'} {screenContent.takeInstruction2} {'\n'} {screenContent.takeInstruction3}
                 </Text>
                 <Text style={{ textAlign: 'center', color: "#ff7300", fontFamily: 'Outfit_500Medium', width: "100%", padding: 16, fontSize: 18 }}>
-                    Note: If you do not send the image, your account may be banned or you may be exposed to liability if damage occurs to the scooter.
+                    {screenContent.note}
                 </Text>
             </View>
             {!photo && (

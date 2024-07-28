@@ -22,21 +22,21 @@ export default function YouWon({ navigation }) {
     const translations = {
         "en": {
             "title": "Thanks for joining",
-            "title_span": "Fentec",
+            "title_span": "FenTec Mobility",
             "collect_q": "You won free",
             "collect_span": "+10 Points",
             "button": "Use them!"
         },
         "fr": {
             "title": "Merci de rejoindre",
-            "title_span": " de Fentec`",
+            "title_span": " FenTec Mobility",
             "collect_q": "Vouz avez gagne",
             "collect_span": "+10 points",
             "button": "Utilisez les!"
         },
         "ar": {
             "title": "شكرا للانضمام",
-            "title_span": "فنتك",
+            "title_span": "FenTec Mobility",
             "collect_q": " قد ربحت مجاناً",
             "collect_span": "+10 نقاط",
             "button": "استخدمهم الان!"

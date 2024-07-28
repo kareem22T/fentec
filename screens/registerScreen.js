@@ -2,7 +2,7 @@ import {
     StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, ActivityIndicator,
     Modal
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LoginHeader from '../components/loginHeader';
 import axios from 'axios';
 import TimerMixin from 'react-timer-mixin';
@@ -153,16 +153,18 @@ export default function Register({ navigation }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://adminandapi.fentecmobility.com/register`, {
-                email: email,
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/register-google`, {
+                email: emailRef.current,
                 phone: phone,
                 password: googlePassword,
                 sign_up_type: "Google",
                 api_password: 'Fentec@scooters.algaria'
             });
 
-            if (response.data.status === true) {
+            if (response.data.status == true) {
                 await SecureStore.setItemAsync('user_token', response.data.data.token)
+                console.log("token saved", response.data.data.token);
+                console.log("email", email);
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
@@ -187,6 +189,31 @@ export default function Register({ navigation }) {
                 TimerMixin.setTimeout(() => {
                     setErrors([]);
                 }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+    }
+
+
+    const testEmailExistance = async (email) => {
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/test-google`, {
+                email: email,
+                api_password: 'Fentec@scooters.algaria'
+            });
+
+            if (response.data.status === false) {
+                setLoading(false)
+                setErrors(response.data.errors);
+            } else {
+                setErrors([]);
+                setLoading(false)
+                setShowPhonePopUp(true)
             }
         } catch (error) {
             setLoading(false);
@@ -232,6 +259,11 @@ export default function Register({ navigation }) {
     handleEffect();
   }, [response, gToken]);
 
+  const emailRef = useRef(email)
+
+  useEffect(() => {
+    emailRef.current = email
+  }, [email])
     async function handleEffect() {
         const user = await getLocalUser();
         if (!user) {
@@ -246,7 +278,7 @@ export default function Register({ navigation }) {
         setName(user.name)
         setEmail(user.email)
         setGooglePassword("Google")
-        setShowPhonePopUp(true)
+        testEmailExistance(user.email)
         console.log("loaded locally");
         }
     }
@@ -267,7 +299,8 @@ export default function Register({ navigation }) {
           setName(user.name)
           setEmail(user.email)
           setGooglePassword("Google")
-            setShowPhonePopUp(true)
+            testEmailExistance(user.email)
+            
           setUserInfo(user);
         } catch (error) {
           // Add your own error handler here

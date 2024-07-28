@@ -102,7 +102,6 @@ export default function Login({ navigation }) {
         const user = await getLocalUser();
         if (!user) {
         if (response?.type === "success") {
-            // setToken(response.authentication.accessToken);
             getUserInfo(response.authentication.accessToken);
         }
         } else {
@@ -114,6 +113,46 @@ export default function Login({ navigation }) {
         setGooglePassword("Google")
         setShowPhonePopUp(true)
         console.log("loaded locally");
+        console.log(user);
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/login-google`, {
+                email: user.email,
+                password: "Google",
+                sign_up_type: "Google",
+                api_password: 'Fentec@scooters.algaria'
+            });
+
+            if (response.data.status === true) {
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
+                setLoading(false);
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Profile',
+                            params: {}, // No params to pass in this case
+                          },
+                        ],
+                      });                      
+                }, 1500)
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+
         }
     }
 
@@ -133,7 +172,7 @@ export default function Login({ navigation }) {
           setLoading(true)
           setErrors([])
           try {
-              const response = await axios.post(`https://adminandapi.fentecmobility.com/register`, {
+              const response = await axios.post(`https://adminandapi.fentecmobility.com/login-google`, {
                   email: user.email,
                   password: "Google",
                   sign_up_type: "Google",

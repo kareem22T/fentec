@@ -114,6 +114,7 @@ export default function ForgotPassword({ navigation }) {
         setErrors([])
         try {
             const response = await axios.post(`https://adminandapi.fentecmobility.com/forgot-password`, {
+                lang: currentLang,
                 code: code,
                 email: email,
                 password: password,

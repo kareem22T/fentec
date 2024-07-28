@@ -47,7 +47,7 @@ export default function Profile({ navigation }) {
             "title_2": "Ride Responsibly and Enjoy Freely",
             "trips": "Trips",
             "points": "Points",
-            "navigate_msg": "Navigate to nearest points seller",
+            "navigate_msg": "Navigate to nearest FenPay point.",
             "share_msg_1": "Share app with your",
             "share_msg_2": "friends to get free points",
             "how_to_use_1": "How to",
@@ -66,6 +66,7 @@ export default function Profile({ navigation }) {
             "bad": "Bad",
             "good": "Good",
             "cool": "Cool!",
+            "share": "Share",
             "survey_success_msg": "Your review has been sent successfully. Thank you",
             "survey_error_msg": "Please choose your impression of the experience!",
         },
@@ -83,20 +84,21 @@ export default function Profile({ navigation }) {
             "title_2": "Roulez avec responsabilitè, Profitez librement",
             "trips": "Parcours",
             "points": "Points",
-            "navigate_msg": "Au point de rechargement le plus proche",
+            "navigate_msg": "Trouver le point de FenPay le plus proche",
             "share_msg_1": "Partagez l'application avec ",
             "share_msg_2": "vos amis pour obtenir des points gratuits",
-            "how_to_use_1": "Comment",
-            "how_to_use_2": "utiliser",
-            "how_to_use_3": "l'application",
-            "how_to_ride_1": "Comment ",
-            "how_to_ride_2": "conduire le ",
-            "how_to_ride_3": "scooter",
+            "how_to_use_1": "Comment utiliser",
+            "how_to_use_2": "l’Application",
+            "how_to_use_3": "FenTec Mobility",
+            "how_to_ride_1": "Comment  ",
+            "how_to_ride_2": "utiliser la ",
+            "how_to_ride_3": "Trottinette",
             "contact_us": "Contactez-nous",
             "tandc": "Termes et conditions",
             "seanda": "Service agreement",
             "privace": "Politique de confidentialité",
             "submit": "Soumettre",
+            "share": "Partager",
             "comment": "Commentaire (facultatif)",
             "bad": "Mauvais",
             "good": "Bien",
@@ -108,6 +110,7 @@ export default function Profile({ navigation }) {
             "msg_1": "لقد تم رفض حسابك للأسباب التالية:",
             "msg_ban": "لقد تم حظر حسابك للأسباب التالية:",
             "Call": "اتصل",
+            "share": "شارك",
             "more_details": "للمزيد من التفاصيل ",
             "msg_2": "حسابك قيد المراجعة، وسنوافق على حسابك خلال بضع ساعات!",
             "msg_3": "ستصلك رسالة بالبريد الإلكتروني بالموافقة أو الرفض إذا لم تكن معلوماتك صحيحة.",
@@ -118,7 +121,7 @@ export default function Profile({ navigation }) {
             "leave_feedback": "اترك لنا انطباعك",
             "trips": "الرحلات",
             "points": "النقاط",
-            "navigate_msg": "انتقل إلى أقرب نقاط بائع نقاط",
+            "navigate_msg": "إنتقل إلى أقرب نقطة FenPay",
             "share_msg_1": "شارك التطبيق مع",
             "share_msg_2": "أصدقائك للحصول على نقاط مجانية",
             "how_to_use_1": "كيف",
@@ -669,7 +672,7 @@ export default function Profile({ navigation }) {
                                 {screenContent.share_msg_2}
                             </Text>
                         </View>
-                        <TouchableOpacity style={styles.btn}><Text style={styles.button_text}>Share</Text></TouchableOpacity>
+                        <TouchableOpacity style={styles.btn}><Text style={styles.button_text}>{ screenContent.share}</Text></TouchableOpacity>
                     </View>
                     <View style={styles.how_container}>
                         <View style={styles.how_element}>
