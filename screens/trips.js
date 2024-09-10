@@ -146,7 +146,7 @@ export default function Trips({ navigation, route }) {
                                             </View>
                                             <View style={{ height: 66, justifyContent: 'space-between' }}>
                                                 <Text style={{ fontSize: 18, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>{new Date(trip.ended_at).toLocaleDateString("en-US", { day: "2-digit", month: "short" })}</Text>
-                                                <Text style={{ fontSize: 18, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>- {(trip.duration * 5) + 10}</Text>
+                                                <Text style={{ fontSize: 18, fontFamily: 'Outfit_700Bold', color: "rgba(255, 115, 0, 1)", textAlign: 'center' }}>- {(trip.duration * 15) }</Text>
                                             </View>
                                         </View>                                
                                     </View>                                

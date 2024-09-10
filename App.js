@@ -29,6 +29,8 @@ import Account from './screens/account';
 import EditEmail from './screens/editEmailScreen';
 import takePhoto from './screens/takePhotoScreen';
 import TakePhotoId from './screens/takeIdPhoto';
+import Sellers from './screens/sellers';
+import HowToUseApp from './screens/HowToUseApp';
 
 export default function App() {
   let [fontsLoaded, fontError] = useFonts({
@@ -53,6 +55,11 @@ export default function App() {
         <Stack.Screen
           name="Welcome"
           component={WelcomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="HowToUseApp"
+          component={HowToUseApp}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -138,6 +145,11 @@ export default function App() {
         <Stack.Screen
           name="Map"
           component={Map}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Sellers"
+          component={Sellers}
           options={{ headerShown: false }}
         />
         <Stack.Screen

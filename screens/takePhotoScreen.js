@@ -9,6 +9,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import TimerMixin from 'react-timer-mixin';
 import axios from 'axios';
 import * as ImageManipulator from 'expo-image-manipulator';
+import * as SecureStore from 'expo-secure-store';
 
 const CameraComponent = ({navigation, route}) => {
     const translations = {
@@ -16,18 +17,27 @@ const CameraComponent = ({navigation, route}) => {
             "takeInstruction": "1-Please park the scooter in a secure place. ",
             "takeInstruction2": "2-Tie it to a post or tree.",
             "takeInstruction3": " 3-Take a clear photo of the scooter. ",
+            "takePhoto": "Take Photo",
+            "retake": "Retake",
+            "submit": "Submit",
             "note": "Please note, if you do not follow the previous steps, your account will be suspended.",
         },
         "fr": {
             "takeInstruction": "1-Veuillez garer la trottinette dans un endroit sécurisé.",
             "takeInstruction2": "2-Attachez-le à un poteau ou à un arbre. ",
             "takeInstruction3": "3-Prenez une photo claire du trottinette.",
+            "takePhoto": "Prendre une photo",
+            "retake": "Reprendre",
+            "submit": "Soumettre",
             "note": " Attention, si vous ne suivez pas les étapes précédentes, votre compte sera suspendu.",
         },
         "ar": {
             "takeInstruction": "الرجاء ركن المركبة في مكان آمن. ",
             "takeInstruction2": "ربطها بعمود أو شجرة.",
             "takeInstruction3": "أخذ صورة واضحة.",
+            "takePhoto": "خذ صورة",
+            "retake": "اعادة",
+            "submit": "ارسال",
             "note": "حذاري في حالة عدم القيام بالخطوات السابقة سيتم إيقاف حسابك.",
         }
     }
@@ -62,13 +72,15 @@ const CameraComponent = ({navigation, route}) => {
       };
                 
     useEffect(() => {
-        getStoredLang()
         (async () => {
             const { status } = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
     }, []);
 
+    useEffect(() => {
+        getStoredLang();
+    }, []);
     const toggleFlash = () => {
         setFlashMode(
             flashMode === Camera.Constants.FlashMode.on
@@ -198,7 +210,7 @@ const CameraComponent = ({navigation, route}) => {
                                 fontFamily: 'Outfit_700Bold',
                                 fontSize: 28,
                                 textAlign: "center",
-                            }}>  Take Photo
+                            }}>  {screenContent.takePhoto}
                             </Text>
                         </TouchableOpacity>
 
@@ -308,7 +320,7 @@ const CameraComponent = ({navigation, route}) => {
                                 fontFamily: 'Outfit_700Bold',
                                 fontSize: 22,
                                 textAlign: "center",
-                            }}>  Retake
+                            }}>  {screenContent.retake}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={sendPhotoToBackend} style={{
@@ -329,7 +341,7 @@ const CameraComponent = ({navigation, route}) => {
                                 fontFamily: 'Outfit_700Bold',
                                 fontSize: 22,
                                 textAlign: "center",
-                            }}>  Submit
+                            }}>  {screenContent.submit}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -403,7 +415,7 @@ const CameraComponent = ({navigation, route}) => {
                             fontFamily: 'Outfit_700Bold',
                             fontSize: 28,
                             textAlign: "center",
-                        }}>  Take Photo
+                        }}>  {screenContent.takePhoto}
                         </Text>
                     </TouchableOpacity>
                 </View>

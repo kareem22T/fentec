@@ -123,6 +123,7 @@ export default function Notifications({ navigation, route }) {
                                     <View style={styles.result} key={result.id}>
                                         <Text style={styles.result_txt}>{result.title}</Text>
                                         <Text style={[styles.result_txt, {fontFamily: "Outfit_500Medium", fontSize: 14}]}>{result.body}</Text>
+                                        <Text style={[styles.result_txt, {fontFamily: "Outfit_500Medium", fontSize: 14}]}>{new Date(result.created_at).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: 'numeric', hour: '2-digit', minute: '2-digit' })}</Text>
                                     </View>
                                 ))}
                                 <View style={{flexDirection: 'row', gap: 10, justifyContent: 'center', alignItems: 'center', padding: 10}}>

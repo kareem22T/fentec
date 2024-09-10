@@ -1,5 +1,6 @@
 import {
-    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, ActivityIndicator
+    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image, TextInput, ScrollView, ActivityIndicator,
+    Linking
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Nav from './../components/mainNav';
@@ -12,6 +13,7 @@ import { AppState } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './../app.json';
+import Share from 'react-native-share'; // Import react-native-share for sharing
 
 // Register the app
 AppRegistry.registerComponent(appName, () => App);
@@ -33,6 +35,10 @@ const BackgroundImage = () => {
 export default function Profile({ navigation }) {
     const [appState, setAppState] = useState(AppState.currentState);
     const [isSurvey, SetIsSurvey] = useState(false)
+    const [errors, setErrors] = useState([]);
+    const [successMsg, setSuccessMsg] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null)
     const translations = {
         "en": {
             "msg_1": "Your Account has been rejected because:",
@@ -50,6 +56,8 @@ export default function Profile({ navigation }) {
             "navigate_msg": "Navigate to nearest FenPay point.",
             "share_msg_1": "Share app with your",
             "share_msg_2": "friends to get free points",
+            "invitation_code_msg": `Here is `,
+            "invitation_code_msg_2": ` FenTec invitation code`,
             "how_to_use_1": "How to",
             "how_to_use_2": "use the",
             "how_to_use_3": "application",
@@ -88,6 +96,8 @@ export default function Profile({ navigation }) {
             "share_msg_1": "Partagez l'application avec ",
             "share_msg_2": "vos amis pour obtenir des points gratuits",
             "how_to_use_1": "Comment utiliser",
+            "invitation_code_msg": `Voici le code d'invitation `,
+            "invitation_code_msg_2": ` FenTec`,
             "how_to_use_2": "l’Application",
             "how_to_use_3": "FenTec Mobility",
             "how_to_ride_1": "Comment  ",
@@ -118,6 +128,8 @@ export default function Profile({ navigation }) {
             "msg_5": "يمكنك الاستمتاع بالتجربة الآن.",
             "title_1": "مرحبا يا صديقي!",
             "title_2": "تنقل بمسؤولية وتمتع بحرية",
+            "invitation_code_msg": `إليك رمز دعوة `,
+            "invitation_code_msg_2": `  الي FenTec`,
             "leave_feedback": "اترك لنا انطباعك",
             "trips": "الرحلات",
             "points": "النقاط",
@@ -143,18 +155,40 @@ export default function Profile({ navigation }) {
             "survey_error_msg": "يرجع اختيار انطباعك عن التجربة!",
         }
     }
-    const [errors, setErrors] = useState([]);
-    const [successMsg, setSuccessMsg] = useState('');
-    const [loading, setLoading] = useState(true);
     const [currentLang, setCurrentLag] = useState('ar')
     const [screenContent, setScreenContent] = useState(translations.ar);
-    const [user, setUser] = useState(null)
+
     const [notificationToken, setNotificationToken] = useState('')
     const [token, setToken] = useState('')
     const [tripsNum, setTripsNum] = useState(0)
     const [showFeedBack, setShowFedBack] = useState(false)
     const [selectedReaction, setSelectedReaction] = useState(null)
     const [comment, setComment] = useState(null)
+
+    const handleShare = async () => {
+        try {
+            // Fetch invitation code from API
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/get-invitation-code`, {
+                api_password: 'Fentec@scooters.algaria',
+                notification_token: notificationToken,
+            },
+                {
+                    headers: {
+                        'AUTHORIZATION': `Bearer ${token}`
+                    }
+                },);
+            const invitationCode = response.data.invitation_code;
+    
+            // Share invitation code
+            await Share.open({
+                title: 'Share Invitation Code',
+                message: `${screenContent.invitation_code_msg} ${user.name} ${screenContent.invitation_code_msg_2} : ${invitationCode} \n \n https://fentecmobility.com/`,
+                // You can also add other options here like url, subject, etc.
+            });
+        } catch (error) {
+            console.error('Error fetching invitation code or sharing:', error);
+        }
+    };
 
     const getStoredLang = async () => {
         const storedLang = await SecureStore.getItemAsync('lang');
@@ -659,10 +693,12 @@ export default function Profile({ navigation }) {
                             </TouchableOpacity>
                         </View>
                     </View>
-                    <View style={styles.contianer_bg}>
+                    <TouchableOpacity onPress={() => {
+                        navigation.push('Sellers', { user: user, token: token })
+                    }} style={styles.contianer_bg}>
                         <Image source={require('./../assets/imgs/map.png')} style={{ width: '100%', height: 200, borderRadius: 16, overflow: 'hidden' }} />
                         <Text style={[styles.navigate_Text, currentLang == "ar" && {fontSize: 22}]}>{screenContent.navigate_msg}</Text>
-                    </View>
+                    </TouchableOpacity>
                     <View style={styles.profile}>
                         <View style={styles.bg}></View>
                         <View style={styles.head}>
@@ -672,17 +708,17 @@ export default function Profile({ navigation }) {
                                 {screenContent.share_msg_2}
                             </Text>
                         </View>
-                        <TouchableOpacity style={styles.btn}><Text style={styles.button_text}>{ screenContent.share}</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => {handleShare()}} style={styles.btn}><Text style={styles.button_text}>{ screenContent.share}</Text></TouchableOpacity>
                     </View>
                     <View style={styles.how_container}>
-                        <View style={styles.how_element}>
+                        <TouchableOpacity onPress={() => {navigation.push('HowToUseApp')}} style={styles.how_element}>
                             <Ionicons name="ios-help-circle-outline" size={60} color="rgba(255, 115, 0, 1)" />
                             <Text style={[styles.name, currentLang == "ar" && {fontFamily: "Outfit_600SemiBold"}]}>
                                 {screenContent.how_to_use_1} {'\n'}
                                 {screenContent.how_to_use_2} {'\n'}
                                 {screenContent.how_to_use_3}
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                         <View style={styles.how_element}>
                             <MaterialCommunityIcons name="human-scooter" size={60} color="rgba(255, 115, 0, 1)" />
                             <Text style={[styles.name, currentLang == "ar" && {fontFamily: "Outfit_600SemiBold"}]}>
@@ -696,16 +732,33 @@ export default function Profile({ navigation }) {
                     <View style={{ marginTop: 10 }}>
                         <Text style={[styles.name, { fontSize: 22, fontFamily: 'Outfit_700Bold' }]}>{screenContent.contact_us}</Text>
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 15, marginBottom: 15 }}>
-                            <Entypo name="facebook" size={35} color="'rgba(255, 115, 0, 1)'" />
-                            <FontAwesome5 name="instagram-square" size={35} color="'rgba(255, 115, 0, 1)'" />
-                            <MaterialIcons name="email" size={44} color="'rgba(255, 115, 0, 1)'" />
+                            <TouchableOpacity onPress={() => {Linking.openURL('https://www.facebook.com/profile.php?id=61564285140098&mibextid=qi2Omg&rdid=lgjCa9G4ilqBLg3h&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2FJhifFbsE52pYV6mz%2F%3Fmibextid%3Dqi2Omg')}}>
+                                <Entypo name="facebook" size={35} color="'rgba(255, 115, 0, 1)'" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {Linking.openURL('https://www.instagram.com/fentec_mobility?igsh=MTN5MXlndHVoODd3cg%3D%3D')}}>
+                                <FontAwesome5 name="instagram-square" size={35} color="'rgba(255, 115, 0, 1)'" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {Linking.openURL('mailto:Contact@fentecmobility.com')}}>
+                                <MaterialIcons name="email" size={44} color="'rgba(255, 115, 0, 1)'" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {Linking.openURL('tel:+213660980645')}}>
                             <FontAwesome name="phone-square" size={37} color="'rgba(255, 115, 0, 1)'" />
+                            </TouchableOpacity>
                         </View>
-                        <Text style={[styles.name, { color: 'rgba(255, 115, 0, 1)' }, currentLang == "ar" && {fontSize: 22, fontFamily: 'Outfit_700Bold' } ]}>
-                            {screenContent.tandc} {'\n'}
-                            {screenContent.seanda} {'\n'}
-                            {screenContent.privace}
-                        </Text>
+                        <View >
+
+                            <TouchableOpacity onPress={() => {Linking.openURL('https://fentecmobility.com/terms-and-conditions')}}>
+                                <Text style={[styles.name, { color: 'rgba(255, 115, 0, 1)' }, currentLang == "ar" && {fontSize: 22, fontFamily: 'Outfit_700Bold' } ]}>
+                                    {screenContent.tandc} {'\n'}
+                                    {screenContent.seanda} 
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{marginTop: 16}} onPress={() => {Linking.openURL('https://fentecmobility.com/Privacy-Police')}}>
+                                <Text style={[styles.name, { color: 'rgba(255, 115, 0, 1)' }, currentLang == "ar" && {fontSize: 22,  fontFamily: 'Outfit_700Bold' } ]}>
+                                    {screenContent.privace}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </ScrollView>
