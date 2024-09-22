@@ -146,6 +146,8 @@ export default function Sellers({ navigation, route }) {
     const [showScooterDetails, setShowScooterDetails] = useState(false)
     const [readyToNavigate, setReadyToNavigate] = useState({})
     const [currentBattary, setCurrentBattary] = useState(0)
+    const [currentPhone, setCurrentPhone] = useState('')
+    const [currentUser, setCurrentUser] = useState('')
     const [currentDurationFar, setCurrentDurationFar] = useState()
     const [showQrScanner, setShowQrScanner] = useState(false)
     const [scooterIdSelected, setScooterIdSelected] = useState(0)
@@ -325,11 +327,13 @@ export default function Sellers({ navigation, route }) {
         setShowScooterDetails(false)
     };
 
-    const handleMarkerPress = (coords, batt, id) => {
+    const handleMarkerPress = (coords, batt, id, phone, name) => {
         setShowSeller(false)
         setReadyToNavigate(coords)
         console.log(batt);
         setCurrentBattary(batt)
+        setCurrentPhone(phone)
+        setCurrentUser(name)
         setShowScooterDetails(true)
         setScooterIdSelected(id)
         if (location) {
@@ -403,7 +407,9 @@ export default function Sellers({ navigation, route }) {
                     }}>
                         <View style={[styles.choiceWrapper, styles.choiceActive, { width: '100%', gap: 10}]}>
                             <View style={{padding: 0, marginTop: 24}}>
-                                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center'}}><Text><Entypo name="location" size={30} color="black" /> </Text><Text style={{ fontSize: 18 }}>{currentBattary}</Text></View>
+                                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '90%', marginBottom: 10}}><Text><Entypo name="location" size={30} color="black" /> </Text><Text style={{ fontSize: 16 }}>{currentBattary}</Text></View>
+                                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '90%', marginBottom: 10}}><Text><Entypo name="phone" size={30} color="black" /> </Text><Text style={{ fontSize: 16 }}>{currentPhone}</Text></View>
+                                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '90%'}}><Text><Entypo name="user" size={30} color="black" /> </Text><Text style={{ fontSize: 16 }}>{currentUser}</Text></View>
                             </View>
                             <View style={{ flexDirection: 'row', gap: 10, width: "100%", justifyContent: 'center', marginTop: 16 }}>
                                 <TouchableOpacity onPress={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)',  flexDirection: 'row', gap: 10, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}><FontAwesome5 name="directions" size={16} color="black" /><Text>{screenContent.navToSeller}</Text></TouchableOpacity>
@@ -476,10 +482,10 @@ export default function Sellers({ navigation, route }) {
                     <View style={styles.modalView}>
                         <Text style={{ fontSize: 18, marginBottom: 15, fontFamily: "Outfit_500Medium", textAlign: 'center' }}>{nearestScooterMsg}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
-                            <TouchableOpacity onPress={() => setShowNearestScooterPopUp(false)} style={{ backgroundColor: '#c2c2c2', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 80, alignItems: 'center' }}>
+                            <TouchableOpacity onPress={() => setShowNearestScooterPopUp(false)} style={{ backgroundColor: '#c2c2c2', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 100, alignItems: 'center' }}>
                                 <Text>Cancel</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigateToDestenation(nearestScooter.scooter.latitude, nearestScooter.scooter.longitude)} style={{ backgroundColor: '#ff7300', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 80, alignItems: 'center', color: '#fff' }}>
+                            <TouchableOpacity onPress={() => navigateToDestenation(nearestScooter.scooter.latitude, nearestScooter.scooter.longitude)} style={{ backgroundColor: '#ff7300', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 100, alignItems: 'center', color: '#fff' }}>
                                 <Text style={{ color: '#fff' }}>Navigate</Text>
                             </TouchableOpacity>
                         </View>
@@ -558,7 +564,7 @@ export default function Sellers({ navigation, route }) {
                 {scooters.length > 0 && (
                     // Iterate through the scooters array
                     scooters.map((scooter) => (
-                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.address , scooter.id)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={ require('./../assets/imgs/icons/seller_icon.png')}>
+                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.address , scooter.id, scooter.phone, scooter.name)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={ require('./../assets/imgs/icons/seller_icon.png')}>
                         </Marker>
                     ))
                 )}

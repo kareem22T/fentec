@@ -38,49 +38,65 @@ If you give the scooter to another your account will be the responsible for any 
 By clicking ride now you accept our terms and conditions clique Here for more details.
             `,
             "accept": 'Ride Now',
+            "accept_head": "Before starting use, please read the following conditions",
+            "battary": "Battary Charge",
+            "points_per_minute": "15 points/minute",
+            "for_unlcok": "for unlock",
+            "far": 'far'
+
         },
         "fr": {
             "write_code": 'Veuillez écrire le ID',
             "slide": 'Glisser vers la droite pour terminer votre parcours et prendre une photo du trottinette garée.',
             "accept_msg": `1-Vous disposez de suffisamment de solde pour votre voyage. 
 
-                2-Vous êtes le seul responsable du scooter et de ses accessoires. (Tout dommage vous oblige à indemniser l'entreprise dans un délai maximum de 15 jours.)
-                
-                2-Une seule personne peut conduire le scooter.
+2-Vous êtes le seul responsable du scooter et de ses accessoires. (Tout dommage vous oblige à indemniser l'entreprise dans un délai maximum de 15 jours.)
 
-                Si vous donnez le scooter à une autre, votre compte sera responsable de toute action. 
+2-Une seule personne peut conduire le scooter.
 
-                3-Conduisez-le dans la zone verte.
+Si vous donnez le scooter à une autre, votre compte sera responsable de toute action. 
 
-                4-Portez votre casque.
+3-Conduisez-le dans la zone verte.
 
-                5-Garez-le en toute sécurité et prenez une photo du scooter après le stationnement.
+4-Portez votre casque.
 
-                En cliquant sur rouler maintenant, vous acceptez nos termes et conditions cliquez ici pour plus de détails.
+5-Garez-le en toute sécurité et prenez une photo du scooter après le stationnement.
+
+En cliquant sur rouler maintenant, vous acceptez nos termes et conditions cliquez ici pour plus de détails.
             `,
             "accept": 'Rouler maintenant',
+            "accept_head": "Avant de commencer l'utilisation, veuillez lire les conditions suivantes",
+            "battary": "La batterie",
+            "points_per_minute": "15 points/ minute",
+            "for_unlcok": "déverrouiller",
+            "far": 'de toi'
         },
         "ar": {
             "write_code": 'الرجاء كتابة الرمز.',
             "slide": 'إسحب إلى اليمين لإنهاء رحلتك و أخذ صورة للمركبة مركونة.',
             "accept_msg": `1-لديك رصيد كافي لرحلتك.
 
-                2- أنت وحدك المسؤول عن السكوتر وملحقاته. (أي ضرر يتطلب منك تعويض الشركة خلال مدة أقصاها 15 يومًا.)
-                
-                2- مسموح لشخص واحد فقط قيادة السكوتر.
-                
-                إذا أعطيت السكوتر لشخص آخر، فسيكون حسابك مسؤولاً عن أي إجراءات. 
-                
-                3- الرجاء قيادتها إلى المنطقة الخضراء.
-                
-                4-الرجاء ارتدي خوذتك.
-                
-                5-الرجاء ركن السكوتر بأمان والتقاط صورة للسكوتر بعد ركنه.
-                
+2- أنت وحدك المسؤول عن السكوتر وملحقاته. (أي ضرر يتطلب منك تعويض الشركة خلال مدة أقصاها 15 يومًا.)
 
-                بالنقر فوق "ابدأ الآن"، فإنك توافق على الشروط والأحكام الخاصة بنا، انقر هنا لمزيد من التفاصيل.
+2- مسموح لشخص واحد فقط قيادة السكوتر.
+
+إذا أعطيت السكوتر لشخص آخر، فسيكون حسابك مسؤولاً عن أي إجراءات. 
+
+3- الرجاء قيادتها إلى المنطقة الخضراء.
+
+4-الرجاء ارتدي خوذتك.
+
+5-الرجاء ركن السكوتر بأمان والتقاط صورة للسكوتر بعد ركنه.
+
+
+بالنقر فوق "ابدأ الآن"، فإنك توافق على الشروط والأحكام الخاصة بنا، انقر هنا لمزيد من التفاصيل.
             `,
             "accept": 'ابدا الان',
+            "accept_head": "قبل بداية الإستخدام الرجاء قراءة الشروط التالية",
+            "battary": "البطارية",
+            "points_per_minute": "15 نقطة / دقيقة",
+            "for_unlcok": "للفتح",
+            "far": 'بعد'
         }
     }
     const [currentLang, setCurrentLag] = useState('ar')
@@ -308,16 +324,16 @@ By clicking ride now you accept our terms and conditions clique Here for more 
                         ) : (props.showScanner === false ? (
                             <View style={[styles.choiceWrapper, styles.choiceActive, { width: '90%', gap: 10, position: 'relative', paddingTop: 24 }]}>
                                 <View>
-                                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}><Text><Entypo name="battery" size={30} color="black" /> </Text><Text style={{ fontSize: 18 }}>{props.battary_charge + "% Battary Charge"} - {props.iot_id}</Text></View>
-                                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}><Text><FontAwesome5 name="money-bill" size={24} color="black" /></Text><Text style={{ fontSize: 18 }}>15 points/minute</Text><Text style={{ fontSize: 18, opacity: .6, textDecorationLine: 'line-through' }}>+50 for unlock</Text></View>
+                                    <View style={{ flexDirection: (currentLang == 'ar' ? 'row-reverse' : 'row'), gap: 10, alignItems: 'center' }}><Text><Entypo name="battery" size={30} color="black" /> </Text><Text style={{ fontSize: 18 }}>{ screenContent.battary + " " + props.battary_charge + " %"} - {props.iot_id}</Text></View>
+                                    <View style={{ flexDirection: (currentLang == 'ar' ? 'row-reverse' : 'row'), gap: 10, alignItems: 'center' }}><Text><FontAwesome5 name="money-bill" size={24} color="black" /></Text><Text style={{ fontSize: 18 }}>{ screenContent.points_per_minute }</Text><Text style={{ fontSize: 18, opacity: .6, textDecorationLine: 'line-through' }}>+50 {screenContent.for_unlcok}</Text></View>
                                 </View>
                                 <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between', marginTop: 10 }}>
                                     <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]} onPress={showQrScanner} ><MaterialCommunityIcons name="qrcode-scan" size={28} color="black" /></TouchableOpacity>
-                                    <Text style={[styles.choiceWrapper, styles.choiceActive, { width: '50%', textAlign: 'center', fontSize: 18, fontFamily: 'Outfit_600SemiBold', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}>{props.scooterDurationFar + " far"}</Text>
+                                    <Text style={[styles.choiceWrapper, styles.choiceActive, { width: '50%', textAlign: 'center', fontSize: 18, fontFamily: 'Outfit_600SemiBold', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}>{props.scooterDurationFar + screenContent.far}</Text>
                                     <TouchableOpacity onPress={navToScooter} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}><FontAwesome5 name="directions" size={30} color="black" /></TouchableOpacity>
                                     <TouchableOpacity onPress={whereIdTheScooter} style={{justifyContent: "center",alignItems: 'center'}}><FontAwesome6 name="bell" size={30} color="black" /></TouchableOpacity>
                                 </View>
-                                <TouchableOpacity style={{ position: 'absolute', top: 10, right: 10 }} onPress={closeDetailsScooter}><AntDesign name="close" size={20} color="red" /></TouchableOpacity>
+                                <TouchableOpacity style={{ position: 'absolute', top: 10, right: (currentLang == 'ar' ? 'auto' : 10), left: (currentLang == 'ar' ? 10 : 'auto') }} onPress={closeDetailsScooter}><AntDesign name="close" size={20} color="red" /></TouchableOpacity>
                             </View>
                         ) : (
                             <View style={[styles.choiceWrapper, styles.choiceActive, { width: '90%', gap: 10, position: 'relative', }]}>
@@ -332,7 +348,6 @@ By clicking ride now you accept our terms and conditions clique Here for more 
                                                     value={serialNum}
                                                     onFocus={() => handelserialNumfocused()}
                                                     onBlur={() => setSerialNumfocused(false)}
-                                                    keyboardType="numeric"
                                                     style={[
                                                         styles.input,
                                                         serialNumfocused && {
@@ -350,6 +365,7 @@ By clicking ride now you accept our terms and conditions clique Here for more 
                                 {
                                     !isAccept && (
                                         <View>
+                                            <Text style={{ fontSize: 16, marginBottom: 10, fontFamily: 'Outfit_700Bold'}}>{screenContent.accept_head}</Text>
                                             <Text style={{ fontSize: 14, fontFamily: 'Outfit_400Regular'}}>{screenContent.accept_msg}
                                             </Text>
                                             <TouchableOpacity onPress={() => {setIsAccept(true)}} style={{backgroundColor: 'rgba(255, 115, 0, 1)',width: '100%',padding: 10, borderRadius: 8}}><Text style={{textAlign: 'center', color: '#fff', fontFamily: 'Outfit_600SemiBold',fontSize: 18}}>{screenContent.accept}</Text></TouchableOpacity>
@@ -461,8 +477,8 @@ By clicking ride now you accept our terms and conditions clique Here for more 
                     <TouchableOpacity style={[styles.choiceWrapper, props.active == 1 && styles.choiceActive]} onPress={() => navigation.push('Profile', { user: user })}>
                         <Entypo name="home" size={40} color={props.active == 1 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.choiceWrapper, props.active == 2 && styles.choiceActive]} onPress={() => navigation.push('Map', { user: user })}>
-                        <Ionicons name="map-sharp" size={40} color={props.active == 2 ? 'rgba(255, 115, 0, 1)' : 'black'} />
+                    <TouchableOpacity style={[styles.choiceWrapper, props.active == 2 && styles.choiceActive]} onPress={() => navigation.push('Map', { user: user, lang: currentLang })}>
+                        <MaterialCommunityIcons name="scooter" size={42} color={props.active == 2 ? 'rgba(255, 115, 0, 1)' : 'black'} />
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.choiceWrapper, props.active == 3 && styles.choiceActive]} onPress={() => navigation.push('Account', { user: user })}>
                         <FontAwesome name="user" size={40} color={props.active == 3 ? 'rgba(255, 115, 0, 1)' : 'black'} />

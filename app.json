@@ -3,7 +3,7 @@
     "name": "FenTec Mobility",
     "slug": "fentec-mobility",
     "scheme": ["fentecRedirct", "facebookLogin", "fb799352772304910"],
-    "version": "1.3.0",
+    "version": "1.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -74,7 +74,8 @@
           "apiKey": "AIzaSyADMSyZQR7V38GWvZ3MEl_DcDsn0pTS0WU"
         }
       },
-      "package": "com.kareem11.fentecmobility"
+      "package": "com.kareem11.fentecmobility",
+      "versionCode": 2 
     },
     "web": {
       "favicon": "./assets/favicon.png"

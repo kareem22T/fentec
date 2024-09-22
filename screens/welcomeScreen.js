@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, ScrollView, View, Image } from 'react-native';
 import * as React from 'react';
 
 const BackgroundImage = () => {
@@ -18,7 +18,7 @@ export default function Welcome({ navigation }) {
 
 
     return (
-        <SafeAreaView style={styles.wrapper}>
+        <ScrollView style={styles.wrapper} contentContainerStyle={{flexGrow: 1}}>
             <BackgroundImage></BackgroundImage>
             <View style={styles.contianer}>
                 <Text style={styles.heading}>
@@ -33,7 +33,7 @@ export default function Welcome({ navigation }) {
                     <Image source={require('./../assets/imgs/icons/angles-right.png')} style={styles.btn_svg} />
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </ScrollView>
     );
 }
 

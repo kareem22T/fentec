@@ -1,5 +1,6 @@
 import {
-    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image
+    StyleSheet, Text, TouchableOpacity, SafeAreaView, View, Image,
+    ScrollView
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import LoginHeader from '../components/loginHeader';
@@ -27,7 +28,7 @@ const Lang = ({ navigation }) => {
     }
 
     return (
-        <SafeAreaView style={styles.wrapper}>
+        <ScrollView style={styles.wrapper} contentContainerStyle={{flexGrow: 1}}>
             <LoginHeader active={1}></LoginHeader>
             <BackgroundImage></BackgroundImage>
             <View style={styles.contianer}>
@@ -73,7 +74,7 @@ const Lang = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </View>
-        </SafeAreaView>
+        </ScrollView>
     );
 }
 

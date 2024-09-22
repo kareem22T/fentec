@@ -118,7 +118,7 @@ export default function ForgotPassword({ navigation }) {
                 code: code,
                 email: email,
                 password: password,
-                password_confirmation: password,
+                password_confirmation: passwordConfirmation,
                 api_password: 'Fentec@scooters.algaria'
             });
 

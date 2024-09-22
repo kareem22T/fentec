@@ -931,7 +931,7 @@ const styles = StyleSheet.create({
     button_text: {
         color: "#fff",
         fontFamily: 'Outfit_700Bold',
-        fontSize: 28,
+        fontSize: 20,
         textAlign: "center",
     },
     how_container: {

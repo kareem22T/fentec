@@ -34,6 +34,15 @@ export default function Map({ navigation, route }) {
         longitudeDelta: 0.002
     })
 
+    const [currentLang, setCurrentLag] = useState('ar')
+
+    const getStoredLang = async () => {
+        const storedLang = await SecureStore.getItemAsync('lang');
+        if (storedLang) {
+            setCurrentLag(storedLang)
+        }
+    }
+
     const [errorMsg, setErrorMsg] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -41,24 +50,27 @@ export default function Map({ navigation, route }) {
     let user;
     if (route.params.user)
         user = route.params.user;
-
-    const calculateDistance = async (origin, destination, apiKey) => {
+    const calculateDistance = async (origin, destination, apiKey, lang = 'en') => {
         try {
-            const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origin}&destinations=${destination}&mode=walking&key=${apiKey}`);
+            // Add the language parameter to the API request based on the lang variable
+            const languageParam = `&language=${lang}`;
+            
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origin}&destinations=${destination}&mode=walking&key=${apiKey}${languageParam}`);
             
             // Extracting duration from response
             const durationText = response.data.rows[0].elements[0].duration.text;
             const durationValue = response.data.rows[0].elements[0].duration.value;
     
             console.log(`Walking Duration: ${durationText}`);
-    
+        
             return durationText;
         } catch (error) {
             console.error('Error calculating duration:', error);
             throw error;
         }
     }
-        
+    
+            
     const cetnerLocation = async () => {
 
         // Get the user's current location permission status.
@@ -214,7 +226,7 @@ export default function Map({ navigation, route }) {
             const destination = `${coords.latitude},${coords.longitude}`; // replace latitude and longitude with actual values
             const apiKey = 'AIzaSyD92ePxBG5Jk6mM3djSW49zs3dRKJroWRk';
     
-            calculateDistance(origin, destination, apiKey)
+            calculateDistance(origin, destination, apiKey, route.params.lang ? route.params.lang : 'en')
             .then(duration => {
                 // Use the duration value as needed
                 setCurrentDurationFar(duration)
@@ -230,6 +242,7 @@ export default function Map({ navigation, route }) {
 
     useEffect(() => {
         fetchScooters();
+        getStoredLang();
         () => cetnerLocation;
         (async () => {
 
