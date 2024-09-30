@@ -1,4 +1,4 @@
-import { StyleSheet, View, Image, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, TextInput, ActivityIndicator, Linking } from 'react-native';
 import * as React from 'react';
 import { Entypo, FontAwesome, Ionicons, MaterialIcons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import QrScanner from './../screens/qrScanner'
@@ -35,8 +35,9 @@ If you give the scooter to another your account will be the responsible for any 
 
 5-Park it safely and take a photo of the scooter after parking.
 
-By clicking ride now you accept our terms and conditions clique Here for more details.
-            `,
+By clicking ride now you accept our terms and conditions clique`,
+            "accept_msg_2": "Here ",
+            "accept_msg_3": "for more details.",
             "accept": 'Ride Now',
             "accept_head": "Before starting use, please read the following conditions",
             "battary": "Battary Charge",
@@ -62,8 +63,9 @@ Si vous donnez le scooter à une autre, votre compte sera responsable de toute a
 
 5-Garez-le en toute sécurité et prenez une photo du scooter après le stationnement.
 
-En cliquant sur rouler maintenant, vous acceptez nos termes et conditions cliquez ici pour plus de détails.
-            `,
+En cliquant sur rouler maintenant, vous acceptez nos termes et conditions cliquez .`,
+            "accept_msg_2": "ici",
+            "accept_msg_3": "pour plus de détails",
             "accept": 'Rouler maintenant',
             "accept_head": "Avant de commencer l'utilisation, veuillez lire les conditions suivantes",
             "battary": "La batterie",
@@ -89,8 +91,9 @@ En cliquant sur rouler maintenant, vous acceptez nos termes et conditions clique
 5-الرجاء ركن السكوتر بأمان والتقاط صورة للسكوتر بعد ركنه.
 
 
-بالنقر فوق "ابدأ الآن"، فإنك توافق على الشروط والأحكام الخاصة بنا، انقر هنا لمزيد من التفاصيل.
-            `,
+بالنقر فوق "ابدأ الآن"، فإنك توافق على الشروط والأحكام الخاصة بنا، انقر`,
+            "accept_msg_2": " هنا ",
+            "accept_msg_3": "لمزيد من التفاصيل.",
             "accept": 'ابدا الان',
             "accept_head": "قبل بداية الإستخدام الرجاء قراءة الشروط التالية",
             "battary": "البطارية",
@@ -324,8 +327,8 @@ En cliquant sur rouler maintenant, vous acceptez nos termes et conditions clique
                         ) : (props.showScanner === false ? (
                             <View style={[styles.choiceWrapper, styles.choiceActive, { width: '90%', gap: 10, position: 'relative', paddingTop: 24 }]}>
                                 <View>
-                                    <View style={{ flexDirection: (currentLang == 'ar' ? 'row-reverse' : 'row'), gap: 10, alignItems: 'center' }}><Text><Entypo name="battery" size={30} color="black" /> </Text><Text style={{ fontSize: 18 }}>{ screenContent.battary + " " + props.battary_charge + " %"} - {props.iot_id}</Text></View>
-                                    <View style={{ flexDirection: (currentLang == 'ar' ? 'row-reverse' : 'row'), gap: 10, alignItems: 'center' }}><Text><FontAwesome5 name="money-bill" size={24} color="black" /></Text><Text style={{ fontSize: 18 }}>{ screenContent.points_per_minute }</Text><Text style={{ fontSize: 18, opacity: .6, textDecorationLine: 'line-through' }}>+50 {screenContent.for_unlcok}</Text></View>
+                                    <View style={{ flexDirection: (currentLang == 'ar' ? 'row-reverse' : 'row'), gap: 10, alignItems: 'center' }}><Text><Entypo name="battery" size={30} color="black" /> </Text><Text style={{ fontSize: 18, color: "#000"  }}>{ screenContent.battary + " " + props.battary_charge + " %"} - {props.iot_id}</Text></View>
+                                    <View style={{ flexDirection: (currentLang == 'ar' ? 'row-reverse' : 'row'), gap: 10, alignItems: 'center' }}><Text><FontAwesome5 name="money-bill" size={24} color="black" /></Text><Text style={{ fontSize: 18, color: "#000" }}>{ screenContent.points_per_minute }</Text><Text style={{ fontSize: 18, opacity: .6, textDecorationLine: 'line-through', color: "#000"  }}>+50 {screenContent.for_unlcok}</Text></View>
                                 </View>
                                 <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between', marginTop: 10 }}>
                                     <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)', width: 50, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]} onPress={showQrScanner} ><MaterialCommunityIcons name="qrcode-scan" size={28} color="black" /></TouchableOpacity>
@@ -366,7 +369,7 @@ En cliquant sur rouler maintenant, vous acceptez nos termes et conditions clique
                                     !isAccept && (
                                         <View>
                                             <Text style={{ fontSize: 16, marginBottom: 10, fontFamily: 'Outfit_700Bold'}}>{screenContent.accept_head}</Text>
-                                            <Text style={{ fontSize: 14, fontFamily: 'Outfit_400Regular'}}>{screenContent.accept_msg}
+                                            <Text style={{ fontSize: 14, fontFamily: 'Outfit_400Regular'}}>{screenContent.accept_msg}<Text onPress={() => Linking.openURL("https://fentecmobility.com/terms-and-conditions")} style={{color: "rgba(255, 115, 0, 1)"}}>{screenContent.accept_msg_2}</Text>{screenContent.accept_msg_3} {'\n'}
                                             </Text>
                                             <TouchableOpacity onPress={() => {setIsAccept(true)}} style={{backgroundColor: 'rgba(255, 115, 0, 1)',width: '100%',padding: 10, borderRadius: 8}}><Text style={{textAlign: 'center', color: '#fff', fontFamily: 'Outfit_600SemiBold',fontSize: 18}}>{screenContent.accept}</Text></TouchableOpacity>
                                         </View>

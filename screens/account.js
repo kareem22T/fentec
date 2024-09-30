@@ -97,6 +97,7 @@ export default function Account({ navigation, route }) {
         try {
             const response = await axios.post(`https://adminandapi.fentecmobility.com/edit-email`, {
                 new_email: email,
+                lang: currentLang,
                 api_password: 'Fentec@scooters.algaria'
             },
             {
@@ -154,6 +155,7 @@ export default function Account({ navigation, route }) {
         try {
             const response = await axios.post(`https://adminandapi.fentecmobility.com/edit-phone`, {
                 new_phone: phone,
+                lang: currentLang,
                 api_password: 'Fentec@scooters.algaria'
             },
             {
@@ -295,6 +297,7 @@ export default function Account({ navigation, route }) {
             })
 
         formData.append('api_password', 'Fentec@scooters.algaria')
+        formData.append('lang', currentLang)
 
 
         setLoading(true)
@@ -311,22 +314,22 @@ export default function Account({ navigation, route }) {
 
             );
 
+            TimerMixin.setTimeout(() => {
+                setLoading(false);
+                navigation.reset({
+                    index: 0,
+                    routes: [
+                      {
+                        name: 'Profile',
+                        params: {}, // No params to pass in this case
+                      },
+                    ],
+                  });
+            }, 1500)
             if (response.data.status === true) {
                 setErrors([]);
                 setSuccessMsg(response.data.message);
                 await SecureStore.setItemAsync('user_token', response.data.data.token)
-                TimerMixin.setTimeout(() => {
-                    setLoading(false);
-                    navigation.reset({
-                        index: 0,
-                        routes: [
-                          {
-                            name: 'Profile',
-                            params: {}, // No params to pass in this case
-                          },
-                        ],
-                      });
-                }, 1500)
             } else {
                 setLoading(false);
                 setErrors(response.data.errors);
@@ -512,8 +515,8 @@ export default function Account({ navigation, route }) {
                                     style={{ width: 100, height: 100, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
                                 {image ? 
                                 (
-                                    <TouchableOpacity style={{ width: 30, height: 30, backgroundColor: 'rgba(255, 115, 0, 1)', borderRadius: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: -17 }} onPress={() => handleChanePhoto(token)}>
-                                        <AntDesign name="check" size={13} color="#fff" />
+                                    <TouchableOpacity style={{paddingHorizontal: 8, height: 30, backgroundColor: 'rgba(255, 115, 0, 1)', borderRadius: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: -17 }} onPress={() => handleChanePhoto(token)}>
+                                        <AntDesign name="check" size={13} color="#fff" /><Text style={{color: "#fff"}}>{screenContent.save}</Text>
                                     </TouchableOpacity>
                                 ) :
                                 (

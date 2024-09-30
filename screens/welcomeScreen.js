@@ -28,7 +28,7 @@ export default function Welcome({ navigation }) {
                 </Text>
                 <Image source={require('./../assets/imgs/adaptive-icon.png')} alt="fentec logo" style={styles.logo} />
                 <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('chooseLanguage')}>
-                    <Text style={styles.btn_span}></Text>
+                    <View style={styles.btn_span}></View>
                     <Text style={styles.btn_text}>Let's go</Text>
                     <Image source={require('./../assets/imgs/icons/angles-right.png')} style={styles.btn_svg} />
                 </TouchableOpacity>

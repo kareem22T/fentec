@@ -6,15 +6,15 @@ export default function LoginHeader(props) {
     return (
         <View style={styles.contianer}>
             <View style={styles.step_wrapper}>
-                <Text style={props.active == 1 ? styles.step_active : styles.step}></Text>
+                <View style={props.active == 1 ? styles.step_active : styles.step}></View>
                 <Image source={require('./../assets/imgs/icons/globe.png')} style={styles.step_img} />
             </View>
             <View style={styles.step_wrapper}>
-                <Text style={props.active == 2 ? styles.step_active : styles.step}></Text>
+                <View style={props.active == 2 ? styles.step_active : styles.step}></View>
                 <Image source={require('./../assets/imgs/icons/cards.png')} style={styles.step_img} />
             </View>
             <View style={styles.step_wrapper}>
-                <Text style={props.active == 3 ? styles.step_active : styles.step}></Text>
+                <View style={props.active == 3 ? styles.step_active : styles.step}></View>
                 <Image source={require('./../assets/imgs/icons/user.png')} style={styles.step_img} />
             </View>
             <View style={styles.step_wrapper}>

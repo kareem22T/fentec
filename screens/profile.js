@@ -77,6 +77,7 @@ export default function Profile({ navigation }) {
             "share": "Share",
             "survey_success_msg": "Your review has been sent successfully. Thank you",
             "survey_error_msg": "Please choose your impression of the experience!",
+            "edit_profile": "Edit profile Here."
         },
         "fr": {
             "msg_1": "Votre compte a été rejeté car:",
@@ -115,6 +116,7 @@ export default function Profile({ navigation }) {
             "cool": "Cool!",
             "survey_success_msg": "Votre avis a été envoyé avec succès. Merci!",
             "survey_error_msg": "Veuillez choisir votre impression de l'expérience!",
+            "edit_profile": "Modifier Votre compte ici"
         },
         "ar": {
             "msg_1": "لقد تم رفض حسابك للأسباب التالية:",
@@ -153,6 +155,7 @@ export default function Profile({ navigation }) {
             "cool": "رائع!",
             "survey_success_msg": "تم ارسال تقيمك بنجاح شكرا لك!",
             "survey_error_msg": "يرجع اختيار انطباعك عن التجربة!",
+            "edit_profile": "تعديل حسابك من هنا ."
         }
     }
     const [currentLang, setCurrentLag] = useState('ar')
@@ -405,8 +408,23 @@ export default function Profile({ navigation }) {
                 }
             })
         });
+        const requestUserPermission = async () => {
+            const authStatus = await messaging().requestPermission();
+            const enabled =
+              authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+              authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      
+            if (enabled) {
+              console.log('Authorization status:', authStatus);
+            } else {
+              console.log('Permission not granted', 'Unable to get notifications');
+            }
+          };
+
+        requestUserPermission()
+  
         const getFCMToken = async () => {
-            const fcmToken = await messaging().getToken();
+            const fcmToken = await messaging().getAPNSToken();
             if (!await SecureStore.getItemAsync('fcm_token'))
                 await SecureStore.setItemAsync("fcm_token", fcmToken)
         
@@ -636,7 +654,7 @@ export default function Profile({ navigation }) {
                         <Text>
                             {user.rejection_reason} {'\n'}
                         </Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('Last', { user: user, token: token })}><Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>Edit Profile Now</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('Last', { user: user, token: token, isEdit: true })}><Text style={{ color: '#fff', fontFamily: 'Outfit_600SemiBold', fontSize: 20, textAlign: 'center' }}>{screenContent.edit_profile}</Text></TouchableOpacity>
                     </Text>)}
                     {(user && user.isBanned == true) && (<Text style={[styles.title, styles.approvingAlert]}>
                         {screenContent.msg_ban} {'\n'}
@@ -732,7 +750,7 @@ export default function Profile({ navigation }) {
                     <View style={{ marginTop: 10 }}>
                         <Text style={[styles.name, { fontSize: 22, fontFamily: 'Outfit_700Bold' }]}>{screenContent.contact_us}</Text>
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 15, marginBottom: 15 }}>
-                            <TouchableOpacity onPress={() => {Linking.openURL('https://www.facebook.com/profile.php?id=61564285140098&mibextid=qi2Omg&rdid=lgjCa9G4ilqBLg3h&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2FJhifFbsE52pYV6mz%2F%3Fmibextid%3Dqi2Omg')}}>
+                            <TouchableOpacity onPress={() => {Linking.openURL('https://www.facebook.com/profile.php?id=61564285140098')}}>
                                 <Entypo name="facebook" size={35} color="'rgba(255, 115, 0, 1)'" />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => {Linking.openURL('https://www.instagram.com/fentec_mobility?igsh=MTN5MXlndHVoODd3cg%3D%3D')}}>

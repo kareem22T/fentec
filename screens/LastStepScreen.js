@@ -216,17 +216,29 @@ export default function LastStep({ navigation, route }) {
                             ],
                         });
                     else
-                        navigation.reset({
-                            index: 0,
-                            routes: [
-                            {
-                                name: 'WhereKnow',
-                                params: {
-                                token: token,
+                        if (route.params.isEdit) {
+                            navigation.reset({
+                                index: 0,
+                                routes: [
+                                {
+                                    name: 'Profile',
+                                    params: {}, // No params to pass in this case
                                 },
-                            },
-                            ],
-                        });
+                                ],
+                            });    
+                        } else {
+                            navigation.reset({
+                                index: 0,
+                                routes: [
+                                {
+                                    name: 'WhereKnow',
+                                    params: {
+                                    token: token,
+                                    },
+                                },
+                                ],
+                            });
+                        }
                     }, 1500);
             } else {
                 setLoading(false);
