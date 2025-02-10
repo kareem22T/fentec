@@ -1,142 +1,17 @@
 import MapView, { Marker, Callout, Polygon } from 'react-native-maps';
 import { StyleSheet, View, Text, ActivityIndicator, Modal, TouchableOpacity, Linking } from 'react-native';
-import Nav from '../components/mainNav';
+import Nav from './../components/mainNav';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import * as Location from 'expo-location';
 import React, { useState, useEffect } from 'react';
-import { MaterialIcons, Entypo, MaterialCommunityIcons, FontAwesome5, FontAwesome6, AntDesign } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios'
 import TimerMixin from 'react-timer-mixin';
 import { PROVIDER_GOOGLE } from 'react-native-maps'
 import Icon from 'react-native-vector-icons/Entypo';
-import * as SecureStore from 'expo-secure-store';
 
-export default function Sellers({ navigation, route }) {
+export default function Map({ navigation, route }) {
     const [location, setLocation] = useState(null);
-    const translations = {
-        "en": {
-            "msg_1": "Your Account has been rejected because:",
-            "msg_ban": "Your Account has been Banned because:",
-            "more_details": "for More Details",
-            "Call": "Call",
-            "msg_2": "Your Account is under review we will approve your account in some hours !",
-            "msg_3": "You will receive an Email with approve or reject if your information wasn't correct.",
-            "msg_4": "Your Account has been approved !",
-            "msg_5": "You can enjoy the experience now.",
-            "title_1": "Hello friend !",
-            "title_2": "Ride Responsibly and Enjoy Freely",
-            "trips": "Trips",
-            "points": "Points",
-            "navigate_msg": "Nearest FenPay point",
-            "share_msg_1": "Share app with your",
-            "share_msg_2": "friends to get free points",
-            "how_to_use_1": "How to",
-            "how_to_use_2": "use the",
-            "how_to_use_3": "application",
-            "how_to_ride_1": "How to",
-            "how_to_ride_2": "ride the",
-            "how_to_ride_3": "scooter",
-            "contact_us": "Contact us",
-            "navToSeller": "Navigate to seller location",
-            "tandc": "Terms and conditions",
-            "seanda": "Service agreement",
-            "privace": "Privacy police",
-            "leave_feedback": "Leave a feedback",
-            "submit": "Submit",
-            "comment": "Comment (optional)",
-            "bad": "Bad",
-            "good": "Good",
-            "cool": "Cool!",
-            "share": "Share",
-            "survey_success_msg": "Your review has been sent successfully. Thank you",
-            "survey_error_msg": "Please choose your impression of the experience!",
-        },
-        "fr": {
-            "msg_1": "Votre compte a été rejeté car:",
-            "msg_ban": "Votre compte a été suspendu en raison de:",
-            "more_details": "pour plus de détails",
-            "Call": "Appelez",
-            "msg_2": "Votre compte est en cours de révision, nous approuverons votre compte dans quelques heures !",
-            "msg_3": "Vous recevrez un e-mail avec approuver ou rejeter si vos informations n'étaient pas correctes.",
-            "msg_4": "Your Account has been approved !",
-            "msg_5": "Vous pouvez profiter de l'expérience maintenant.",
-            "leave_feedback": "Laisser un commentaire",
-            "title_1": "Salut Notre Ami !",
-            "title_2": "Roulez avec responsabilitè, Profitez librement",
-            "trips": "Parcours",
-            "points": "Points",
-            "navToSeller": "Accéder au vendeur",
-            "navigate_msg": "point de FenPay le plus proche",
-            "share_msg_1": "Partagez l'application avec ",
-            "share_msg_2": "vos amis pour obtenir des points gratuits",
-            "how_to_use_1": "Comment utiliser",
-            "how_to_use_2": "l’Application",
-            "how_to_use_3": "FenTec Mobility",
-            "how_to_ride_1": "Comment  ",
-            "how_to_ride_2": "utiliser la ",
-            "how_to_ride_3": "Trottinette",
-            "contact_us": "Contactez-nous",
-            "tandc": "Termes et conditions",
-            "seanda": "Service agreement",
-            "privace": "Politique de confidentialité",
-            "submit": "Soumettre",
-            "share": "Partager",
-            "comment": "Commentaire (facultatif)",
-            "bad": "Mauvais",
-            "good": "Bien",
-            "cool": "Cool!",
-            "survey_success_msg": "Votre avis a été envoyé avec succès. Merci!",
-            "survey_error_msg": "Veuillez choisir votre impression de l'expérience!",
-        },
-        "ar": {
-            "msg_1": "لقد تم رفض حسابك للأسباب التالية:",
-            "msg_ban": "لقد تم حظر حسابك للأسباب التالية:",
-            "Call": "اتصل",
-            "share": "شارك",
-            "more_details": "للمزيد من التفاصيل ",
-            "msg_2": "حسابك قيد المراجعة، وسنوافق على حسابك خلال بضع ساعات!",
-            "msg_3": "ستصلك رسالة بالبريد الإلكتروني بالموافقة أو الرفض إذا لم تكن معلوماتك صحيحة.",
-            "msg_4": "تمت الموافقة على حسابك!",
-            "msg_5": "يمكنك الاستمتاع بالتجربة الآن.",
-            "title_1": "مرحبا يا صديقي!",
-            "title_2": "تنقل بمسؤولية وتمتع بحرية",
-            "leave_feedback": "اترك لنا انطباعك",
-            "trips": "الرحلات",
-            "points": "النقاط",
-            "navigate_msg": "إنتقل إلى أقرب نقطة FenPay",
-            "share_msg_1": "شارك التطبيق مع",
-            "share_msg_2": "أصدقائك للحصول على نقاط مجانية",
-            "how_to_use_1": "كيف",
-            "how_to_use_2": "تستخدم",
-            "how_to_use_3": "التطبيق",
-            "how_to_ride_1": "كيفية  ",
-            "how_to_ride_2": "ركوب ",
-            "how_to_ride_3": "الاسكوتر",
-            "navToSeller": "انتقل الي البائع",
-            "contact_us": "تواصل معنا",
-            "tandc": "الأحكام والشروط",
-            "seanda": "اتفاقية خدمات",
-            "privace": "سياسة الخصوصية",
-            "submit": "ارسال",
-            "comment": "التعليق (اختياري)",
-            "bad": "سيء",
-            "good": "جيد",
-            "cool": "رائع!",
-            "survey_success_msg": "تم ارسال تقيمك بنجاح شكرا لك!",
-            "survey_error_msg": "يرجع اختيار انطباعك عن التجربة!",
-        }
-    }
-    const [currentLang, setCurrentLag] = useState('ar')
-    const [screenContent, setScreenContent] = useState(translations.ar);
-
-    const getStoredLang = async () => {
-        const storedLang = await SecureStore.getItemAsync('lang');
-        
-        if (storedLang) {
-            setScreenContent(translations[storedLang])
-            setCurrentLag(storedLang)
-        }
-    }
 
     const [scooters, setScooters] = useState([])
     const [nearestScooter, setNearestScooter] = useState([])
@@ -146,8 +21,7 @@ export default function Sellers({ navigation, route }) {
     const [showScooterDetails, setShowScooterDetails] = useState(false)
     const [readyToNavigate, setReadyToNavigate] = useState({})
     const [currentBattary, setCurrentBattary] = useState(0)
-    const [currentPhone, setCurrentPhone] = useState('')
-    const [currentUser, setCurrentUser] = useState('')
+    const [currentIotId, setCurrentIotId] = useState('')
     const [currentDurationFar, setCurrentDurationFar] = useState()
     const [showQrScanner, setShowQrScanner] = useState(false)
     const [scooterIdSelected, setScooterIdSelected] = useState(0)
@@ -160,6 +34,15 @@ export default function Sellers({ navigation, route }) {
         longitudeDelta: 0.002
     })
 
+    const [currentLang, setCurrentLag] = useState('ar')
+
+    const getStoredLang = async () => {
+        const storedLang = await SecureStore.getItemAsync('lang');
+        if (storedLang) {
+            setCurrentLag(storedLang)
+        }
+    }
+
     const [errorMsg, setErrorMsg] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -167,17 +50,19 @@ export default function Sellers({ navigation, route }) {
     let user;
     if (route.params.user)
         user = route.params.user;
-
-    const calculateDistance = async (origin, destination, apiKey) => {
+    const calculateDistance = async (origin, destination, apiKey, lang = 'en') => {
         try {
-            const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origin}&destinations=${destination}&key=${apiKey}`);
+            // Add the language parameter to the API request based on the lang variable
+            const languageParam = `&language=${lang}`;
+            
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origin}&destinations=${destination}&mode=walking&key=${apiKey}${languageParam}`);
             
             // Extracting duration from response
             const durationText = response.data.rows[0].elements[0].duration.text;
             const durationValue = response.data.rows[0].elements[0].duration.value;
     
-            console.log(`Duration: ${durationText}`);
-    
+            console.log(`Walking Duration: ${durationText}`);
+        
             return durationText;
         } catch (error) {
             console.error('Error calculating duration:', error);
@@ -185,6 +70,7 @@ export default function Sellers({ navigation, route }) {
         }
     }
     
+            
     const cetnerLocation = async () => {
 
         // Get the user's current location permission status.
@@ -222,7 +108,7 @@ export default function Sellers({ navigation, route }) {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.get(`https://adminandapi.fentecmobility.com/map/sellers`);
+            const response = await axios.get(`https://adminandapi.fentecmobility.com/map/scooters`);
             // console.log(response);
             if (response.data.status === true) {
                 setErrors([]);
@@ -286,7 +172,7 @@ export default function Sellers({ navigation, route }) {
         if (location) {
             setLoading(true)
             try {
-                const response = await axios.get(`https://adminandapi.fentecmobility.com/map/nearest-seller?lat=${location.coords.latitude}&lng=${location.coords.longitude}&lang=${currentLang}`,
+                const response = await axios.get(`https://adminandapi.fentecmobility.com/map/nearest-scooter?lat=${location.coords.latitude}&lng=${location.coords.longitude}`,
                     {
                         headers: {
                             "api_password": "Fentec@scooters.algaria"
@@ -327,13 +213,12 @@ export default function Sellers({ navigation, route }) {
         setShowScooterDetails(false)
     };
 
-    const handleMarkerPress = (coords, batt, id, phone, name) => {
-        setShowSeller(false)
+    const handleMarkerPress = (coords, batt, id, iot_id) => {
+        setShowNav(false)
         setReadyToNavigate(coords)
         console.log(batt);
         setCurrentBattary(batt)
-        setCurrentPhone(phone)
-        setCurrentUser(name)
+        setCurrentIotId(iot_id)
         setShowScooterDetails(true)
         setScooterIdSelected(id)
         if (location) {
@@ -341,7 +226,7 @@ export default function Sellers({ navigation, route }) {
             const destination = `${coords.latitude},${coords.longitude}`; // replace latitude and longitude with actual values
             const apiKey = 'AIzaSyD92ePxBG5Jk6mM3djSW49zs3dRKJroWRk';
     
-            calculateDistance(origin, destination, apiKey)
+            calculateDistance(origin, destination, apiKey, route.params.lang ? route.params.lang : 'en')
             .then(duration => {
                 // Use the duration value as needed
                 setCurrentDurationFar(duration)
@@ -351,12 +236,13 @@ export default function Sellers({ navigation, route }) {
                 console.error('Error:', error);
             })
         }
-        setShowSeller(true)
+        setShowNav(true)
     }
 
 
     useEffect(() => {
         fetchScooters();
+        getStoredLang();
         () => cetnerLocation;
         (async () => {
 
@@ -386,50 +272,25 @@ export default function Sellers({ navigation, route }) {
         })();
     }, []);
     const [zones, setZones] = useState([]);
-    const [showSeller, setShowSeller] = useState(false);
 
     useEffect(() => {
-      getStoredLang();
-
+      const fetchZones = async () => {
+        const response = await fetch("https://adminandapi.fentecmobility.com/get-zones");
+        const zoneData = await response.json();
+        setZones(zoneData);
+        console.log(zoneData[0].path);
+      };
+    
+      fetchZones();
     }, []);
     
     return (
         <View style={{ flex: 1 }}>
-            {/* {
-                showNav && (
-                    <Nav scooterDurationFar={currentDurationFar} battary_charge={currentBattary} showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} whereIdTheScooter={() => handleNotifyScooter()} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2"  user={user} navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} />
-                )
-            } */}
             {
-                (showSeller && readyToNavigate.latitude && readyToNavigate.longitude && currentBattary) && (
-                    <View style={{
-                        width: "100%", position: 'absolute', bottom: 100, zIndex: 9999, left: 0, padding: 20 
-                    }}>
-                        <View style={[styles.choiceWrapper, styles.choiceActive, { width: '100%', gap: 10}]}>
-                            <View style={{padding: 0, marginTop: 24}}>
-                                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '90%', marginBottom: 10}}><Text><Entypo name="location" size={30} color="black" /> </Text><Text style={{ fontSize: 16 }}>{currentBattary}</Text></View>
-                                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '90%', marginBottom: 10}}><Text><Entypo name="phone" size={30} color="black" /> </Text><Text style={{ fontSize: 16 }}>{currentPhone}</Text></View>
-                                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '90%'}}><Text><Entypo name="user" size={30} color="black" /> </Text><Text style={{ fontSize: 16 }}>{currentUser}</Text></View>
-                            </View>
-                            <View style={{ flexDirection: 'row', gap: 10, width: "100%", justifyContent: 'center', marginTop: 16 }}>
-                                <TouchableOpacity onPress={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} style={[styles.choiceWrapper, styles.choiceActive, { backgroundColor: 'rgba(255, 115, 0, 1)',  flexDirection: 'row', gap: 10, padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 8 }]}><FontAwesome5 name="directions" size={16} color="black" /><Text>{screenContent.navToSeller}</Text></TouchableOpacity>
-                            </View>
-                            <TouchableOpacity style={{ position: 'absolute', top: 15, right: 15 }} onPress={() => {setShowSeller(false)}}><AntDesign name="close" size={28} color="red" /></TouchableOpacity>
-                        </View>
-                    </View>
+                showNav && (
+                    <Nav scooterDurationFar={currentDurationFar} battary_charge={currentBattary} showQrScanner={() => setShowQrScanner(true)} closeScanner={() => setShowQrScanner(false)} showScanner={showQrScanner} whereIdTheScooter={() => handleNotifyScooter()} navToScooter={() => navigateToDestenation(readyToNavigate.latitude, readyToNavigate.longitude)} showIotDetails={showScooterDetails} closeDetailsScooter={() => setShowScooterDetails(false)} active="2"  user={user} navigation={navigation} goToMyLocation={() => cetnerLocation()} getNearstScooter={() => getNearstScooter()} iot_id={currentIotId} />
                 )
             }
-            <View style={{ flexDirection: 'row', gap: 7, position: 'absolute', bottom: 20, left: 0, padding: 20, width: '100%', justifyContent: 'center', zIndex: 9999 }}>
-                <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive, {flexDirection: "row", alignItems: 'center', gap: 8, backgroundColor: "rgba(255, 115, 0, 1)"}]} onPress={getNearstScooter}>
-                    <Text style={{fontFamily: "Outfit_400Regular", lineHeight: 18, fontSize: 14, color: "#fff"}}>
-                        {screenContent.navigate_msg}
-                    </Text>
-                    <Entypo name="direction" size={16} color="#fff" />
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.choiceWrapper, styles.choiceActive]} onPress={cetnerLocation}>
-                    <MaterialIcons name="my-location" size={24} color="black" />
-                </TouchableOpacity>
-            </View>
 
             {loading && (
                 <View style={{
@@ -482,10 +343,10 @@ export default function Sellers({ navigation, route }) {
                     <View style={styles.modalView}>
                         <Text style={{ fontSize: 18, marginBottom: 15, fontFamily: "Outfit_500Medium", textAlign: 'center' }}>{nearestScooterMsg}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
-                            <TouchableOpacity onPress={() => setShowNearestScooterPopUp(false)} style={{ backgroundColor: '#c2c2c2', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 100, alignItems: 'center' }}>
+                            <TouchableOpacity onPress={() => setShowNearestScooterPopUp(false)} style={{ backgroundColor: '#c2c2c2', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 80, alignItems: 'center' }}>
                                 <Text>Cancel</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigateToDestenation(nearestScooter.scooter.latitude, nearestScooter.scooter.longitude)} style={{ backgroundColor: '#ff7300', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 100, alignItems: 'center', color: '#fff' }}>
+                            <TouchableOpacity onPress={() => navigateToDestenation(nearestScooter.scooter.latitude, nearestScooter.scooter.longitude)} style={{ backgroundColor: '#ff7300', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 80, alignItems: 'center', color: '#fff' }}>
                                 <Text style={{ color: '#fff' }}>Navigate</Text>
                             </TouchableOpacity>
                         </View>
@@ -495,9 +356,6 @@ export default function Sellers({ navigation, route }) {
             </Modal>
 
             <View style={styles.head}>
-                <TouchableOpacity onPress={() => {navigation.push("Profile")}} style={[styles.input, { width: 'auto', backgroundColor: 'rgba(255, 115, 0, 1)', padding: 18, height: 60, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 15 }]}>
-                    <FontAwesome5 name="long-arrow-alt-left" size={24} color="#fff" />
-                </TouchableOpacity>
                 <GooglePlacesAutocomplete
                     placeholder="Search"
                     fetchDetails={true}
@@ -516,7 +374,7 @@ export default function Sellers({ navigation, route }) {
                     }}
                     query={{
                         key: "AIzaSyD92ePxBG5Jk6mM3djSW49zs3dRKJroWRk",
-                        components: "country:dz",
+                        components: "country:eg",
                         types: "address",
                         radius: 30000,
                         location: `${region.latitude}, ${region.longitude}`
@@ -526,6 +384,12 @@ export default function Sellers({ navigation, route }) {
                         listView: { backgroundColor: "white" }
                     }}
                 />
+                {/* <View style={[styles.input, { width: 'auto', padding: 18, height: 60, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 15 }]}>
+                    <FontAwesome5 name="coins" size={24} color="rgba(255, 199, 0, 1)" />
+                    {user && (
+                        <Text style={{ fontSize: 18, fontFamily: 'Outfit_600SemiBold', }}>{user.coins}</Text>
+                    )}
+                </View> */}
             </View>
 
             <MapView
@@ -564,7 +428,7 @@ export default function Sellers({ navigation, route }) {
                 {scooters.length > 0 && (
                     // Iterate through the scooters array
                     scooters.map((scooter) => (
-                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.address , scooter.id, scooter.phone, scooter.name)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={ require('./../assets/imgs/icons/seller_icon.png')}>
+                        <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.battary_charge, scooter.id, scooter.iot_id)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={parseInt(scooter.battary_charge) > 60 ? require('./../assets/imgs/icons/high_charge.png') : (parseInt(scooter.battary_charge) < 30 ? require('./../assets/imgs/icons/low_charge.png') : require('./../assets/imgs/icons/medium_charge.png'))}>
                         </Marker>
                     ))
                 )}
@@ -644,21 +508,5 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5
-    },
-    choiceWrapper: {
-        padding: 20,
-        borderRadius: 16,
-    },
-    choiceActive: {
-        backgroundColor: '#fff',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-    },
-
+    }
 });

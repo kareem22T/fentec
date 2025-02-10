@@ -3,7 +3,7 @@
     "name": "FenTec Mobility",
     "slug": "fentec-mobility",
     "scheme": ["fentecRedirct", "facebookLogin", "fb799352772304910"],
-    "version": "1.6.0",
+    "version": "1.8.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -51,7 +51,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.kareem11.fentecmobility",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "2",
+      "buildNumber": "4",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "ِAllow fentec to access your location to help you find the nearst scooter and to make sure that you are in the right safe zone"
+      },
       "config": {
         "googleMapsApiKey": "AIzaSyADMSyZQR7V38GWvZ3MEl_DcDsn0pTS0WU"
       }
@@ -75,7 +78,7 @@
         }
       },
       "package": "com.kareem11.fentecmobility",
-      "versionCode": 3
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/favicon.png"

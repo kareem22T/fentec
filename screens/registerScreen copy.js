@@ -337,7 +337,7 @@ export default function Register({ navigation }) {
         }
       };
     return (
-        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{flex: 1}} style={{ position: 'relative' }}>
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} style={{ position: 'relative' }}>
                 <Modal
                     animationType="slide"
                     visible={showPhonePopUp}
@@ -435,7 +435,7 @@ export default function Register({ navigation }) {
                             </View>
                         </View>
                 </Modal>
-            <View style={styles.wrapper}>
+            <SafeAreaView style={styles.wrapper}>
                 <LoginHeader active={3}></LoginHeader>
                 <BackgroundImage></BackgroundImage>
                 <Text style={{
@@ -482,15 +482,15 @@ export default function Register({ navigation }) {
                         <Text style={styles.question}>{screenContent.head}</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Login')}><Text style={styles.ans}>{screenContent.login}</Text></TouchableOpacity>
                     </View>
-                    {/* <Text style={styles.or}>{screenContent.or}</Text> */}
-                    {/* <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]} 
+                    <Text style={styles.or}>{screenContent.or}</Text>
+                    <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]} 
                     disabled={!request}
                     onPress={() => {
                       promptAsync();
                     }}>
                         <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
                         <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
                     {/* <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}
                         // disabled={!requestF}
                         onPress={() => {
@@ -561,7 +561,7 @@ export default function Register({ navigation }) {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
+            </SafeAreaView>
         </ScrollView>
     );
 }
@@ -573,12 +573,12 @@ const styles = StyleSheet.create({
     contianer: {
         padding: 1.25 * 16,
         flexDirection: 'column',
-        justifyContent: 'center',
-        gap: 1.5 * 16,
+        justifyContent: 'space-between',
+        gap: 1 * 16,
         alignItems: 'center',
+        flex: 1,
         width: '100%',
-        zIndex: 3,
-        
+        zIndex: 3
     },
     main_img: {
         width: 130,

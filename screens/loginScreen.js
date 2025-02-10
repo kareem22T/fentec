@@ -330,7 +330,7 @@ export default function Login({ navigation }) {
                         <Text style={styles.question}>{screenContent.head}</Text>
                         <TouchableOpacity><Text style={styles.ans} onPress={() => navigation.navigate('Register')}>{screenContent.register}</Text></TouchableOpacity>
                     </View>
-                    <Text style={styles.or}>{screenContent.or}</Text>
+                    {/* <Text style={styles.or}>{screenContent.or}</Text>
                     <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]} 
                     disabled={!request}
                     onPress={() => {
@@ -338,7 +338,7 @@ export default function Login({ navigation }) {
                     }}>
                         <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
                         <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     {/* <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
                         <Image style={styles.g_f_img} source={require('./../assets/imgs/facebook.png')} />
                         <Text style={styles.f_btn_text}>{screenContent.face_btn}</Text>
@@ -404,8 +404,8 @@ const styles = StyleSheet.create({
     contianer: {
         padding: 1.25 * 16,
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        gap: 1 * 16,
+        justifyContent: 'center',
+        gap: 1.5 * 16,
         alignItems: 'center',
         flex: 1,
         width: '100%',

@@ -12,12 +12,10 @@ import Icon from 'react-native-vector-icons/Entypo';
 
 export default function Map({ navigation, route }) {
     const [location, setLocation] = useState(null);
-
     const [scooters, setScooters] = useState([])
     const [nearestScooter, setNearestScooter] = useState([])
     const [nearestScooterMsg, setNearestScooterMsg] = useState("")
     const [showNearestScooterPopUp, setShowNearestScooterPopUp] = useState(false)
-
     const [showScooterDetails, setShowScooterDetails] = useState(false)
     const [readyToNavigate, setReadyToNavigate] = useState({})
     const [currentBattary, setCurrentBattary] = useState(0)
@@ -25,7 +23,6 @@ export default function Map({ navigation, route }) {
     const [currentDurationFar, setCurrentDurationFar] = useState()
     const [showQrScanner, setShowQrScanner] = useState(false)
     const [scooterIdSelected, setScooterIdSelected] = useState(0)
-
     const [showNav, setShowNav] = useState(true)
     const [region, setRegion] = React.useState({
         latitude: 30.0480392,
@@ -33,68 +30,61 @@ export default function Map({ navigation, route }) {
         latitudeDelta: 0.02,
         longitudeDelta: 0.002
     })
-
     const [currentLang, setCurrentLag] = useState('ar')
-
-    const getStoredLang = async () => {
-        const storedLang = await SecureStore.getItemAsync('lang');
-        if (storedLang) {
-            setCurrentLag(storedLang)
-        }
-    }
-
     const [errorMsg, setErrorMsg] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
     const [successMsg, setSuccessMsg] = useState('');
+    const [showPermissionModal, setShowPermissionModal] = useState(false);
+    const [permissionAction, setPermissionAction] = useState(null);
+
     let user;
     if (route.params.user)
         user = route.params.user;
+
     const calculateDistance = async (origin, destination, apiKey, lang = 'en') => {
         try {
-            // Add the language parameter to the API request based on the lang variable
             const languageParam = `&language=${lang}`;
-            
             const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origin}&destinations=${destination}&mode=walking&key=${apiKey}${languageParam}`);
-            
-            // Extracting duration from response
             const durationText = response.data.rows[0].elements[0].duration.text;
             const durationValue = response.data.rows[0].elements[0].duration.value;
-    
             console.log(`Walking Duration: ${durationText}`);
-        
             return durationText;
         } catch (error) {
             console.error('Error calculating duration:', error);
             throw error;
         }
     }
-    
-            
-    const cetnerLocation = async () => {
 
-        // Get the user's current location permission status.
-        let { status } = await Location.getForegroundPermissionsAsync();
+    const requestLocationPermission = async (action) => {
+        setPermissionAction(action);
+        setShowPermissionModal(true);
+    }
 
-        // If the user has denied location permission, prompt them again.
-        if (status !== 'granted') {
+    const handlePermissionResponse = async (granted) => {
+        setShowPermissionModal(false);
+        if (granted) {
             let { status } = await Location.requestForegroundPermissionsAsync();
-
-            // If the user still denies location permission, return.
-            if (status !== 'granted') {
-                return;
+            if (status === 'granted') {
+                if (permissionAction === 'center') {
+                    cetnerLocation();
+                } else if (permissionAction === 'nearest') {
+                    getNearstScooter();
+                }
             }
+        }
+    }
+
+    const cetnerLocation = async () => {
+        let { status } = await Location.getForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            requestLocationPermission('center');
+            return;
         }
 
         let location = await Location.getCurrentPositionAsync({});
         setLocation(location);
         if (location) {
-            setRegion({
-                latitude: 30.0480392,
-                longitude: 31.2363747,
-                latitudeDelta: 0.03,
-                longitudeDelta: 0.002
-            })
             setRegion({
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
@@ -109,14 +99,11 @@ export default function Map({ navigation, route }) {
         setErrors([])
         try {
             const response = await axios.get(`https://adminandapi.fentecmobility.com/map/scooters`);
-            // console.log(response);
             if (response.data.status === true) {
                 setErrors([]);
-                // setSuccessMsg(response.data.message);
                 TimerMixin.setTimeout(() => {
                     setLoading(false);
                     setScooters(response.data.data)
-                    
                 }, 1500);
             } else {
                 setLoading(false);
@@ -137,7 +124,6 @@ export default function Map({ navigation, route }) {
         setErrors([])
         try {
             const response = await axios.get(`https://adminandapi.fentecmobility.com/map/scooter-notify?id=${scooterIdSelected}`);
-            // console.log(response);
             if (response.data.status === true) {
                 setErrors([]);
                 setLoading(false);
@@ -157,18 +143,12 @@ export default function Map({ navigation, route }) {
 
     const getNearstScooter = async () => {
         setErrors([])
-        // Get the user's current location permission status.
         let { status } = await Location.getForegroundPermissionsAsync();
-
-        // If the user has denied location permission, prompt them again.
         if (status !== 'granted') {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-
-            // If the user still denies location permission, return.
-            if (status !== 'granted') {
-                return;
-            }
+            requestLocationPermission('nearest');
+            return;
         }
+        
         if (location) {
             setLoading(true)
             try {
@@ -179,10 +159,9 @@ export default function Map({ navigation, route }) {
                         }
                     });
 
+                    console.log(response.data);
                 if (response.data.status === true) {
-                    console.log(response);
                     setErrors([]);
-                    // setSuccessMsg(response.data.message);
                     TimerMixin.setTimeout(() => {
                         setLoading(false);
                         setNearestScooter(response.data.data)
@@ -206,9 +185,7 @@ export default function Map({ navigation, route }) {
 
     const navigateToDestenation = (lat, lng) => {
         const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-
         Linking.openURL(url);
-
         setShowNearestScooterPopUp(false)
         setShowScooterDetails(false)
     };
@@ -222,41 +199,29 @@ export default function Map({ navigation, route }) {
         setShowScooterDetails(true)
         setScooterIdSelected(id)
         if (location) {
-            const origin = `${location.coords.latitude},${location.coords.longitude}`; // replace latitude and longitude with actual values
-            const destination = `${coords.latitude},${coords.longitude}`; // replace latitude and longitude with actual values
+            const origin = `${location.coords.latitude},${location.coords.longitude}`;
+            const destination = `${coords.latitude},${coords.longitude}`;
             const apiKey = 'AIzaSyD92ePxBG5Jk6mM3djSW49zs3dRKJroWRk';
     
             calculateDistance(origin, destination, apiKey, route.params.lang ? route.params.lang : 'en')
             .then(duration => {
-                // Use the duration value as needed
                 setCurrentDurationFar(duration)
             })
             .catch(error => {
-                // Handle error
                 console.error('Error:', error);
             })
         }
         setShowNav(true)
     }
 
-
     useEffect(() => {
         fetchScooters();
-        getStoredLang();
-        () => cetnerLocation;
+        // getStoredLang();
         (async () => {
-
-            // Get the user's current location permission status.
             let { status } = await Location.getForegroundPermissionsAsync();
-
-            // If the user has denied location permission, prompt them again.
             if (status !== 'granted') {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-
-                // If the user still denies location permission, return.
-                if (status !== 'granted') {
-                    return;
-                }
+                requestLocationPermission('center');
+                return;
             }
 
             let location = await Location.getCurrentPositionAsync({});
@@ -271,6 +236,7 @@ export default function Map({ navigation, route }) {
             }
         })();
     }, []);
+
     const [zones, setZones] = useState([]);
 
     useEffect(() => {
@@ -355,6 +321,28 @@ export default function Map({ navigation, route }) {
 
             </Modal>
 
+            <Modal
+                animationType='fade'
+                transparent={true}
+                visible={showPermissionModal}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <Text style={{ fontSize: 18, marginBottom: 15, fontFamily: "Outfit_500Medium", textAlign: 'center' }}>
+                            We need access to your location to ensure you are in the right zone and to help you find the nearest scooter or nearest point seller.
+                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'end', gap: 20, }}>
+                            <TouchableOpacity onPress={() => handlePermissionResponse(false)} style={{ backgroundColor: '#c2c2c2', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 80, alignItems: 'center' }}>
+                                <Text>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handlePermissionResponse(true)} style={{ backgroundColor: '#ff7300', paddingTop: 5, paddingBottom: 5, paddingLeft: 10, paddingRight: 10, borderRadius: 5, width: 80, alignItems: 'center', color: '#fff' }}>
+                                <Text style={{ color: '#fff' }}>OK</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
             <View style={styles.head}>
                 <GooglePlacesAutocomplete
                     placeholder="Search"
@@ -363,7 +351,6 @@ export default function Map({ navigation, route }) {
                         rankby: "distance"
                     }}
                     onPress={(data, details = null) => {
-                        // 'details' is provided when fetchDetails = true
                         console.log(data, details)
                         setRegion({
                             latitude: details.geometry.location.lat,
@@ -384,12 +371,6 @@ export default function Map({ navigation, route }) {
                         listView: { backgroundColor: "white" }
                     }}
                 />
-                {/* <View style={[styles.input, { width: 'auto', padding: 18, height: 60, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 15 }]}>
-                    <FontAwesome5 name="coins" size={24} color="rgba(255, 199, 0, 1)" />
-                    {user && (
-                        <Text style={{ fontSize: 18, fontFamily: 'Outfit_600SemiBold', }}>{user.coins}</Text>
-                    )}
-                </View> */}
             </View>
 
             <MapView
@@ -413,7 +394,7 @@ export default function Map({ navigation, route }) {
                                     strokeWeight: 2,
                                     fillColor: "#ff0000",
                                     fillOpacity: 0.35,
-                                  }} // Pass options as a single object
+                                  }}
                               />
                         ))
                     )
@@ -422,11 +403,10 @@ export default function Map({ navigation, route }) {
                     <Marker
                         coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
                         icon={<Icon name="location-pin" size={24} color="black" />}
-                        style={[{ width: 24, height: 24 }]} // Adjust size as needed
+                        style={[{ width: 24, height: 24 }]}
                         />
                 )}
                 {scooters.length > 0 && (
-                    // Iterate through the scooters array
                     scooters.map((scooter) => (
                         <Marker key={scooter.id} onPress={() => handleMarkerPress({ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude)}, scooter.battary_charge, scooter.id, scooter.iot_id)} coordinate={{ latitude: parseFloat(scooter.latitude), longitude: parseFloat(scooter.longitude) }} image={parseInt(scooter.battary_charge) > 60 ? require('./../assets/imgs/icons/high_charge.png') : (parseInt(scooter.battary_charge) < 30 ? require('./../assets/imgs/icons/low_charge.png') : require('./../assets/imgs/icons/medium_charge.png'))}>
                         </Marker>

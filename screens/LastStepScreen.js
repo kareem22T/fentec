@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Image, View, Platform, ScrollView, StyleSheet, Text, TextInput, Modal, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Image, View, Platform, ScrollView, StyleSheet, Text, TextInput, Modal, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import LoginHeader from '../components/loginHeader';
@@ -26,36 +26,62 @@ const BackgroundImage = () => {
 export default function LastStep({ navigation, route }) {
     const [currentLang, setCurrentLag] = useState('ar')
     const [showDobDatePicker, setShowDobDatePicker] = useState(false)
-    const translations = {
-        "en": {
-            "head": route.params.user ? "Edit Profile" : "Last step",
-            "name": "Name",
-            "open_cam": "Open Camera",
-            "open_gallery": "Select from gallery",
-            "start": route.params.user ? "Edit Data" : "Let's Start !",
-            "id": "Identity Verification",
-            'dob': 'Date of Birth'
-        },
-        "fr": {
-            "head": "Dernière étape",
-            "name": "Nom",
-            "open_cam": "Ouvrir la caméra",
-            "open_gallery": "la galerie",
-            "start": "Allons-y",
-            "id": "vérification d'identité",
-            'dob': "date de naissance"
-        },
-        "ar": {
-            "head": route.params.user ? "تعديل الحساب" : "اخر خطوة",
-            'name': "الاسم",
-            "open_cam": "استعمل الكاميرا",
-            "open_gallery": "اختر من المعرض",
-            "start": route.params.user ? "تحديث البيانات" : "لنبدأ !",
-            "id": "صورة من الهوية الشخصية",
-            'dob': 'تاريخ الميلاد'
-        }
+const translations = {
+    "en": {
+        "head": route.params.user ? "Edit Profile" : "Last step",
+        "name": "Name",
+        "open_cam": "Open Camera",
+        "open_gallery": "Select from gallery",
+        "start": route.params.user ? "Edit Data" : "Let's Start !",
+        "id": "Identity Verification",
+        'dob': 'Date of Birth',
+        'back_btn': "Back and delete my account!",
+        'confirm_delete_title': "Delete Account",
+        'confirm_delete_message': "Are you sure you want to delete your account? This action cannot be undone.",
+        'confirm_delete_yes': "Yes, Delete",
+        'confirm_delete_no': "No, Cancel",
+        'camera_permission_message': "We need access to your camera to upload your profile photo.",
+        'gallery_permission_message': "We need access to your gallery to upload your profile photo.",
+        'identity_camera_permission_message': "We need access to your camera to upload your identity image. This is used to ensure that the vehicles are protected from future misuse.",
+        'identity_gallery_permission_message': "We need access to your gallery to upload your identity image. This is used to ensure that the vehicles are protected from future misuse.",
+    },
+    "fr": {
+        "head": "Dernière étape",
+        "name": "Nom",
+        "open_cam": "Ouvrir la caméra",
+        "open_gallery": "la galerie",
+        "start": "Allons-y",
+        "id": "vérification d'identité",
+        'back_btn': "Revenez et supprimez mon compte!",
+        'dob': "date de naissance",
+        'confirm_delete_title': "Supprimer le compte",
+        'confirm_delete_message': "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
+        'confirm_delete_yes': "Oui, supprimer",
+        'confirm_delete_no': "Non, annuler",
+        'camera_permission_message': "Nous avons besoin d'accéder à votre caméra pour télécharger votre photo de profil.",
+        'gallery_permission_message': "Nous avons besoin d'accéder à votre galerie pour télécharger votre photo de profil.",
+        'identity_camera_permission_message': "Nous avons besoin d'accéder à votre caméra pour télécharger votre image d'identité. Cela est utilisé pour garantir que les véhicules sont protégés contre toute utilisation future abusive.",
+        'identity_gallery_permission_message': "Nous avons besoin d'accéder à votre galerie pour télécharger votre image d'identité. Cela est utilisé pour garantir que les véhicules sont protégés contre toute utilisation future abusive.",
+    },
+    "ar": {
+        "head": route.params.user ? "تعديل الحساب" : "اخر خطوة",
+        'name': "الاسم",
+        "open_cam": "استعمل الكاميرا",
+        "open_gallery": "اختر من المعرض",
+        "start": route.params.user ? "تحديث البيانات" : "لنبدأ !",
+        "id": "صورة من الهوية الشخصية",
+        'back_btn': "العودة وحذف حسابي!",
+        'dob': 'تاريخ الميلاد',
+        'confirm_delete_title': "حذف الحساب",
+        'confirm_delete_message': "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+        'confirm_delete_yes': "نعم، احذف",
+        'confirm_delete_no': "لا، إلغاء",
+        'camera_permission_message': "نحتاج إلى الوصول إلى الكاميرا لتحميل صورة ملفك الشخصي.",
+        'gallery_permission_message': "نحتاج إلى الوصول إلى المعرض لتحميل صورة ملفك الشخصي.",
+        'identity_camera_permission_message': "نحتاج إلى الوصول إلى الكاميرا لتحميل صورة الهوية الخاصة بك. يتم استخدام هذه الصورة لضمان حماية المركبات من الاستخدام غير المشروع في المستقبل.",
+        'identity_gallery_permission_message': "نحتاج إلى الوصول إلى المعرض لتحميل صورة الهوية الخاصة بك. يتم استخدام هذه الصورة لضمان حماية المركبات من الاستخدام غير المشروع في المستقبل.",
     }
-    const [screenContent, setScreenContent] = useState(translations.ar);
+};    const [screenContent, setScreenContent] = useState(translations.ar);
 
     const [showChoices, setShowChoices] = useState()
     const getStoredLang = async () => {
@@ -72,63 +98,92 @@ export default function LastStep({ navigation, route }) {
 
     const [image, setImage] = useState(null);
     const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4, 4],
-            quality: 1,
-        });
-
-        console.log(result);
-
-        if (!result.canceled) {
-            const compressedImage = await ImageManipulator.manipulateAsync(
-                result.assets[0].uri,
-                [],
+        // Request permission and show message
+        Alert.alert(
+            "Permission Request",
+            screenContent.gallery_permission_message,
+            [
                 {
-                    compress: 0.5
-                }
-            );
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "OK",
+                    onPress: async () => {
+                        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                        if (status !== 'granted') {
+                            Alert.alert("Permission Denied", "You need to grant permission to access the gallery.");
+                            return;
+                        }
 
-            setImage(compressedImage.uri);
-        }
+                        let result = await ImagePicker.launchImageLibraryAsync({
+                            mediaTypes: ImagePicker.MediaTypeOptions.All,
+                            allowsEditing: true,
+                            aspect: [4, 4],
+                            quality: 1,
+                        });
+
+                        if (!result.canceled) {
+                            const compressedImage = await ImageManipulator.manipulateAsync(
+                                result.assets[0].uri,
+                                [],
+                                {
+                                    compress: 0.5
+                                }
+                            );
+
+                            setImage(compressedImage.uri);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
-    
     const [Identity, setIdentity] = useState();
 
     const pickId = async () => {
-        try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                console.log('Permission to access media library denied');
-                return;
-            }
+        // Request permission and show message
+        Alert.alert(
+            "Permission Request",
+            screenContent.identity_gallery_permission_message,
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "OK",
+                    onPress: async () => {
+                        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                        if (status !== 'granted') {
+                            Alert.alert("Permission Denied", "You need to grant permission to access the gallery.");
+                            return;
+                        }
 
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
+                        const result = await ImagePicker.launchImageLibraryAsync({
+                            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                            allowsEditing: true,
+                            aspect: [1, 1],
+                            quality: 1,
+                        });
 
-            if (!result.cancelled) {
-                const compressedId = await ImageManipulator.manipulateAsync(
-                    result.assets[0].uri,
-                    [],
-                    {
-                        compress: 0.5
+                        if (!result.cancelled) {
+                            const compressedId = await ImageManipulator.manipulateAsync(
+                                result.assets[0].uri,
+                                [],
+                                {
+                                    compress: 0.5
+                                }
+                            );
+
+                            setIdentity(compressedId.uri);
+                        }
                     }
-                );
-
-                setIdentity(compressedId.uri);
-            }
-        } catch (error) {
-            console.log(error);
-        }
+                }
+            ]
+        );
     }
-
 
     const [namefocused, setNamefocused] = useState(false);
     const handleNameFocus = () => {
@@ -163,7 +218,6 @@ export default function LastStep({ navigation, route }) {
 
     const sendLastStepData = async (token) => {
         const formData = new FormData();
-// console.log(dob);
         if (name)
             formData.append('name', name)
 
@@ -186,7 +240,6 @@ export default function LastStep({ navigation, route }) {
 
         formData.append('api_password', 'Fentec@scooters.algaria')
 
-
         setLoading(true)
         setErrors([])
         try {
@@ -197,7 +250,6 @@ export default function LastStep({ navigation, route }) {
                         'Content-Type': 'multipart/form-data',
                     }
                 },
-
             );
 
             if (response.data.status === true) {
@@ -266,12 +318,74 @@ export default function LastStep({ navigation, route }) {
         getStoredLang();
     }, []);
 
+    const [showConfirmModal, setShowConfirmModal] = useState(false); // State for confirmation modal
+
+    // Function to handle account deletion
+    const deleteAccount = async () => {
+        setLoading(true);
+        
+        try {
+            const response = await axios.delete('https://adminandapi.fentecmobility.com/delete-my-account?api_password=Fentec@scooters.algaria',{
+                headers: {
+                    'Authorization': `Bearer ${route.params.token}`,
+                },
+            });
+
+            if (response.data.status) {
+                setLoading(false);
+                setSuccessMsg(response.data.message);
+                // Clear SecureStore and navigate to the login screen
+                await SecureStore.deleteItemAsync('token');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                });
+            } else {
+                setLoading(false);
+                setErrors([response.data.message || "Failed to delete account."]);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.log(error);
+        }
+    };
+
+    const ConfirmDeleteModal = () => (
+        <Modal
+            animationType="fade"
+            transparent={true}
+            visible={showConfirmModal}
+            onRequestClose={() => setShowConfirmModal(false)}
+        >
+            <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                    <Text style={styles.modalTitle}>{screenContent.confirm_delete_title}</Text>
+                    <Text style={styles.modalMessage}>{screenContent.confirm_delete_message}</Text>
+                    <View style={styles.modalButtons}>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonYes]}
+                            onPress={() => {
+                                setShowConfirmModal(false);
+                                deleteAccount();
+                            }}
+                        >
+                            <Text style={styles.modalButtonText}>{screenContent.confirm_delete_yes}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonNo]}
+                            onPress={() => setShowConfirmModal(false)}
+                        >
+                            <Text style={styles.modalButtonText}>{screenContent.confirm_delete_no}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+    );
+
     return (
-        // <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        //     <Button title="Pick an image from camera roll" onPress={pickImage} />
-        //     {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-        // </View>
-        <ScrollView style={styles.wrapper} contentContainerStyle={{flexGrow: 1}}>
+        <View style={styles.wrapper}>
             <LoginHeader active={3}></LoginHeader>
             <BackgroundImage></BackgroundImage>
             {
@@ -322,20 +436,20 @@ export default function LastStep({ navigation, route }) {
                     <ActivityIndicator size="200px" color="#ff7300" />
                 </View>
             )}
-            <View style={styles.contianer}>
+            <ScrollView contentContainerStyle={styles.contianer}>
                 <Text style={styles.head}>{screenContent.head}</Text>
                 <TouchableOpacity onPress={pickImage} style={{ justifyContent: 'center', alignItems: 'center' }}>
                     {route.params.user && route.params.user.photo_path ? (
                         image ? (
                             <Image source={{ uri: image }}
-                                style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                                style={{ width: 150, height: 150, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
                         ) : (
                             <Image source={{ uri: 'https://adminandapi.fentecmobility.com/images/uploads/' + route.params.user.photo_path }}
-                                style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                                style={{ width: 150, height: 150, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
                         )
                     ) : (
                         <Image source={image ? { uri: image } : require('./../assets/imgs/default_user.jpg')}
-                            style={{ width: 200, height: 200, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
+                            style={{ width: 150, height: 150, resizeMode: 'cover', borderRadius: 100, borderWidth: 4, borderColor: 'rgba(255, 115, 0, 1)' }} />
                     )}
 
                     <View style={{ width: 40, height: 40, backgroundColor: 'rgba(255, 115, 0, 1)', borderRadius: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: -20 }}>
@@ -432,12 +546,22 @@ export default function LastStep({ navigation, route }) {
                     <TouchableOpacity style={styles.button} onPress={() => sendLastStepData(route.params.token)} >
                         <Text style={styles.button_text}>{screenContent.start}</Text>
                     </TouchableOpacity>
+                    <ConfirmDeleteModal />
+                    {
+                        !route.params.user && (                            
+                            <TouchableOpacity onPress={() => setShowConfirmModal(true)}>
+                                <Text style={{
+                                    textAlign: 'left',
+                                    color: '#ff0034'
+                                }}>{screenContent.back_btn}</Text>
+                            </TouchableOpacity>
+                        )
+                    }
                 </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -445,20 +569,20 @@ const styles = StyleSheet.create({
     },
     contianer: {
         padding: 1.25 * 16,
+        paddingTop: 0,
         flexDirection: 'column',
         justifyContent: 'space-between',
         gap: 1 * 16,
         alignItems: 'center',
-        flex: 1,
         width: '100%',
-        zIndex: 3
+        zIndex: 3,
+        position: 'relative',
     },
     head: {
         fontSize: 30,
         fontFamily: 'Outfit_600SemiBold',
         color: '#000'
     },
-
     input: {
         fontFamily: 'Outfit_600SemiBold',
         fontSize: 1.25 * 16,
@@ -484,7 +608,7 @@ const styles = StyleSheet.create({
         width: "95%",
         backgroundColor: "#ff7300",
         transition: "all .3s ease-in",
-        marginBottom: 1.25 * 16,
+        marginBottom: 0,
     },
     id_text: {
         fontSize: 23,
@@ -519,5 +643,36 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5
-    }
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontFamily: 'Outfit_600SemiBold',
+        marginBottom: 10,
+    },
+    modalMessage: {
+        fontSize: 16,
+        fontFamily: 'Outfit_400Regular',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 20,
+    },
+    modalButton: {
+        padding: 10,
+        borderRadius: 10,
+        width: 100,
+        alignItems: 'center',
+    },
+    modalButtonYes: {
+        backgroundColor: '#ff0034',
+    },
+    modalButtonNo: {
+        backgroundColor: '#c2c2c2',
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontFamily: 'Outfit_600SemiBold',
+    },
 });

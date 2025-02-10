@@ -7,6 +7,11 @@ import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import TimerMixin from 'react-timer-mixin';
 
+import * as Google from "expo-auth-session/providers/google";
+import * as Facebook from "expo-auth-session/providers/facebook";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 const BackgroundImage = () => {
     return (
@@ -21,68 +26,197 @@ const BackgroundImage = () => {
     )
 }
 
-export default function ForgotPassword({ navigation }) {
+export default function Login({ navigation }) {
     const [currentLang, setCurrentLag] = useState('ar')
     const translations = {
         "en": {
-            "head": "We have sent you verification Code on your Email",
-            "code": "Verfication Code",
+            "head": "Do not have an account?",
+            "login": "Log in",
             "register": "Sign up",
             "or": "or",
             "google_btn": "Continue with Google",
             "face_btn": "Continue with Facebook",
-            "email_e": "Email",
+            "email_e": "Email or Phone Number",
             "phone": "Phone Number",
             "p_password": "Password",
-            "p_password_Confirmation": "Password Confirmation",
-            "forgotPassword": "Forgot Your Password?",
-            "btn": "Reset Password",
-            "reset": "Reset Password",
+            "forgotPassword": "Forgot Your Password?"
         },
         "fr": {
-            "head": "Nous vous avons envoyé un code de vérification sur votre e-mail",
+            "head": "Vous n'avez pas de compte??",
             "login": "Se connecter",
-            "code": "Le code de vérification",
             "register": "s'inscrire",
             "or": "ou",
             "google_btn": "Continuez avec Google",
             "face_btn": "Continuez avec Facebook",
             "email_e": "E-mail",
             "phone": "Numéro de téléphone",
-            "reset": "réinitialiser le mot de passe",
             "p_password": "Mot de passe",
-            "btn": "Réinitialiser",
-            "p_password_Confirmation": "Confirmation mot de passe",
             "forgotPassword": "Mot de passe oublié?"
         },
         "ar": {
-            "head": "لقد أرسلنا لك رمز التحقق على بريدك الإلكتروني",
+            "head": "ليس لديك حساب؟",
             "login": "تسجيل الدخول",
             "register": "تسجيل",
             "or": "أو",
-            "code": "رمز التحقق",
             "google_btn": "تابع بواسطة جوجل",
             "face_btn": "تابع بواسطة فيسبوك",
-            "email_e": "البريد الالكتروني   ",
-            "reset": "إعادة تعيين كلمة المرور",
+            "email_e": "البريد الالكتروني او رقم الهاتف",
             "phone": "رقم الهاتف",
             "p_password": "كلمة المرور",
-            "p_password_Confirmation": "تأكيد كلمة المرور",
-            "btn": "اعادة تعين",
             "forgotPassword": "نسيت كلمة السر؟"
         }
     }
     const [screenContent, setScreenContent] = useState(translations.ar);
 
-    const [code, setCode] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [passwordConfirmation, setPasswordConfirmation] = useState("");
+    const [googlePassword, setGooglePassword] = useState("");
+    const [name, setName] = useState("");
+  // Handle sign in with Google
+  const [gToken, setgToken] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
+  const getLocalUser = async () => {
+    const data = await SecureStore.getItemAsync("userData");
+    if (!data) return null;
+    return JSON.parse(data);
+  };
 
-    const [codefocused, setCodefocused] = useState(false);
-    const handleCodeFocus = () => {
-        setCodefocused(true);
-    };
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: "22085097857-mqlve8k4delb5b0i2vdik1g8hki9vr3g.apps.googleusercontent.com",
+    iosClientId: "22085097857-vqgh29rhn6v7h2u892hvqltrbh9dfk9i.apps.googleusercontent.com"
+  });
+
+  const handleBack = () => {
+    setShowPhonePopUp(false)
+    setEmail("")
+    setName("")
+    setGooglePassword("")
+  }
+
+  useEffect(() => {
+    handleEffect();
+  }, [response, gToken]);
+
+    async function handleEffect() {
+        const user = await getLocalUser();
+        if (!user) {
+        if (response?.type === "success") {
+            getUserInfo(response.authentication.accessToken);
+        }
+        } else {
+        setUserInfo(user);
+        setErrors([])
+        console.log(user);
+        setName(user.name)
+        setEmail(user.email)
+        setGooglePassword("Google")
+        setShowPhonePopUp(true)
+        console.log("loaded locally");
+        console.log(user);
+        setLoading(true)
+        setErrors([])
+        try {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/login-google`, {
+                email: user.email,
+                password: "Google",
+                sign_up_type: "Google",
+                api_password: 'Fentec@scooters.algaria'
+            });
+
+            if (response.data.status === true) {
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
+                setLoading(false);
+                setErrors([]);
+                setSuccessMsg(response.data.message);
+                TimerMixin.setTimeout(() => {
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Profile',
+                            params: {}, // No params to pass in this case
+                          },
+                        ],
+                      });                      
+                }, 1500)
+            } else {
+                setLoading(false);
+                setErrors(response.data.errors);
+                TimerMixin.setTimeout(() => {
+                    setErrors([]);
+                }, 2000);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.error(error);
+        }
+
+        }
+    }
+
+    const getUserInfo = async (gToken) => {
+        if (!gToken) return;
+        try {
+        //   setLoading(true);
+          const response = await fetch(
+            "https://www.googleapis.com/userinfo/v2/me",
+            {
+              headers: { Authorization: `Bearer ${gToken}` },
+            }
+          );
+    
+          const user = await response.json();
+          console.log(user);
+          setLoading(true)
+          setErrors([])
+          try {
+              const response = await axios.post(`https://adminandapi.fentecmobility.com/login-google`, {
+                  email: user.email,
+                  password: "Google",
+                  sign_up_type: "Google",
+                  api_password: 'Fentec@scooters.algaria'
+              });
+  
+              if (response.data.status === true) {
+                  await SecureStore.setItemAsync('user_token', response.data.data.token)
+                  setLoading(false);
+                  setErrors([]);
+                  setSuccessMsg(response.data.message);
+                  TimerMixin.setTimeout(() => {
+                      navigation.reset({
+                          index: 0,
+                          routes: [
+                            {
+                              name: 'Profile',
+                              params: {}, // No params to pass in this case
+                            },
+                          ],
+                        });                      
+                  }, 1500)
+              } else {
+                  setLoading(false);
+                  setErrors(response.data.errors);
+                  TimerMixin.setTimeout(() => {
+                      setErrors([]);
+                  }, 2000);
+              }
+          } catch (error) {
+              setLoading(false);
+              setErrors(["Server error, try again later."]);
+              console.error(error);
+          }
+            setUserInfo(user);
+        } catch (error) {
+          // Add your own error handler here
+        }
+      };
+    
+
+    const registerGoogle = async () => {
+    }
+
     const [emailfocused, setEmailfocused] = useState(false);
     const handleEmailFocus = () => {
         setEmailfocused(true);
@@ -90,11 +224,6 @@ export default function ForgotPassword({ navigation }) {
     const [passfocused, setPassfocused] = useState(false);
     const handlePassFocus = () => {
         setPassfocused(true);
-    };
-
-    const [passConfirmationfocused, setPassConfirmationfocused] = useState(false);
-    const handlePassConfirmationFocus = () => {
-        setPassConfirmationfocused(true);
     };
 
     const getStoredLang = async () => {
@@ -109,20 +238,19 @@ export default function ForgotPassword({ navigation }) {
     const [errors, setErrors] = useState([]);
     const [successMsg, setSuccessMsg] = useState('');
 
-    const ForogtPassword = async () => {
+    const loginMethode = async () => {
         setLoading(true)
         setErrors([])
         try {
-            const response = await axios.post(`https://adminandapi.fentecmobility.com/forgot-password`, {
+            const response = await axios.post(`https://adminandapi.fentecmobility.com/login`, {
                 lang: currentLang,
-                code: code,
-                email: email,
+                emailorphone: email,
                 password: password,
-                password_confirmation: passwordConfirmation,
                 api_password: 'Fentec@scooters.algaria'
             });
 
             if (response.data.status === true) {
+                await SecureStore.setItemAsync('user_token', response.data.data.token)
                 setLoading(false);
                 setErrors([]);
                 setSuccessMsg(response.data.message);
@@ -131,7 +259,7 @@ export default function ForgotPassword({ navigation }) {
                         index: 0,
                         routes: [
                           {
-                            name: 'Login',
+                            name: 'Profile',
                             params: {}, // No params to pass in this case
                           },
                         ],
@@ -197,30 +325,26 @@ export default function ForgotPassword({ navigation }) {
                         <ActivityIndicator size="200px" color="#ff7300" />
                     </View>
                 )}
-                <View style={styles.contianer}>
-                    <View style={{justifyContent: 'center', alignItems: 'center', gap: 20}}>
-                        <Text style={{fontFamily: "Outfit_600SemiBold", fontSize: 23}}>{screenContent.reset}</Text>
-                        <Image source={require('./../assets/imgs/forgot.png')} style={{ width: 85, height: 85, resizeMode: 'contain' }}/>
+                <View style={[styles.contianer]}>
+                    <View style={{ flexDirection: currentLang == 'ar' ? 'row-reverse' : 'row', gap: 10, marginTop: 35 }}>
+                        <Text style={styles.question}>{screenContent.head}</Text>
+                        <TouchableOpacity><Text style={styles.ans} onPress={() => navigation.navigate('Register')}>{screenContent.register}</Text></TouchableOpacity>
                     </View>
+                    <Text style={styles.or}>{screenContent.or}</Text>
+                    <TouchableOpacity style={[styles.g_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]} 
+                    disabled={!request}
+                    onPress={() => {
+                      promptAsync();
+                    }}>
+                        <Image style={styles.g_f_img} source={require('./../assets/imgs/google.png')} />
+                        <Text style={styles.g_btn_text}>{screenContent.google_btn}</Text>
+                    </TouchableOpacity>
+                    {/* <TouchableOpacity style={[styles.f_btn, currentLang == 'ar' && { flexDirection: 'row-reverse', justifyContent: 'end' }]}>
+                        <Image style={styles.g_f_img} source={require('./../assets/imgs/facebook.png')} />
+                        <Text style={styles.f_btn_text}>{screenContent.face_btn}</Text>
+                    </TouchableOpacity> */}
+                    <Text style={styles.or}>{screenContent.or}</Text>
                     <View style={{ gap: 15, width: '100%', alignItems: 'center' }}>
-                        <TextInput
-                            placeholder={screenContent.code}
-                            onChangeText={setCode}
-                            value={code}
-                            onFocus={() => handleCodeFocus()}
-                            onBlur={() => setCodefocused(false)}
-                            style={[
-                                styles.input,
-                                codefocused && {
-                                    borderColor: 'rgba(255, 115, 0, 1)',
-                                    borderWidth: 2
-                                },
-                                currentLang == 'ar' && {
-                                    textAlign: 'right',
-                                },
-                            ]}
-
-                        />
                         <TextInput
                             placeholder={screenContent.email_e}
                             onChangeText={setEmail}
@@ -257,30 +381,17 @@ export default function ForgotPassword({ navigation }) {
                                 },
                             ]}
                         />
-                        <TextInput
-                            placeholder={screenContent.p_password_Confirmation}
-                            onChangeText={setPasswordConfirmation}
-                            value={passwordConfirmation}
-                            secureTextEntry={true}
-                            onFocus={() => handlePassConfirmationFocus()}
-                            onBlur={() => setPassConfirmationfocused(false)}
-                            style={[
-                                styles.input,
-                                passConfirmationfocused && {
-                                    borderColor: 'rgba(255, 115, 0, 1)',
-                                    borderWidth: 2
-                                },
-                                currentLang == 'ar' && {
-                                    textAlign: 'right',
-                                },
-                            ]}
-                        />
                         <View style={{width: "100%", alignItems: 'center'}}>
-                            <TouchableOpacity style={styles.button} onPress={() => ForogtPassword()}>
-                                <Text style={styles.button_text}>{screenContent.btn}</Text>
+                            <TouchableOpacity style={styles.button} onPress={() => loginMethode()}>
+                                <Text style={styles.button_text}>{screenContent.login}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate("EnterEmail")}>
+                                <Text style={{fontFamily: "Outfit_500Medium", color: "rgba(255, 115, 0, 1)"}}>{screenContent.forgotPassword}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
+                    <View></View>
+                    <View></View>
                 </View>
         </ScrollView>
     );

@@ -35,6 +35,7 @@ export default function Account({ navigation, route }) {
     if (route.params.user)
         user = route.params.user;
 
+
     const translations = {
         "en": {
             "logout": "Log Out",
@@ -50,6 +51,11 @@ export default function Account({ navigation, route }) {
             "edit": "Edit",
             "cancel": "Cancel",
             "save": "Save",
+            "delete_account": "Delete Account",
+            "confirm_delete_title": "Delete Account",
+            "confirm_delete_message": "Are you sure you want to delete your account? This action cannot be undone.",
+            "confirm_delete_yes": "Yes, Delete",
+            "confirm_delete_no": "No, Cancel",
         },
         "fr": {
             "logout": "Se déconnecter",
@@ -65,6 +71,11 @@ export default function Account({ navigation, route }) {
             "edit": "Modifier",
             "cancel": "Annuler",
             "save": "Modifier",
+            "delete_account": "Supprimer le compte",
+            "confirm_delete_title": "Supprimer le compte",
+            "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
+            "confirm_delete_yes": "Oui, supprimer",
+            "confirm_delete_no": "Non, annuler",
         },
         "ar": {
             "logout": "تسجيل خروج",
@@ -80,8 +91,14 @@ export default function Account({ navigation, route }) {
             "edit": "تعديل",
             "cancel": "الغاء",
             "save": "حفظ",
+            "delete_account": "حذف الحساب",
+            "confirm_delete_title": "حذف الحساب",
+            "confirm_delete_message": "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+            "confirm_delete_yes": "نعم، احذف",
+            "confirm_delete_no": "لا، إلغاء",
         }
-    }
+    };
+
     const [emailfocused, setEmailfocused] = useState(false);
     const handleEmailFocus = () => {
         setEmailfocused(true);
@@ -399,6 +416,73 @@ export default function Account({ navigation, route }) {
     const [notificationTitle, setNotificationTitle] = useState(null)
     const [notificationBody, setNotificationBody] = useState(null)
 
+        const [showConfirmModal, setShowConfirmModal] = useState(false); // State for confirmation modal
+
+    // Function to handle account deletion
+    const deleteAccount = async () => {
+        setLoading(true);
+        
+        try {
+            const response = await axios.delete('https://adminandapi.fentecmobility.com/delete-my-account?api_password=Fentec@scooters.algaria',{
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.data.status) {
+                setLoading(false);
+                setSuccessMsg(response.data.message);
+                // Clear SecureStore and navigate to the login screen
+                await SecureStore.deleteItemAsync('token');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                });
+            } else {
+                setLoading(false);
+                setErrors([response.data.message || "Failed to delete account."]);
+            }
+        } catch (error) {
+            setLoading(false);
+            setErrors(["Server error, try again later."]);
+            console.log(error);
+        }
+    };
+
+    const ConfirmDeleteModal = () => (
+        <Modal
+            animationType="fade"
+            transparent={true}
+            visible={showConfirmModal}
+            onRequestClose={() => setShowConfirmModal(false)}
+        >
+            <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                    <Text style={styles.modalTitle}>{screenContent.confirm_delete_title}</Text>
+                    <Text style={styles.modalMessage}>{screenContent.confirm_delete_message}</Text>
+                    <View style={styles.modalButtons}>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonYes]}
+                            onPress={() => {
+                                setShowConfirmModal(false);
+                                deleteAccount();
+                            }}
+                        >
+                            <Text style={styles.modalButtonText}>{screenContent.confirm_delete_yes}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.modalButtonNo]}
+                            onPress={() => setShowConfirmModal(false)}
+                        >
+                            <Text style={styles.modalButtonText}>{screenContent.confirm_delete_no}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+    );
+
+
     useEffect(() => {
         getStoredToken()
         const getFCMToken = async () => {
@@ -564,7 +648,15 @@ export default function Account({ navigation, route }) {
                     </View>
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                         <TouchableOpacity onPress={() => handleLogout()} style={[styles.input, styles.btn]}><Text style={[styles.input_text, { textAlign: 'left', width: '100%' }]}><MaterialCommunityIcons name="logout" size={30} color="black" /> { screenContent.logout }</Text></TouchableOpacity>
+
                     </View>
+                            <TouchableOpacity onPress={() => setShowConfirmModal(true)} style={[styles.input, styles.btn, { backgroundColor: '#ff0034' }]}>
+                            <Text style={[styles.input_text, { textAlign: 'left', width: '100%', color: '#fff' }]}>
+                                <Feather name="trash" size={30} color={"#fff"}/>
+                                <Text style={{color: "#ff0034"}}>..</Text>
+                                {screenContent.delete_account}
+                            </Text>
+                        </TouchableOpacity>
                 </View>
             </ScrollView>
 
@@ -790,6 +882,7 @@ export default function Account({ navigation, route }) {
                 </View>
 
             </Modal>
+            <ConfirmDeleteModal />
         </SafeAreaView >
     );
 }
@@ -1034,5 +1127,53 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: "Outfit_600SemiBold",
         textAlign: 'center',
-    }
+    },
+        modalView: {
+        margin: 20,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        width: '90%',
+        padding: 18,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontFamily: 'Outfit_600SemiBold',
+        marginBottom: 10,
+    },
+    modalMessage: {
+        fontSize: 16,
+        fontFamily: 'Outfit_400Regular',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 20,
+    },
+    modalButton: {
+        padding: 10,
+        borderRadius: 10,
+        width: 100,
+        alignItems: 'center',
+    },
+    modalButtonYes: {
+        backgroundColor: '#ff0034',
+    },
+    modalButtonNo: {
+        backgroundColor: '#c2c2c2',
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontFamily: 'Outfit_600SemiBold',
+    },
+
 });
