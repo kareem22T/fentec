@@ -737,14 +737,14 @@ export default function Profile({ navigation }) {
                                 {screenContent.how_to_use_3}
                             </Text>
                         </TouchableOpacity>
-                        <View style={styles.how_element}>
+                        <TouchableOpacity onPress={() => Linking.openURL('https://www.instagram.com/reel/DC7DOs5Iz7X/?igsh=ZDZldmxib2dwc2dw')} style={styles.how_element}>
                             <MaterialCommunityIcons name="human-scooter" size={60} color="rgba(255, 115, 0, 1)" />
                             <Text style={[styles.name, currentLang == "ar" && {fontFamily: "Outfit_600SemiBold"}]}>
                                 {screenContent.how_to_ride_1} {'\n'}
                                 {screenContent.how_to_ride_2} {'\n'}
                                 {screenContent.how_to_ride_3}
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={{ marginTop: 10 }}>
