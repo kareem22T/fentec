@@ -78,7 +78,7 @@
         }
       },
       "package": "com.kareem11.fentecmobility",
-      "versionCode": 4
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
